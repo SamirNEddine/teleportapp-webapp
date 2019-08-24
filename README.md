@@ -1,2 +1,3 @@
-# webapp
-A web application to use the Teleport service in a browser
+# Webapp
+A web application to use Teleport in a browser
+
