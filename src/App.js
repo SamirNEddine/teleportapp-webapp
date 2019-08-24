@@ -1,9 +1,10 @@
 import React from 'react';
+import { ContactList } from './components/contacts/contactList'
 
 function App() {
   return (
     <div className="App">
-        <h1>Teleport Webapp</h1>
+        <ContactList/>
     </div>
   );
 }
