@@ -1,5 +1,7 @@
 import React from 'react';
-import { ContactAvatar } from './contactAvatar'
+import { ContactAvatar } from './contactAvatar';
+
+import './contacts.css';
 
 export const ContactList = function () {
     return (
