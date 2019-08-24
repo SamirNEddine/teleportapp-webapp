@@ -1,10 +1,3 @@
-:root{
-  --circle-radius: 17em;
-  --avatar-radius: 6em;
-  --translation-ratio: 1.3;
-  --scale-factor: 1.05;
-}
-
 body {
   width: 100vw;
   height: 100vh;
@@ -17,63 +10,5 @@ body {
   align-items: center;
 }
 
-.contact-list {
-  position: relative;
-  width: calc(var(--circle-radius)*2);
-  height: calc(var(--circle-radius)*2);
-  padding: 2.8em;
-  /*2.8em = 2em*1.4 (2em = half the width of a link with img, 1.4 = sqrt(2))*/
-  border: dashed 1px;
-  border-radius: 50%;
-}
-.contact-avatar {
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: calc(var(--avatar-radius)*2);
-  height: calc(var(--avatar-radius)*2);
-  margin: calc(var(--avatar-radius)*-1);
-  background: white;
-  border-radius: var(--avatar-radius);
-  cursor: pointer;
-  transition: transform .09s;
-  transition-timing-function: ease-in;
-}
-.contact-avatar.center:hover {
-  transform: scale(var(--scale-factor));
-}
-.contact-avatar.deg0:hover {
-  transform: translate(calc(var(--circle-radius)/var(--translation-ratio))) scale(var(--scale-factor));
-}
-.contact-avatar.deg30:hover {
-  transform: rotate(30deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-30deg) scale(var(--scale-factor));
-}
-.contact-avatar.deg90:hover {
-  transform: rotate(90deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-90deg) scale(var(--scale-factor));
-}
-.contact-avatar.deg150:hover {
-  transform: rotate(150deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-150deg) scale(var(--scale-factor));
-}
-.contact-avatar.deg180:hover {
-  transform: translate(calc(var(--circle-radius)/var(--translation-ratio)*-1)) scale(var(--scale-factor));
-}
-.contact-avatar.deg210:hover {
-  transform: rotate(210deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) scale(var(--scale-factor));
-}
-.contact-avatar.deg270:hover {
-  transform: rotate(270deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) scale(var(--scale-factor));
-}
-.contact-avatar.deg330:hover {
-  transform: rotate(330deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) scale(var(--scale-factor));
-}
 
-.deg0 { transform: translate(calc(var(--circle-radius)/var(--translation-ratio))); }
-.deg30 { transform: rotate(30deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-30deg); }
-.deg90 { transform: rotate(90deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-90deg); }
-.deg150 { transform: rotate(150deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-150deg); }
-.deg180 { transform: translate(calc(var(--circle-radius)/var(--translation-ratio)*-1)); }
-.deg210 { transform: rotate(210deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-210deg); }
-.deg270 { transform: rotate(270deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-270deg); }
-.deg330 { transform: rotate(330deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-330deg); }
 
