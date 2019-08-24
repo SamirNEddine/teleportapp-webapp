@@ -1,7 +1,7 @@
 body {
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(180deg, #ff008c 0%, rgb(211, 9, 225) 100%);
+  background: linear-gradient(90deg, #00f2ff, #8800f0, #e127eb );
   overflow: hidden;
   padding: 0;
   margin: 0;
