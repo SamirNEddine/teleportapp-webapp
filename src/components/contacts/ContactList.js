@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContactAvatar } from './contactAvatar';
+import ContactAvatar from './ContactAvatar';
 import { GET_USERS } from "../../graphql/queries";
 import { graphql } from 'react-apollo';
 
