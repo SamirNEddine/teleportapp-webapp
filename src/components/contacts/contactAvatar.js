@@ -1,10 +1,10 @@
 import React from 'react';
 import './contacts.css';
 
-export const ContactAvatar = function ({positionClassName}) {
+export const ContactAvatar = function ({positionClassName, profilePicture}) {
     return (
         <div className={'contact-avatar ' + positionClassName}>
-            <img src="https://storage.googleapis.com/test-teleport/joy.jpeg" alt="test"/>
+            <img src={profilePicture} alt="avatar"/>
         </div>
     )
 };

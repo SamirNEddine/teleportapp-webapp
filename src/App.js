@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import PrivateRoute from './helpers/PrivateRoute';
-import { ContactList } from './components/contacts/contactList'
+import ContactList  from './components/contacts/contactList'
 import { SignIn } from "./components/authentication/signIn";
 import AuthenticationContextProvider from "./contexts/AuthenticationContext";
 import { ApolloProvider } from '@apollo/react-hooks';

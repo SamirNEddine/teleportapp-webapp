@@ -73,4 +73,9 @@
     object-fit: cover;
     display: block;
     border-radius: 50%;
+
+}
+
+.contact-avatar img:hover {
+    transform: scale(calc(var(--scale-factor)*1.02));
 }
