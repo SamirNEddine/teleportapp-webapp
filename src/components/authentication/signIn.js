@@ -7,8 +7,11 @@ import { Actions } from '../../actions/authenticationActions'
 
 import './authentication.css'
 
-export const SignIn = function () {
-    const { dispatch } = useContext(AuthenticationContext);
+export const SignIn = function ({history}) {
+    const { user, dispatch } = useContext(AuthenticationContext);
+    if (user){
+        history.push('/');
+    }
     const [email, setEmail] = useState(null);
     const [password, setPassword] = useState(null);
     const [signIn, {error, loading}] = useMutation(LOGIN_USER);

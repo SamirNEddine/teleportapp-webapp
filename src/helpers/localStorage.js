@@ -2,6 +2,7 @@ import jwtDecode from 'jwt-decode';
 
 export async function updateLocalUser(userToken){
     const payload =  await jwtDecode(userToken);
+    console.log(payload);
     localStorage.userId = payload.userId;
     localStorage.companyId = payload.companyId;
     localStorage.email = payload.email;
@@ -9,17 +10,23 @@ export async function updateLocalUser(userToken){
     return getLocalUser();
 }
 
-export function clearLocalUser(){
-    // localStorage.removeItem('userToken');
-    // localStorage.removeItem('userId');
-    // localStorage.removeItem('userFullName');
+export function clearLocalStorage(){
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('email');
+    localStorage.removeItem('companyId');
+    localStorage.removeItem('userId');
 }
 
 export function getLocalUser(){
-    return {
-        userId: localStorage.userId,
-        companyId: localStorage.companyId,
-        email: localStorage.email
+    if (!localStorage.accessToken || !localStorage.userId || !localStorage.companyId || !localStorage.email) {
+        clearLocalStorage();
+        return null;
+    }else {
+        return {
+            userId: localStorage.userId,
+            companyId: localStorage.companyId,
+            email: localStorage.email
+        }
     }
 }
 
