@@ -2,8 +2,8 @@ import jwtDecode from 'jwt-decode';
 
 export async function updateLocalUser(userToken){
     const payload =  await jwtDecode(userToken);
-    localStorage.userId = payload.id;
-    localStorage.companyId = payload.fullName;
+    localStorage.userId = payload.userId;
+    localStorage.companyId = payload.companyId;
     localStorage.email = payload.email;
     localStorage.accessToken = userToken;
     return getLocalUser();
