@@ -1,3 +1,7 @@
+:root{
+  --circle-radius: 17.2em;
+}
+
 body {
   width: 100vw;
   height: 100vh;
@@ -10,5 +14,16 @@ body {
   align-items: center;
 }
 
+.screen-container {
+  position: relative;
+  width: calc(var(--circle-radius)*2);
+  height: calc(var(--circle-radius)*2);
+  padding: 2.8em;
+  /*2.8em = 2em*1.4 (2em = half the width of a link with img, 1.4 = sqrt(2))*/
+  border: dashed 1px;
+  border-radius: 50%;
+  background: #000000;
+  overflow: hidden;
+}
 
 
