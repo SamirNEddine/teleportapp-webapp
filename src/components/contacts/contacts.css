@@ -2,6 +2,8 @@
     --avatar-radius: 5.7em;
     --translation-ratio: 1.32;
     --scale-factor: 1.05;
+    --selection-animation-time: 0.3s;
+    --selection-animation-function: ease;
 }
 
 .contact-avatar {
@@ -15,36 +17,90 @@
     background: white;
     border-radius: 50%;
     cursor: pointer;
-    transition: transform .09s;
+    transition: transform .1s;
     transition-timing-function: ease-in;
     border: 6px solid mediumseagreen;
 }
 .contact-avatar.center:hover {
     transform: scale(var(--scale-factor));
 }
+.contact-avatar.center.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
+}
 .contact-avatar.deg0:hover {
     transform: translate(calc(var(--circle-radius)/var(--translation-ratio))) scale(var(--scale-factor));
+}
+.contact-avatar.deg0.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
 }
 .contact-avatar.deg30:hover {
     transform: rotate(30deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-30deg) scale(var(--scale-factor));
 }
+.contact-avatar.deg30.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
+}
 .contact-avatar.deg90:hover {
     transform: rotate(90deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-90deg) scale(var(--scale-factor));
+}
+.contact-avatar.deg90.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
 }
 .contact-avatar.deg150:hover {
     transform: rotate(150deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-150deg) scale(var(--scale-factor));
 }
+.contact-avatar.deg150.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
+}
 .contact-avatar.deg180:hover {
     transform: translate(calc(var(--circle-radius)/var(--translation-ratio)*-1)) scale(var(--scale-factor));
+}
+.contact-avatar.deg180.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
 }
 .contact-avatar.deg210:hover {
     transform: rotate(210deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-210deg) scale(var(--scale-factor));
 }
+.contact-avatar.deg210.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
+}
 .contact-avatar.deg270:hover {
     transform: rotate(270deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-270deg) scale(var(--scale-factor));
 }
+.contact-avatar.deg270.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
+}
 .contact-avatar.deg330:hover {
     transform: rotate(330deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-330deg) scale(var(--scale-factor));
+}
+.contact-avatar.deg330.selected {
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
 }
 
 .deg0 { transform: translate(calc(var(--circle-radius)/var(--translation-ratio))); }
