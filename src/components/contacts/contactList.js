@@ -19,7 +19,7 @@ const ContactList = function ({data}) {
             return <div>No users.</div>
         }else{
             const avatars = [];
-            for(let i=0; i< NUMBER_OF_AVATARS; i++){
+            for(let i=0; i< NUMBER_OF_AVATARS && i< users.length; i++){
                 const user = users[i];
                 const positionClassName = i === 0 ? "center" : DEGREE_PREFIX + String(STARTING_DEGREE + (i-1)*DEGREE_OFFSET);
                 const avatar = <ContactAvatar positionClassName={positionClassName} profilePicture={user.profilePicture}/>;
