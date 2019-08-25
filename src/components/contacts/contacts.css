@@ -1,7 +1,7 @@
 :root{
-    --circle-radius: 16.8em;
-    --avatar-radius: 5.9em;
-    --translation-ratio: 1.26;
+    --circle-radius: 17.2em;
+    --avatar-radius: 5.7em;
+    --translation-ratio: 1.32;
     --scale-factor: 1.05;
 }
 
@@ -13,6 +13,7 @@
     /*2.8em = 2em*1.4 (2em = half the width of a link with img, 1.4 = sqrt(2))*/
     border: dashed 1px;
     border-radius: 50%;
+    background: #000000;
 }
 .contact-avatar {
     display: block;
@@ -21,7 +22,7 @@
     left: 50%;
     width: calc(var(--avatar-radius)*2);
     height: calc(var(--avatar-radius)*2);
-    margin: calc(var(--avatar-radius)*-1.0);
+    margin: calc(var(--avatar-radius)*-1.07);
     background: white;
     border-radius: 50%;
     cursor: pointer;
