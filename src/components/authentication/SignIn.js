@@ -7,7 +7,7 @@ import { Actions } from '../../actions/authenticationActions'
 
 import './authentication.css'
 
-export const SignIn = function ({history}) {
+const SignIn = function ({history}) {
     const { user, dispatch } = useContext(AuthenticationContext);
     if (user){
         history.push('/');
@@ -36,3 +36,5 @@ export const SignIn = function ({history}) {
         </div>
     );
 };
+
+export default SignIn;
