@@ -15,10 +15,14 @@ export function clearLocalUser(){
     // localStorage.removeItem('userFullName');
 }
 
-export  function getLocalUser(){
+export function getLocalUser(){
     return {
         userId: localStorage.userId,
         companyId: localStorage.companyId,
         email: localStorage.email
     }
+}
+
+export function getAuthenticationToken(){
+    return localStorage.accessToken;
 }

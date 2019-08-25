@@ -4,16 +4,12 @@ import PrivateRoute from './helpers/PrivateRoute';
 import { ContactList } from './components/contacts/contactList'
 import { SignIn } from "./components/authentication/signIn";
 import AuthenticationContextProvider from "./contexts/AuthenticationContext";
-import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
-
-const graphqlClient = new ApolloClient({
-    uri: process.env.REACT_APP_GRAPHQL_SERVER_URL
-});
+import { graphQLClient } from "./helpers/graphql";
 
 function App() {
     return (
-        <ApolloProvider client={graphqlClient}>
+        <ApolloProvider client={graphQLClient}>
             <BrowserRouter>
                 <div className="App">
                     <Switch>
