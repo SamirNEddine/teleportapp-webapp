@@ -5,6 +5,7 @@ export const Actions = {
     AUDIO_CHANNEL_JOINED: 'AUDIO_CHANNEL_JOINED',
     LOCAL_STREAM_READY_FOR_CONVERSATION: 'LOCAL_STREAM_READY_FOR_CONVERSATION',
     ADD_CONTACT_TO_CONVERSATION: 'ADD_CONTACT_TO_CONVERSATION',
+    WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM: 'WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM',
     CONVERSATION_ERROR: 'CONVERSATION_ERROR'
 };
 
@@ -46,6 +47,11 @@ export function  addContactToConversation(contact) {
     return {
         type: Actions.ADD_CONTACT_TO_CONVERSATION,
         contact
+    }
+}
+export function waitingForAddedContactRemoteStream() {
+    return {
+        type: Actions.WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM
     }
 }
 

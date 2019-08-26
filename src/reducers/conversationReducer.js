@@ -45,6 +45,13 @@ export const conversationReducer = function (state, action) {
                 contacts: [...currentContacts, action.contact]
             };
             break;
+        case Actions.WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM:
+            newState = {
+                ...state,
+                addingContactToConversation: false,
+                waitingForAddedContactRemoteStream: true
+            };
+            break;
         case Actions.CONVERSATION_ERROR:
             const {error} = action;
             newState = {

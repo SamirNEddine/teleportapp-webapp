@@ -7,7 +7,7 @@ import { GET_AGORA_TOKEN } from "../graphql/queries";
 import {
     audioChannelJoined,
     conversationError,
-    conversationLeft, localStreamReadyForConversation,
+    conversationLeft, localStreamReadyForConversation, waitingForAddedContactRemoteStream,
 } from "../actions/conversationActions";
 import openSocket from 'socket.io-client';
 import {getAuthenticationToken} from "../helpers/localStorage";
@@ -26,7 +26,8 @@ export const ConversationContextProvider = function ({children}) {
         joiningAudioChannel: false,
         joinedAudioChannel: false,
         readyForConversation: false,
-        addingContactToConversation: false
+        addingContactToConversation: false,
+        waitingForAddedContactRemoteStream: false
     });
 
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
@@ -39,6 +40,12 @@ export const ConversationContextProvider = function ({children}) {
             query: {
                 token: `Bearer ${getAuthenticationToken()}`
             }
+        });
+
+        //Add contact event
+        socket.on('contact-added', ({contact, channel}) => {
+            console.log('Contact added');
+            dispatch(waitingForAddedContactRemoteStream());
         });
     }else if (socket && !user){
         //To do
