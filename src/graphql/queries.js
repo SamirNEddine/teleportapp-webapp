@@ -16,3 +16,9 @@ export const GET_USERS = gql`
         }
     }
 `;
+
+export const GET_AGORA_TOKEN = gql`
+    query($channel: String!){
+        userAgoraToken(channel: $channel)
+    }
+`;
