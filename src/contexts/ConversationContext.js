@@ -4,7 +4,11 @@ import { AuthenticationContext } from "./AuthenticationContext";
 import { AgoraContext, agoraClient } from "./AgoraContext";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_AGORA_TOKEN } from "../graphql/queries";
-import { conversationError, conversationLeft, waitingForContact } from "../actions/conversationActions";
+import {
+    audioChannelJoined,
+    conversationError,
+    conversationLeft, localStreamReadyForConversation,
+} from "../actions/conversationActions";
 import openSocket from 'socket.io-client';
 import {getAuthenticationToken} from "../helpers/localStorage";
 
@@ -17,9 +21,11 @@ export const ConversationContextProvider = function ({children}) {
     const [conversation, dispatch] = useReducer(conversationReducer, {
         channel: null,
         contacts: null,
-        loading: false,
-        started: false,
-        waiting: false
+        startingConversation: false,
+        joiningConversation: false,
+        joiningAudioChannel: false,
+        joinedAudioChannel: false,
+        readyForConversation: false
     });
 
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
@@ -40,8 +46,9 @@ export const ConversationContextProvider = function ({children}) {
     if(!listenersAdded){
         //Setup client listeners
         agoraClient.on('stream-published', function (evt) {
-            console.log("Publish local stream successfully");
-            dispatch(waitingForContact());
+            //Ready for conversation on the agora front.
+            console.log("Publish local stream successfully. Ready for conversation");
+            dispatch(localStreamReadyForConversation());
             setAgoraError(null);
         });
         agoraClient.on('stream-added', function (evt) {
@@ -65,7 +72,7 @@ export const ConversationContextProvider = function ({children}) {
         setListenersAdded(true);
     }
 
-    if(conversation && !conversation.error && conversation.loading){
+    if(conversation && !conversation.error && conversation.joiningAudioChannel){
         refetch();
         if (error) dispatch(conversationError(error));
         if (!loading && data){
@@ -74,6 +81,7 @@ export const ConversationContextProvider = function ({children}) {
             agoraClient.join(userAgoraToken, conversation.channel, user.userId, function(uid) {
                 console.log("User " + uid + " join channel successfully");
                 setAgoraError(null);
+                dispatch(audioChannelJoined());
                 agoraClient.publish(localStream, function (err) {
                     console.log("Failed to publish stream", err);
                     setAgoraError(err);
@@ -89,17 +97,17 @@ export const ConversationContextProvider = function ({children}) {
         }
     }
 
-    if(conversation && conversation.left){
-        agoraClient.leave(function() {
-            console.log("client left channel");
-            dispatch(conversationLeft());
-            setAgoraError(null);
-        }, function(err) {
-            console.log("client leave failed ", err);
-            setAgoraError(err);
-            dispatch(conversationError("Agora error"));
-        });
-    }
+    // if(conversation && conversation.left){
+    //     agoraClient.leave(function() {
+    //         console.log("client left channel");
+    //         dispatch(conversationLeft());
+    //         setAgoraError(null);
+    //     }, function(err) {
+    //         console.log("client leave failed ", err);
+    //         setAgoraError(err);
+    //         dispatch(conversationError("Agora error"));
+    //     });
+    // }
 
     return (
         <ConversationContext.Provider value={{conversation, dispatch}}>

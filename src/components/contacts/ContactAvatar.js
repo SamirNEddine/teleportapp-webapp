@@ -2,33 +2,40 @@ import React, { useState, useContext } from 'react';
 import { withRouter } from 'react-router-dom'
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
-import { leaveConversation, startConversationWithContact } from "../../actions/conversationActions";
+import {joinAudioChannel, startConversation} from "../../actions/conversationActions";
 
 import './contacts.css';
 
 const ContactAvatar = function ({positionClassName, contact, history}) {
     const {user} = useContext(AuthenticationContext);
     const {conversation, dispatch, error} = useContext(ConversationContext);
-    const [openConversationAnimation, setOpenConversationAnimation] = useState(false);
+    const [selected, setSelected] = useState(false);
     const onClick = _ => {
-        if(openConversationAnimation){
-            setOpenConversationAnimation(false);
-            dispatch(leaveConversation());
+        if(selected){
+            // setOpenConversationAnimation(false);
+            // dispatch(leaveConversation());
         }else{
-            setOpenConversationAnimation(true);
-            dispatch(startConversationWithContact(contact));
+            setSelected(true);
+            dispatch(startConversation());
         }
     };
-    if (conversation.started){
-        history.push({
-            pathname: '/conversation',
-        });
+    if (selected && conversation.startingConversation && !conversation.joiningAudioChannel && !conversation.joinedAudioChannel && !conversation.readyForConversation){
+        const channel = `${user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
+        dispatch(joinAudioChannel(channel))
     }
+    if (selected && conversation.readyForConversation){
+        //Add user
+    }
+    // if (conversation.started){
+    //     history.push({
+    //         pathname: '/conversation',
+    //     });
+    // }
     // if (conversation.left){
     //     setOpenConversationAnimation(false);
     // }
     return (
-        <div className={'contact-avatar ' + positionClassName + (openConversationAnimation ? ' selected' : '')} onClick={onClick}>
+        <div className={'contact-avatar ' + positionClassName + (selected ? ' selected' : '')} onClick={onClick}>
             <img src={contact.profilePicture} alt="avatar"/>
         </div>
     )

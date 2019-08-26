@@ -6,52 +6,35 @@ export const conversationReducer = function (state, action) {
     const {type} = action;
     switch (type) {
         case Actions.START_CONVERSATION:
-            const {contact} = action;
-            const channel = `${getLocalUser().email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
             newState = {
-                channel,
-                contacts:[contact],
-                loading:true,
-                started:false,
-                waiting:false,
-                left: false,
+                startingConversation: true
+            };
+             break;
+        case Actions.JOIN_CONVERSATION:
+            newState = {
+                joiningConversation: true,
+                channel: action.channel
             };
             break;
-        case Actions.CONVERSATION_STARTED:
+        case Actions.JOIN_AUDIO_CHANNEL:
             newState = {
                 ...state,
-                loading: false,
-                started: true,
-                waiting: false,
-                left: false,
+                joiningAudioChannel: true,
+                channel: action.channel
             };
             break;
-        case Actions.WAITING_FOR_CONTACT:
+        case Actions.AUDIO_CHANNEL_JOINED:
             newState = {
                 ...state,
-                loading: false,
-                started: false,
-                waiting: true,
-                left: false
+                joiningAudioChannel: false,
+                joinedAudioChannel: true,
+                channel: action.channel
             };
             break;
-        case Actions.LEAVE_CONVERSATION:
+        case Actions.LOCAL_STREAM_READY_FOR_CONVERSATION:
             newState = {
                 ...state,
-                loading: false,
-                started: false,
-                waiting: false,
-                left: true
-            };
-            break;
-        case Actions.CONVERSATION_LEFT:
-            newState = {
-                channel: null,
-                contacts: null,
-                loading: false,
-                started: false,
-                waiting: false,
-                left: false
+                readyForConversation: true
             };
             break;
         case Actions.CONVERSATION_ERROR:
