@@ -4,7 +4,7 @@ import { getLocalUser } from "../helpers/localStorage";
 
 export const AuthenticationContext = createContext();
 
-function AuthenticationContextProvider({children}) {
+export const AuthenticationContextProvider = function({children}) {
 
     const [user, dispatch] = useReducer(authenticationReducer, getLocalUser());
     return (
@@ -12,5 +12,4 @@ function AuthenticationContextProvider({children}) {
             {children}
         </AuthenticationContext.Provider>
     );
-}
-export default AuthenticationContextProvider;
+};

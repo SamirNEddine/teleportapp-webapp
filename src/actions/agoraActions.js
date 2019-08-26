@@ -1,5 +1,0 @@
-export const Actions = {
-    SIGN_IN_PENDING: 'SIGN_IN_PENDING',
-    SIGN_IN_SUCCESS: 'SIGN_IN_SUCCESS',
-    SIGN_IN_ERROR: 'SIGN_IN_ERROR'
-};

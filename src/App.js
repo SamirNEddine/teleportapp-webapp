@@ -1,13 +1,14 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import PrivateRoute from './helpers/PrivateRoute';
-import AuthenticationContextProvider from "./contexts/AuthenticationContext";
-import AgoraContextProvider from "./contexts/AgoraContext";
+import { AuthenticationContextProvider } from "./contexts/AuthenticationContext";
+import { AgoraContextProvider } from "./contexts/AgoraContext";
 import { ApolloProvider } from '@apollo/react-hooks';
 import { graphQLClient } from "./helpers/graphql";
 import ContactList  from './components/contacts/ContactList'
 import SignIn from "./components/authentication/SignIn";
 import Conversation from "./components/conversation/Conversation";
+import {ConversationContextProvider} from "./contexts/ConversationContext";
 
 function App() {
     return (
@@ -17,8 +18,10 @@ function App() {
                     <Switch>
                         <AuthenticationContextProvider>
                             <AgoraContextProvider>
-                                <PrivateRoute exact path="/" component={ContactList}/>
-                                <PrivateRoute path="/conversation" component={Conversation}/>
+                                <ConversationContextProvider>
+                                    <PrivateRoute exact path="/" component={ContactList}/>
+                                    <PrivateRoute path="/conversation" component={Conversation}/>
+                                </ConversationContextProvider>
                             </AgoraContextProvider>
                             <Route exact path="/signin" component={SignIn}/>
                         </AuthenticationContextProvider>
