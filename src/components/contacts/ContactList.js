@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import ContactAvatar from './ContactAvatar';
 import { GET_USERS } from "../../graphql/queries";
 import { graphql } from 'react-apollo';
+import { AgoraContext } from "../../contexts/AgoraContext";
+import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './contacts.css';
 
@@ -11,6 +13,9 @@ const DEGREE_OFFSET = 60;
 const NUMBER_OF_AVATARS = 7;
 
 const ContactList = function ({data}) {
+    const {agoraError} = useContext(AgoraContext);
+    const {conversation} = useContext(ConversationContext);
+
     const displayList = _ => {
         const {loading, users} = data;
         if (loading){
@@ -29,8 +34,13 @@ const ContactList = function ({data}) {
         }
     };
     return (
-        <div className="screen-container">
-            {displayList()}
+        <div>
+            <div className="screen-container">
+                {conversation && (conversation.waiting || conversation.loading) ? <div className="message">Contacting...</div> : ''}
+                {displayList()}
+            </div>
+            {conversation && conversation.error ? <div className="error">Error: {conversation.error}</div> : ''}
+            {agoraError ? <div className="error">{agoraError}</div> : ''}
         </div>
     );
 };

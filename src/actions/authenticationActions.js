@@ -4,7 +4,7 @@ export const Actions = {
     SIGN_IN_ERROR: 'SIGN_IN_ERROR'
 };
 
-/** Sign in actions **/
+/** Helpers **/
 export function signInPending() {
     return {
         type: Actions.SIGN_IN_PENDING

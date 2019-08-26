@@ -17,7 +17,7 @@
     background: white;
     border-radius: 50%;
     cursor: pointer;
-    transition: transform .1s;
+    transition: transform .25s;
     transition-timing-function: ease-in;
     border: 6px solid mediumseagreen;
 }
