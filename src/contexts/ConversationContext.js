@@ -4,23 +4,50 @@ import { AuthenticationContext } from "./AuthenticationContext";
 import { AgoraContext, agoraClient } from "./AgoraContext";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_AGORA_TOKEN } from "../graphql/queries";
-import {conversationError} from "../actions/conversationActions";
+import {conversationError, waitingForContact} from "../actions/conversationActions";
 
 export const ConversationContext = createContext();
 
 export const ConversationContextProvider = function ({children}) {
     const {user} = useContext(AuthenticationContext);
-    const {localStream, setAgoraError} = useContext(AgoraContext);
+    const {localStream, listenersAdded, setListenersAdded, remoteStreams, setRemoteStreams, setAgoraError} = useContext(AgoraContext);
     const [conversation, dispatch] = useReducer(conversationReducer, {
         channel: null,
         contacts: null,
         loading: false,
-        started: false
+        started: false,
+        waiting: false
     });
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
         variables: {channel: conversation.channel},
         skip: !conversation.channel
     });
+
+    if(!listenersAdded){
+        //Setup client listeners
+        agoraClient.on('stream-published', function (evt) {
+            console.log("Publish local stream successfully");
+            dispatch(waitingForContact());
+        });
+        agoraClient.on('stream-added', function (evt) {
+            const theStream = evt.stream;
+            console.log("New stream added: " + theStream.getId());
+            agoraClient.subscribe(theStream, function (err) {
+                console.log("Subscribe stream failed", err);
+                setAgoraError(err);
+            });
+        });
+        //Listen to remote streams and update state
+        agoraClient.on('stream-subscribed', function (evt) {
+            const remoteStream = evt.stream;
+            setRemoteStreams(remoteStreams.push(remoteStream));
+            const streamId = remoteStream.getId();
+            console.log("Subscribe remote stream successfully: " + streamId);
+            remoteStream.play('audio-stream_'+streamId);
+        });
+
+        setListenersAdded(true);
+    }
 
     if(conversation && !conversation.error && conversation.loading){
         refetch();
@@ -31,6 +58,9 @@ export const ConversationContextProvider = function ({children}) {
             agoraClient.join(userAgoraToken, conversation.channel, user.userId, function(uid) {
                 console.log("User " + uid + " join channel successfully");
                 agoraClient.publish(localStream, function (err) {
+                    console.log("Failed to publish stream", err);
+                    setAgoraError(err);
+                    dispatch(conversationError("Agora error"));
                 });
             }, function(err) {
                 console.log("Join channel failed", err);

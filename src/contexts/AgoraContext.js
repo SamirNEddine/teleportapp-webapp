@@ -17,6 +17,7 @@ export const AgoraContextProvider = function({children}) {
     const [agoraError, setAgoraError] = useState(null);
     const [localStreamInitialized, setLocalStreamInitialized] = useState(false);
     const [clientInitialized, setClientInitialized] = useState(false);
+    const [listenersAdded, setListenersAdded] = useState(false);
     if (!agoraError && localStream && !localStreamInitialized) {
         //Init the local stream
         localStream.init( _ => {
@@ -39,29 +40,8 @@ export const AgoraContextProvider = function({children}) {
             setAgoraError(err);
         });
     }
-    //Setup client listeners
-    agoraClient.on('stream-published', function (evt) {
-        console.log("Publish local stream successfully");
-    });
-    agoraClient.on('stream-added', function (evt) {
-        const theStream = evt.stream;
-        console.log("New stream added: " + theStream.getId());
-        agoraClient.subscribe(theStream, function (err) {
-            console.log("Subscribe stream failed", err);
-            setAgoraError(err);
-        });
-    });
-    //Listen to remote streams and update state
-    agoraClient.on('stream-subscribed', function (evt) {
-        const remoteStream = evt.stream;
-        setRemoteStreams(remoteStreams.push(remoteStream));
-        const streamId = remoteStream.getId();
-        console.log("Subscribe remote stream successfully: " + streamId);
-        remoteStream.play('audio-stream_'+streamId);
-    });
-
     return (
-        <AgoraContext.Provider value={{localStream, remoteStreams, agoraError, setAgoraError}}>
+        <AgoraContext.Provider value={{localStream, remoteStreams, setRemoteStreams, agoraError, setAgoraError, listenersAdded, setListenersAdded}}>
             {children}
         </AgoraContext.Provider>
     );

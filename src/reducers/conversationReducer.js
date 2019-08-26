@@ -11,14 +11,25 @@ export const conversationReducer = function (state, action) {
             newState = {
                 channel,
                 contacts:[contact],
-                loading:true
+                loading:true,
+                started:false,
+                waiting:false
             };
             break;
         case Actions.CONVERSATION_STARTED:
             newState = {
                 ...state,
                 loading: false,
-                started: true
+                started: true,
+                waiting: false
+            };
+            break;
+        case Actions.WAITING_FOR_CONTACT:
+            newState = {
+                ...state,
+                loading: false,
+                started: false,
+                waiting: true
             };
             break;
         case Actions.CONVERSATION_ERROR:

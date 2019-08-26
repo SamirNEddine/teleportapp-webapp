@@ -36,6 +36,7 @@ const ContactList = function ({data}) {
     return (
         <div>
             <div className="screen-container">
+                {conversation && (conversation.waiting || conversation.loading) ? <div className="message">Contacting...</div> : ''}
                 {displayList()}
             </div>
             {conversation && conversation.error ? <div className="error">Error: {conversation.error}</div> : ''}
