@@ -14,6 +14,9 @@ export const GET_USERS = gql`
             lastName
             email
             profilePicture
+            company{
+                id
+            }
         }
     }
 `;
