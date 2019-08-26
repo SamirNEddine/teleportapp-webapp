@@ -22,7 +22,7 @@ const ContactList = function ({data}) {
             for(let i=0; i< NUMBER_OF_AVATARS && i< users.length; i++){
                 const user = users[i];
                 const positionClassName = i === 0 ? "center" : DEGREE_PREFIX + String(STARTING_DEGREE + (i-1)*DEGREE_OFFSET);
-                const avatar = <ContactAvatar positionClassName={positionClassName} user={user} key={user.id}/>;
+                const avatar = <ContactAvatar positionClassName={positionClassName} contact={user} key={user.id}/>;
                 avatars.push(avatar);
             }
             return avatars;

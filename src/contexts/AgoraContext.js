@@ -9,13 +9,13 @@ function AgoraContextProvider({children}) {
     const { user } = useContext(AuthenticationContext);
 
     const [agora, dispatch] = useReducer(agoraReducer, {
-         localStream: createLocalStream(user.userId),
-         client: createAgoraClient()
+         localStream: user ? createLocalStream(user.userId) : null,
+         client: user ? createAgoraClient() : null
      });
     return (
-        <AuthenticationContext.Provider value={{agora, dispatch}}>
+        <AgoraContext.Provider value={{agora, dispatch}}>
             {children}
-        </AuthenticationContext.Provider>
+        </AgoraContext.Provider>
     );
 }
 

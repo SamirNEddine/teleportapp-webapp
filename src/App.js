@@ -16,8 +16,8 @@ function App() {
                 <div className="App">
                     <Switch>
                         <AuthenticationContextProvider>
-                            <PrivateRoute exact path="/" component={ContactList}/>
                             <AgoraContextProvider>
+                                <PrivateRoute exact path="/" component={ContactList}/>
                                 <PrivateRoute path="/conversation" component={Conversation}/>
                             </AgoraContextProvider>
                             <Route exact path="/signin" component={SignIn}/>
