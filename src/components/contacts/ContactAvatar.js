@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { withRouter } from 'react-router-dom'
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
-import {joinAudioChannel, startConversation} from "../../actions/conversationActions";
+import {addContactToConversation, joinAudioChannel, startConversation} from "../../actions/conversationActions";
 
 import './contacts.css';
 
@@ -23,8 +23,8 @@ const ContactAvatar = function ({positionClassName, contact, history}) {
         const channel = `${user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
         dispatch(joinAudioChannel(channel))
     }
-    if (selected && conversation.readyForConversation){
-        //Add user
+    if (selected && conversation.readyForConversation && !conversation.addingContactToConversation){
+        dispatch(addContactToConversation(contact));
     }
     // if (conversation.started){
     //     history.push({

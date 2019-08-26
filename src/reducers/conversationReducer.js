@@ -2,6 +2,7 @@ import { Actions } from "../actions/conversationActions";
 import { getLocalUser } from "../helpers/localStorage";
 
 export const conversationReducer = function (state, action) {
+    console.log('Action: ', action, ' STATE ', state);
     let newState = state;
     const {type} = action;
     switch (type) {
@@ -27,14 +28,21 @@ export const conversationReducer = function (state, action) {
             newState = {
                 ...state,
                 joiningAudioChannel: false,
-                joinedAudioChannel: true,
-                channel: action.channel
+                joinedAudioChannel: true
             };
             break;
         case Actions.LOCAL_STREAM_READY_FOR_CONVERSATION:
             newState = {
                 ...state,
                 readyForConversation: true
+            };
+            break;
+        case Actions.ADD_CONTACT_TO_CONVERSATION:
+            const currentContacts = state.contacts ? state.contacts : [];
+            newState = {
+                channel: state.channel,
+                addingContactToConversation: true,
+                contacts: [...currentContacts, action.contact]
             };
             break;
         case Actions.CONVERSATION_ERROR:

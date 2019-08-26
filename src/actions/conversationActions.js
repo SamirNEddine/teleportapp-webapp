@@ -4,6 +4,7 @@ export const Actions = {
     JOIN_AUDIO_CHANNEL: 'JOIN_AUDIO_CHANNEL',
     AUDIO_CHANNEL_JOINED: 'AUDIO_CHANNEL_JOINED',
     LOCAL_STREAM_READY_FOR_CONVERSATION: 'LOCAL_STREAM_READY_FOR_CONVERSATION',
+    ADD_CONTACT_TO_CONVERSATION: 'ADD_CONTACT_TO_CONVERSATION',
     CONVERSATION_ERROR: 'CONVERSATION_ERROR'
 };
 
@@ -41,3 +42,10 @@ export function  localStreamReadyForConversation() {
         type: Actions.LOCAL_STREAM_READY_FOR_CONVERSATION
     }
 }
+export function  addContactToConversation(contact) {
+    return {
+        type: Actions.ADD_CONTACT_TO_CONVERSATION,
+        contact
+    }
+}
+

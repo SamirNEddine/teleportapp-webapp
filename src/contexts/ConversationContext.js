@@ -25,7 +25,8 @@ export const ConversationContextProvider = function ({children}) {
         joiningConversation: false,
         joiningAudioChannel: false,
         joinedAudioChannel: false,
-        readyForConversation: false
+        readyForConversation: false,
+        addingContactToConversation: false
     });
 
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
@@ -95,6 +96,13 @@ export const ConversationContextProvider = function ({children}) {
         }else if(!loading){
             dispatch(conversationError("Unexpected error from Teleport server"));
         }
+    }
+
+    if(conversation && !conversation.error && conversation.addingContactToConversation && conversation.contacts && conversation.contacts.length){
+        //Ask the contact through socket to join the conversation
+        //The contact to add is the last one added to the contacts list
+        const contactToAdd = conversation.contacts[conversation.contacts.length -1];
+        socket.emit('add-contact', {channel: conversation.channel, contact: contactToAdd})
     }
 
     // if(conversation && conversation.left){
