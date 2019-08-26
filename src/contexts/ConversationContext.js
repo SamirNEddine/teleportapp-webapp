@@ -17,27 +17,28 @@ export const ConversationContextProvider = function ({children}) {
         loading: false,
         started: false
     });
-    const {loading, error, data, refetchToken } = useQuery(GET_AGORA_TOKEN, {
+    const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
         variables: {channel: conversation.channel},
         skip: !conversation.channel
     });
 
     if(conversation && !conversation.error && conversation.loading){
-        refetchToken();
+        refetch();
         if (error) dispatch(conversationError(error));
-        const agoraUserToken = data;
-
-        if (agoraUserToken){
-            agoraClient.join(agoraUserToken, conversation.channel, user.userId, function(uid) {
+        if (!loading && data){
+            const {userAgoraToken} = data;
+            console.log(userAgoraToken, conversation.channel, user.userId);
+            agoraClient.join(userAgoraToken, conversation.channel, user.userId, function(uid) {
                 console.log("User " + uid + " join channel successfully");
                 agoraClient.publish(localStream, function (err) {
-                    console.log("Publish local stream error: " + err);
                 });
             }, function(err) {
                 console.log("Join channel failed", err);
-                setAgoraError(error);
-                dispatch(conversationError(new Error("Agora error!!")));
+                setAgoraError(err);
+                dispatch(conversationError("Agora error"));
             });
+        }else if(!loading){
+            dispatch(conversationError("Unexpected error from Teleport server"));
         }
     }
 

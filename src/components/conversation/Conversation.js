@@ -32,6 +32,7 @@ const Conversation = function ({location, data}) {
 
     return (
         <div className="screen-container">
+            {agoraError ? <div className="error">Error!</div> : ''}
             {contactsDivs}
             {audioDivs}
         </div>

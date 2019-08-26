@@ -26,4 +26,11 @@ body {
   overflow: hidden;
 }
 
+.error {
+  z-index: 3;
+  color: darkred;
+  font-size: x-large;
+  text-align: center;
+  margin-bottom: 1em;
+}
 
