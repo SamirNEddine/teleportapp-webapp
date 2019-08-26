@@ -13,7 +13,8 @@ export const conversationReducer = function (state, action) {
                 contacts:[contact],
                 loading:true,
                 started:false,
-                waiting:false
+                waiting:false,
+                left: false,
             };
             break;
         case Actions.CONVERSATION_STARTED:
@@ -21,7 +22,8 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 loading: false,
                 started: true,
-                waiting: false
+                waiting: false,
+                left: false,
             };
             break;
         case Actions.WAITING_FOR_CONTACT:
@@ -29,7 +31,27 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 loading: false,
                 started: false,
-                waiting: true
+                waiting: true,
+                left: false
+            };
+            break;
+        case Actions.LEAVE_CONVERSATION:
+            newState = {
+                ...state,
+                loading: false,
+                started: false,
+                waiting: false,
+                left: true
+            };
+            break;
+        case Actions.CONVERSATION_LEFT:
+            newState = {
+                channel: null,
+                contacts: null,
+                loading: false,
+                started: false,
+                waiting: false,
+                left: false
             };
             break;
         case Actions.CONVERSATION_ERROR:

@@ -4,7 +4,7 @@ import { AuthenticationContext } from "./AuthenticationContext";
 import { AgoraContext, agoraClient } from "./AgoraContext";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_AGORA_TOKEN } from "../graphql/queries";
-import {conversationError, waitingForContact} from "../actions/conversationActions";
+import { conversationError, conversationLeft, waitingForContact } from "../actions/conversationActions";
 
 export const ConversationContext = createContext();
 
@@ -28,6 +28,7 @@ export const ConversationContextProvider = function ({children}) {
         agoraClient.on('stream-published', function (evt) {
             console.log("Publish local stream successfully");
             dispatch(waitingForContact());
+            setAgoraError(null);
         });
         agoraClient.on('stream-added', function (evt) {
             const theStream = evt.stream;
@@ -44,6 +45,7 @@ export const ConversationContextProvider = function ({children}) {
             const streamId = remoteStream.getId();
             console.log("Subscribe remote stream successfully: " + streamId);
             remoteStream.play('audio-stream_'+streamId);
+            setAgoraError(null);
         });
 
         setListenersAdded(true);
@@ -57,6 +59,7 @@ export const ConversationContextProvider = function ({children}) {
             console.log(userAgoraToken, conversation.channel, user.userId);
             agoraClient.join(userAgoraToken, conversation.channel, user.userId, function(uid) {
                 console.log("User " + uid + " join channel successfully");
+                setAgoraError(null);
                 agoraClient.publish(localStream, function (err) {
                     console.log("Failed to publish stream", err);
                     setAgoraError(err);
@@ -70,6 +73,18 @@ export const ConversationContextProvider = function ({children}) {
         }else if(!loading){
             dispatch(conversationError("Unexpected error from Teleport server"));
         }
+    }
+
+    if(conversation && conversation.left){
+        agoraClient.leave(function() {
+            console.log("client left channel");
+            dispatch(conversationLeft());
+            setAgoraError(null);
+        }, function(err) {
+            console.log("client leave failed ", err);
+            setAgoraError(err);
+            dispatch(conversationError("Agora error"));
+        });
     }
 
     return (

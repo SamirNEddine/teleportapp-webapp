@@ -24,6 +24,7 @@ export const AgoraContextProvider = function({children}) {
             //Request access to microphone
             console.log("getUserMedia successfully");
             setLocalStreamInitialized(true);
+            setAgoraError(null);
         }, function (err) {
             console.log("getUserMedia failed", err);
             setAgoraError(err);
@@ -35,6 +36,7 @@ export const AgoraContextProvider = function({children}) {
         agoraClient.init(process.env.REACT_APP_AGORA_APP_ID, function () {
             console.log("AgoraRTC client initialized");
             setClientInitialized(true);
+            setAgoraError(null);
         }, function (err) {
             console.log("AgoraRTC client init failed", err);
             setAgoraError(err);
