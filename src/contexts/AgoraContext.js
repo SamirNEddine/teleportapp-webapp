@@ -12,7 +12,7 @@ export const AgoraContextProvider = function({children}) {
     if(user && !agoraLocalStream){
         agoraLocalStream = AgoraRTC.createStream({streamID: user.userId, audio: true, video: false, screen: false});
     }
-    const [localStream, setLocalStream] = useState(user ? agoraLocalStream : null);
+    const [localStream] = useState(user ? agoraLocalStream : null);
     const [remoteStreams, setRemoteStreams] = useState( []);
     const [agoraError, setAgoraError] = useState(null);
     const [localStreamInitialized, setLocalStreamInitialized] = useState(false);

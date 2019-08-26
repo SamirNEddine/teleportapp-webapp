@@ -1,13 +1,16 @@
-import React, { createContext, useReducer, useContext } from 'react';
+import React, { createContext, useReducer, useContext, useState } from 'react';
 import { conversationReducer } from "../reducers/conversationReducer";
 import { AuthenticationContext } from "./AuthenticationContext";
 import { AgoraContext, agoraClient } from "./AgoraContext";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_AGORA_TOKEN } from "../graphql/queries";
 import { conversationError, conversationLeft, waitingForContact } from "../actions/conversationActions";
+import openSocket from 'socket.io-client';
+import {getAuthenticationToken} from "../helpers/localStorage";
 
 export const ConversationContext = createContext();
 
+let socket = null;
 export const ConversationContextProvider = function ({children}) {
     const {user} = useContext(AuthenticationContext);
     const {localStream, listenersAdded, setListenersAdded, remoteStreams, setRemoteStreams, setAgoraError} = useContext(AgoraContext);
@@ -18,10 +21,21 @@ export const ConversationContextProvider = function ({children}) {
         started: false,
         waiting: false
     });
+
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
         variables: {channel: conversation.channel},
         skip: !conversation.channel
     });
+
+    if (!socket && user){
+        socket = openSocket(process.env.REACT_APP_CONVERSATION_SOCKET_URL, {
+            query: {
+                token: `Bearer ${getAuthenticationToken()}`
+            }
+        });
+    }else if (socket && !user){
+        //To do
+    }
 
     if(!listenersAdded){
         //Setup client listeners
