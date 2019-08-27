@@ -84,6 +84,17 @@ export const conversationReducer = function (state, action) {
                 playingContactRemoteStream: false
             };
             break;
+        case Actions.REMOTE_STREAM_REMOVED:
+            const {stream} = action;
+            //Remove corresponding contact
+            const updatedContacts = state.contacts.filter( contact => {
+                return contact.stream.getId() !== stream.getId();
+            });
+            newState = {
+                ...state,
+                contacts: updatedContacts
+            };
+            break;
         case Actions.CONVERSATION_ERROR:
             const {error} = action;
             newState = {

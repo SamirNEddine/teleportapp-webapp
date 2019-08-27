@@ -9,6 +9,7 @@ export const Actions = {
     CONTACT_REMOTE_STREAM_RECEIVED: 'CONTACT_REMOTE_STREAM_RECEIVED',
     PLAY_CONTACT_REMOTE_STREAM: 'PLAY_CONTACT_REMOTE_STREAM',
     CONTACT_REMOTE_STREAM_PLAYED: 'CONTACT_REMOTE_STREAM_PLAYED',
+    REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED',
     CONVERSATION_ERROR: 'CONVERSATION_ERROR'
 };
 
@@ -71,6 +72,15 @@ export function playContactRemoteStream() {
 export function contactRemoteStreamPlayed() {
     return {
         type: Actions.CONTACT_REMOTE_STREAM_PLAYED
+    }
+}
+export function removeRemoteStream() {
+
+}
+export function remoteStreamRemoved(stream) {
+    return {
+        type: Actions.REMOTE_STREAM_REMOVED,
+        stream
     }
 }
 

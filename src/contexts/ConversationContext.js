@@ -8,7 +8,11 @@ import {
     contactRemoteStreamReceived,
     audioChannelJoined,
     conversationError,
-    localStreamReadyForConversation, waitingForAddedContactRemoteStream, joinConversation, playContactRemoteStream
+    localStreamReadyForConversation,
+    waitingForAddedContactRemoteStream,
+    joinConversation,
+    playContactRemoteStream,
+    remoteStreamRemoved
 } from "../actions/conversationActions";
 import openSocket from 'socket.io-client';
 import {getAuthenticationToken} from "../helpers/localStorage";
@@ -59,7 +63,7 @@ export const ConversationContextProvider = function ({children}) {
         });
         //Add contact event
         socket.on('contact-added', ({contact, channel}) => {
-            console.log('Contact add confirmed');
+            console.debug('Contact add confirmed');
             dispatch(waitingForAddedContactRemoteStream());
         });
         //Join conversation event
@@ -73,26 +77,42 @@ export const ConversationContextProvider = function ({children}) {
         //Setup client listeners
         agoraClient.on('stream-published', evt => {
             //Ready for conversation on the agora front.
-            console.log("Publish local stream successfully. Ready for conversation");
+            console.debug("Publish local stream successfully. Ready for conversation");
             dispatch(localStreamReadyForConversation());
             setAgoraError(null);
         });
+        //Stream received. Update state
         agoraClient.on('stream-added', evt => {
             const remoteStream = evt.stream;
-            console.log("New stream added: " + remoteStream.getId());
+            console.debug("New stream added: " + remoteStream.getId());
             setRemoteStreams(remoteStreams.push(remoteStream));
             dispatch(contactRemoteStreamReceived(remoteStream));
             agoraClient.subscribe(remoteStream, function (err) {
-                console.log("Subscribe stream failed", err);
+                console.debug("Subscribe stream failed", err);
                 setAgoraError(err);
             });
         });
-        //Listen to remote streams and update state
+        //Subscribe to streams changes
         agoraClient.on('stream-subscribed', evt => {
             const remoteStream = evt.stream;
             const streamId = remoteStream.getId();
-            console.log("Subscribe remote stream successfully: " + streamId);
+            console.debug("Subscribe remote stream successfully: " + streamId);
             setAgoraError(null);
+        });
+        //Listen for remove and leave events
+        agoraClient.on('stream-removed', evt => {
+            const stream = evt.stream;
+            const streamId = stream.getId();
+            stream.stop();
+            console.debug('Stream removed:', streamId);
+            dispatch(remoteStreamRemoved(stream));
+        });
+        agoraClient.on('peer-leave', evt => {
+            const stream = evt.stream;
+            const streamId = stream.getId();
+            stream.stop();
+            console.debug('Peer left:', streamId);
+            dispatch(remoteStreamRemoved(stream));
         });
         setListenersAdded(true);
     }

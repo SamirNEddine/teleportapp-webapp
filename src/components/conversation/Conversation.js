@@ -6,20 +6,16 @@ import { ConversationContext } from "../../contexts/ConversationContext";
 import './conversation.css'
 import {contactRemoteStreamPlayed} from "../../actions/conversationActions";
 
-const Conversation = function ({location, data}) {
-    const { remoteStreams, agoraError } = useContext(AgoraContext);
+const Conversation = function ({history}) {
+    const {agoraError} = useContext(AgoraContext);
     const {conversation, dispatch} = useContext(ConversationContext);
     const [speakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
     useEffect(_ => {
-        // if (remoteStreams && remoteStreams.length) {
-        //     remoteStreams.forEach(stream => {
-        //         if (stream.isPlaying()){
-        //             stream.resume();
-        //         }else{
-        //             const streamId = stream.getId();
-        //             stream.play('audio-div_' + streamId);
-        //         }
-        //     });
+        if (!conversation.contacts.length){
+            history.push({
+                pathname: '/',
+            });
+        }
         if (conversation.playingContactRemoteStream) {
             console.log("CONTACTS: ", conversation.contacts);
             //Play the stream of the last added contact
