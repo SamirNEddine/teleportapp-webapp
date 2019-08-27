@@ -98,6 +98,10 @@ export const conversationReducer = function (state, action) {
                      return false;
                  }
             });
+            if(!updatedContacts.length){
+               //Leave conversation
+                socket.emit('leave-conversation', {channel: state.channel});
+            }
             newState = {
                 ...state,
                 contacts: updatedContacts
