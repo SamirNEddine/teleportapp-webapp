@@ -17,11 +17,11 @@ const ContactAvatar = function ({positionClassName, contact}) {
     const [selected, setSelected] = useState(false);
 
     useEffect(_ => {
-        if (selected && conversation.startingConversation && !conversation.joiningAudioChannel && !conversation.joinedAudioChannel && !conversation.readyForConversation){
+        if (selected && conversation.startingConversation && !conversation.channel){
             const channel = `${user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
             dispatch(joinAudioChannel(channel))
         }
-        if (selected && conversation.readyForConversation && !conversation.addingContactToConversation){
+        if (selected && !conversation.contacts.some( c => { return c.id === contact.id })){
             dispatch(addContactToConversation(contact));
         }
     });

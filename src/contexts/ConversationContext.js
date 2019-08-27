@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext, useState } from 'react';
+import React, { createContext, useReducer, useContext, useEffect } from 'react';
 import { conversationReducer } from "../reducers/conversationReducer";
 import { AuthenticationContext } from "./AuthenticationContext";
 import { AgoraContext } from "./AgoraContext";
@@ -21,7 +21,7 @@ export const ConversationContextProvider = function ({children}) {
     const {agoraClient, localStream, listenersAdded, setListenersAdded, remoteStreams, setRemoteStreams, setAgoraError} = useContext(AgoraContext);
     const [conversation, dispatch] = useReducer(conversationReducer, {
         channel: null,
-        contacts: null,
+        contacts: [],
         startingConversation: false,
         joiningConversation: false,
         joiningAudioChannel: false,
@@ -31,6 +31,20 @@ export const ConversationContextProvider = function ({children}) {
         waitingForAddedContactRemoteStream: false,
         contactRemoteStreamReceived: false,
         playingContactRemoteStream: false
+    });
+
+    useEffect(_ => {
+        if(conversation && !conversation.error && conversation.addingContactToConversation && conversation.contacts && conversation.contacts.length){
+            //Ask the contact through socket to join the conversation
+            //The contact to add is the last one added to the contacts list
+            const contactToAdd = conversation.contacts[conversation.contacts.length -1];
+            socket.emit('add-contact', {channel: conversation.channel, contact: contactToAdd})
+        }
+
+        if (conversation.receivedRemoteStream && !conversation.playingContactRemoteStream){
+            setRemoteStreams([conversation.receivedRemoteStream]);
+            dispatch(playContactRemoteStream());
+        }
     });
 
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
@@ -69,9 +83,11 @@ export const ConversationContextProvider = function ({children}) {
             setAgoraError(null);
         });
         agoraClient.on('stream-added', evt => {
-            const theStream = evt.stream;
-            console.log("New stream added: " + theStream.getId());
-            agoraClient.subscribe(theStream, function (err) {
+            const remoteStream = evt.stream;
+            console.log("New stream added: " + remoteStream.getId());
+            setRemoteStreams(remoteStreams.push(remoteStream));
+            dispatch(contactRemoteStreamReceived(remoteStream));
+            agoraClient.subscribe(remoteStream, function (err) {
                 console.log("Subscribe stream failed", err);
                 setAgoraError(err);
             });
@@ -79,8 +95,6 @@ export const ConversationContextProvider = function ({children}) {
         //Listen to remote streams and update state
         agoraClient.on('stream-subscribed', evt => {
             const remoteStream = evt.stream;
-            setRemoteStreams(remoteStreams.push(conversation.receivedRemoteStream));
-            dispatch(contactRemoteStreamReceived(remoteStream));
             const streamId = remoteStream.getId();
             console.log("Subscribe remote stream successfully: " + streamId);
             setAgoraError(null);
@@ -113,17 +127,6 @@ export const ConversationContextProvider = function ({children}) {
         }
     }
 
-    if(conversation && !conversation.error && conversation.addingContactToConversation && conversation.contacts && conversation.contacts.length){
-        //Ask the contact through socket to join the conversation
-        //The contact to add is the last one added to the contacts list
-        const contactToAdd = conversation.contacts[conversation.contacts.length -1];
-        socket.emit('add-contact', {channel: conversation.channel, contact: contactToAdd})
-    }
-
-    if (conversation.receivedRemoteStream && !conversation.playingContactRemoteStream){
-        setRemoteStreams([conversation.receivedRemoteStream]);
-        dispatch(playContactRemoteStream());
-    }
 
     // if(conversation && conversation.left){
     //     agoraClient.leave(function() {

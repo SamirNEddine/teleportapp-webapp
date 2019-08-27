@@ -1,17 +1,19 @@
 import { Actions } from "../actions/conversationActions";
 
 export const conversationReducer = function (state, action) {
-    console.log('Action: ', action, ' STATE ', state);
+    console.debug('Action: ', action, ' STATE ', state);
     let newState = state;
     const {type} = action;
     switch (type) {
         case Actions.START_CONVERSATION:
             newState = {
+                ...state,
                 startingConversation: true
             };
              break;
         case Actions.JOIN_CONVERSATION:
             newState = {
+                ...state,
                 joiningConversation: true,
                 channel: action.conversation.channel,
                 contacts: action.conversation.contacts
@@ -40,7 +42,7 @@ export const conversationReducer = function (state, action) {
         case Actions.ADD_CONTACT_TO_CONVERSATION:
             const currentContacts = state.contacts ? state.contacts : [];
             newState = {
-                channel: state.channel,
+                ...state,
                 addingContactToConversation: true,
                 contacts: [...currentContacts, action.contact]
             };
@@ -70,8 +72,8 @@ export const conversationReducer = function (state, action) {
             break;
         case Actions.CONTACT_REMOTE_STREAM_PLAYED:
             newState = {
-                channel: state.channel,
-                contacts: state.contacts
+                ...state,
+                playingContactRemoteStream: false
             };
             break;
         case Actions.CONVERSATION_ERROR:
