@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { withRouter } from 'react-router-dom'
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
@@ -15,6 +15,17 @@ const ContactAvatar = function ({positionClassName, contact}) {
     const {user} = useContext(AuthenticationContext);
     const {conversation, dispatch, error} = useContext(ConversationContext);
     const [selected, setSelected] = useState(false);
+
+    useEffect(_ => {
+        if (selected && conversation.startingConversation && !conversation.joiningAudioChannel && !conversation.joinedAudioChannel && !conversation.readyForConversation){
+            const channel = `${user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
+            dispatch(joinAudioChannel(channel))
+        }
+        if (selected && conversation.readyForConversation && !conversation.addingContactToConversation){
+            dispatch(addContactToConversation(contact));
+        }
+    });
+
     const onClick = _ => {
         if(selected){
             // setOpenConversationAnimation(false);
@@ -24,13 +35,6 @@ const ContactAvatar = function ({positionClassName, contact}) {
             dispatch(startConversation());
         }
     };
-    if (selected && conversation.startingConversation && !conversation.joiningAudioChannel && !conversation.joinedAudioChannel && !conversation.readyForConversation){
-        const channel = `${user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
-        dispatch(joinAudioChannel(channel))
-    }
-    if (selected && conversation.readyForConversation && !conversation.addingContactToConversation){
-        dispatch(addContactToConversation(contact));
-    }
 
     // if (conversation.left){
     //     setOpenConversationAnimation(false);
