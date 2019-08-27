@@ -17,7 +17,7 @@ export const AgoraContextProvider = function({children}) {
 
     useEffect(_ => {
         if (!localStream && user){
-            setLocalStream(AgoraRTC.createStream({streamID: user.userId, audio: true, video: false, screen: false}));
+            setLocalStream(AgoraRTC.createStream({streamID: user.id, audio: true, video: false, screen: false}));
         }
         if(localStream && !localStreamInitialized){
             localStream.init( _ => {

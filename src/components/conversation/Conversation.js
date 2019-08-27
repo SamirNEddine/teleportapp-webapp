@@ -21,8 +21,9 @@ const Conversation = function ({location, data}) {
         //         }
         //     });
         if (conversation.playingContactRemoteStream) {
+            console.log("CONTACTS: ", conversation.contacts);
             //Play the stream of the last added contact
-            const stream = contacts[contacts.length - 1].stream;
+            const stream = conversation.contacts[contacts.length - 1].stream;
             const streamId = stream.getId();
             stream.play('audio-div_' + streamId);
             dispatch(contactRemoteStreamPlayed());
@@ -33,11 +34,11 @@ const Conversation = function ({location, data}) {
     }
     const {contacts} = conversation;
     const contactsDivs = contacts.map(contact => {
-        if (contact.userId === speakingUser.userId){
+        if (contact.id === speakingUser.id){
             return (
-                <div key={`${contact.userId}_div`}>
-                    <img src={contact.profilePicture} className="speaking-user" alt="user" key={`${contact.userId}_img`}/>
-                    <div className="speaking-user-name" key={`${contact.userId}_name`}>{`${contact.firstName} ${contact.lastName}`}</div>
+                <div key={`${contact.id}_div`}>
+                    <img src={contact.profilePicture} className="speaking-user" alt="user" key={`${contact.id}_img`}/>
+                    <div className="speaking-user-name" key={`${contact.id}_name`}>{`${contact.firstName} ${contact.lastName}`}</div>
                     {contact.stream ? <div id={`audio-div_${contact.stream.getId()}`} key={`audio-div_${contact.stream.getId()}`}/> : ''}
                 </div>
             )
@@ -46,15 +47,15 @@ const Conversation = function ({location, data}) {
             return <div></div>
         }
     });
-    const audioDivs = remoteStreams && remoteStreams.length ?  remoteStreams.map(stream => {
-        return <div id={`audio-div_${stream.getId()}`} key={`audio-div_${stream.getId()}`}/>
-    }) : '';
+    // const audioDivs = remoteStreams && remoteStreams.length ?  remoteStreams.map(stream => {
+    //     return <div id={`audio-div_${stream.getId()}`} key={`audio-div_${stream.getId()}`}/>
+    // }) : '';
 
     return (
         <div className="screen-container">
             {agoraError ? <div className="error">Error!</div> : ''}
             {contactsDivs}
-            {audioDivs}
+            {/*{audioDivs}*/}
         </div>
     )
 };

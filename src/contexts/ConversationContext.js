@@ -38,6 +38,7 @@ export const ConversationContextProvider = function ({children}) {
             //Ask the contact through socket to join the conversation
             //The contact to add is the last one added to the contacts list
             const contactToAdd = conversation.contacts[conversation.contacts.length -1];
+            contactToAdd.companyId = contactToAdd.company.id;
             socket.emit('add-contact', {channel: conversation.channel, contact: contactToAdd})
         }
         if (conversation.contactRemoteStreamReceived){
@@ -101,8 +102,8 @@ export const ConversationContextProvider = function ({children}) {
         if (error) dispatch(conversationError(error));
         if (!loading && data){
             const {userAgoraToken} = data;
-            console.log(userAgoraToken, conversation.channel, user.userId);
-            agoraClient.join(userAgoraToken, conversation.channel, user.userId, (uid) => {
+            console.log(userAgoraToken, conversation.channel, user.id);
+            agoraClient.join(userAgoraToken, conversation.channel, user.id, (uid) => {
                 console.log("User " + uid + " join channel successfully");
                 setAgoraError(null);
                 dispatch(audioChannelJoined());

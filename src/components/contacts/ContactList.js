@@ -14,7 +14,7 @@ const DEGREE_OFFSET = 60;
 const NUMBER_OF_AVATARS = 7;
 
 const ContactList = function ({data, history}) {
-    const {agoraError, remoteStreams} = useContext(AgoraContext);
+    const {agoraError} = useContext(AgoraContext);
     const {conversation, dispatch} = useContext(ConversationContext);
     const {loading, users} = data;
     useEffect( _ => {
@@ -22,7 +22,6 @@ const ContactList = function ({data, history}) {
             history.push({
                 pathname: '/conversation',
             });
-            console.log(remoteStreams);
         }
         if (conversation.joiningConversation && !conversation.joiningAudioChannel && !conversation.joinedAudioChannel){
             dispatch(joinAudioChannel(conversation.channel));

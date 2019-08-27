@@ -5,18 +5,14 @@ export const authenticationReducer = function (state, action) {
     const {type} = action;
     switch (type) {
         case Actions.SIGN_IN_SUCCESS:
-            const {userId, companyId, email} = action.user;
+            const {user} = action;
             newState = {
-                userId,
-                companyId,
-                email
+                user
             };
             break;
         case Actions.SIGN_IN_ERROR:
             newState = {
-                userId: null,
-                companyId: null,
-                email: null
+                user: null
             };
             break;
         default:
