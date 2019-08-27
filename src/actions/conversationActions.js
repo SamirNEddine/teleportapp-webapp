@@ -6,6 +6,8 @@ export const Actions = {
     LOCAL_STREAM_READY_FOR_CONVERSATION: 'LOCAL_STREAM_READY_FOR_CONVERSATION',
     ADD_CONTACT_TO_CONVERSATION: 'ADD_CONTACT_TO_CONVERSATION',
     WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM: 'WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM',
+    CONTACT_REMOTE_STREAM_RECEIVED: 'CONTACT_REMOTE_STREAM_RECEIVED',
+    CONTACT_REMOTE_STREAM_PLAYED: 'CONTACT_REMOTE_STREAM_RECEIVED',
     CONVERSATION_ERROR: 'CONVERSATION_ERROR'
 };
 
@@ -54,4 +56,15 @@ export function waitingForAddedContactRemoteStream() {
         type: Actions.WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM
     }
 }
+export function contactRemoteStreamReceived() {
+    return {
+        type: Actions.CONTACT_REMOTE_STREAM_RECEIVED
+    }
+}
+export function contactRemoteStreamPlayed() {
+    return {
+        type: Actions.CONTACT_REMOTE_STREAM_PLAYED
+    }
+}
+
 

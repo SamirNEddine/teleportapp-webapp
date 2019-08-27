@@ -52,6 +52,20 @@ export const conversationReducer = function (state, action) {
                 waitingForAddedContactRemoteStream: true
             };
             break;
+        case Actions.CONTACT_REMOTE_STREAM_RECEIVED:
+            newState = {
+                ...state,
+                waitingForAddedContactRemoteStream: false,
+                contactRemoteStreamReceived: true
+            };
+            break;
+        case Actions.CONTACT_REMOTE_STREAM_PLAYED:
+            newState = {
+                channel: state.channel,
+                contacts: state.contacts
+            };
+            break;
+            break;
         case Actions.CONVERSATION_ERROR:
             const {error} = action;
             newState = {

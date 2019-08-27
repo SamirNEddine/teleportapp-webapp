@@ -5,9 +5,10 @@ import { AgoraContext, agoraClient } from "./AgoraContext";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_AGORA_TOKEN } from "../graphql/queries";
 import {
+    contactRemoteStreamReceived,
     audioChannelJoined,
     conversationError,
-    conversationLeft, localStreamReadyForConversation, waitingForAddedContactRemoteStream,
+    localStreamReadyForConversation, waitingForAddedContactRemoteStream,
 } from "../actions/conversationActions";
 import openSocket from 'socket.io-client';
 import {getAuthenticationToken} from "../helpers/localStorage";
@@ -27,7 +28,8 @@ export const ConversationContextProvider = function ({children}) {
         joinedAudioChannel: false,
         readyForConversation: false,
         addingContactToConversation: false,
-        waitingForAddedContactRemoteStream: false
+        waitingForAddedContactRemoteStream: false,
+        contactRemoteStreamReceived: false
     });
 
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
@@ -44,7 +46,7 @@ export const ConversationContextProvider = function ({children}) {
 
         //Add contact event
         socket.on('contact-added', ({contact, channel}) => {
-            console.log('Contact added');
+            console.log('Contact add confirmed');
             dispatch(waitingForAddedContactRemoteStream());
         });
     }else if (socket && !user){
@@ -69,6 +71,7 @@ export const ConversationContextProvider = function ({children}) {
         });
         //Listen to remote streams and update state
         agoraClient.on('stream-subscribed', function (evt) {
+            dispatch(contactRemoteStreamReceived());
             const remoteStream = evt.stream;
             setRemoteStreams(remoteStreams.push(remoteStream));
             const streamId = remoteStream.getId();
@@ -76,7 +79,6 @@ export const ConversationContextProvider = function ({children}) {
             remoteStream.play('audio-stream_'+streamId);
             setAgoraError(null);
         });
-
         setListenersAdded(true);
     }
 

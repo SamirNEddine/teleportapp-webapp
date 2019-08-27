@@ -2,7 +2,12 @@ import React, { useState, useContext } from 'react';
 import { withRouter } from 'react-router-dom'
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
-import {addContactToConversation, joinAudioChannel, startConversation} from "../../actions/conversationActions";
+import {
+    addContactToConversation,
+    contactRemoteStreamPlayed,
+    joinAudioChannel,
+    startConversation
+} from "../../actions/conversationActions";
 
 import './contacts.css';
 
@@ -26,11 +31,12 @@ const ContactAvatar = function ({positionClassName, contact, history}) {
     if (selected && conversation.readyForConversation && !conversation.addingContactToConversation){
         dispatch(addContactToConversation(contact));
     }
-    // if (conversation.started){
-    //     history.push({
-    //         pathname: '/conversation',
-    //     });
-    // }
+    if (conversation.contactRemoteStreamReceived){
+        dispatch(contactRemoteStreamPlayed());
+        history.push({
+            pathname: '/conversation',
+        });
+    }
     // if (conversation.left){
     //     setOpenConversationAnimation(false);
     // }
