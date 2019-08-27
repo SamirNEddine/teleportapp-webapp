@@ -1,4 +1,5 @@
 import { Actions } from "../actions/conversationActions";
+import { socket } from "../contexts/ConversationContext";
 
 export const conversationReducer = function (state, action) {
     console.debug('Action: ', action, ' STATE ', state);
@@ -8,12 +9,12 @@ export const conversationReducer = function (state, action) {
         case Actions.START_CONVERSATION:
             newState = {
                 ...state,
-                startingConversation: true
+                startingConversation: true,
+                channel: null
             };
              break;
         case Actions.JOIN_CONVERSATION:
             newState = {
-                ...state,
                 joiningConversation: true,
                 channel: action.conversation.channel,
                 contacts: action.conversation.contacts
@@ -82,6 +83,28 @@ export const conversationReducer = function (state, action) {
             newState = {
                 ...state,
                 playingContactRemoteStream: false
+            };
+            break;
+        case Actions.REMOTE_STREAM_REMOVED:
+            const {stream} = action;
+            //Remove corresponding contact
+            const updatedContacts = state.contacts.filter( contact => {
+                 if (contact.stream.getId() !== stream.getId()){
+                     return true;
+                 }else{
+                     //Avoid sending the stream.
+                     contact.stream = '';
+                     socket.emit('contact-left', {contact, channel: state.channel});
+                     return false;
+                 }
+            });
+            if(!updatedContacts.length){
+               //Leave conversation
+                socket.emit('leave-conversation', {channel: state.channel});
+            }
+            newState = {
+                ...state,
+                contacts: updatedContacts
             };
             break;
         case Actions.CONVERSATION_ERROR:

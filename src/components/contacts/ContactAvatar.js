@@ -20,7 +20,7 @@ const ContactAvatar = function ({positionClassName, contact}) {
             const channel = `${user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
             dispatch(joinAudioChannel(channel))
         }
-        if (selected && !conversation.contacts.some( c => { return c.id === contact.id })){
+        if (selected && conversation.joinedAudioChannel && (!conversation.contacts.length || !conversation.contacts.some( c => { return c.id === contact.id }))){
             dispatch(addContactToConversation(contact));
         }
     });
