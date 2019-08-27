@@ -40,9 +40,7 @@ export const ConversationContextProvider = function ({children}) {
             const contactToAdd = conversation.contacts[conversation.contacts.length -1];
             socket.emit('add-contact', {channel: conversation.channel, contact: contactToAdd})
         }
-
-        if (conversation.receivedRemoteStream && !conversation.playingContactRemoteStream){
-            setRemoteStreams([conversation.receivedRemoteStream]);
+        if (conversation.contactRemoteStreamReceived){
             dispatch(playContactRemoteStream());
         }
     });

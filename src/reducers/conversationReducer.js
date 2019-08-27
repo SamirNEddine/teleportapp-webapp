@@ -55,11 +55,19 @@ export const conversationReducer = function (state, action) {
             };
             break;
         case Actions.CONTACT_REMOTE_STREAM_RECEIVED:
+            const {receivedRemoteStream} = action;
+            const streamId = receivedRemoteStream.getId();
+            const contacts = state.contacts.map( contact => {
+                if(contact.id === streamId){
+                    contact.remoteStream = receivedRemoteStream;
+                }
+                return contact;
+            });
             newState = {
                 ...state,
                 waitingForAddedContactRemoteStream: false,
                 contactRemoteStreamReceived: true,
-                receivedRemoteStream: action.receivedRemoteStream
+                contacts
             };
             break;
         case Actions.PLAY_CONTACT_REMOTE_STREAM:
