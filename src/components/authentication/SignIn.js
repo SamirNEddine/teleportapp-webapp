@@ -3,7 +3,7 @@ import { useMutation } from "@apollo/react-hooks";
 import { LOGIN_USER } from "../../graphql/queries";
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { updateLocalUser } from "../../helpers/localStorage";
-import { Actions } from '../../actions/authenticationActions'
+import {Actions, signInSuccess} from '../../actions/authenticationActions'
 
 import './authentication.css'
 
@@ -14,15 +14,15 @@ const SignIn = function ({history}) {
     }
     const [email, setEmail] = useState(null);
     const [password, setPassword] = useState(null);
-    const [signIn, {error, loading}] = useMutation(LOGIN_USER);
+    const [signIn] = useMutation(LOGIN_USER);
     const handleSubmit = async e => {
         e.preventDefault();
         try{
             const result = await signIn({variables: {email, password}});
             const localUser =  await updateLocalUser(result.data.loginUser);
-            dispatch({type: Actions.SIGN_IN_SUCCESS, user: localUser});
-        }catch(error){
-            console.log('ERROR' + error);
+            dispatch(signInSuccess(localUser));
+        }catch(e){
+            console.log('ERROR' + e);
         }
     };
     return (

@@ -1,57 +1,87 @@
 import { Actions } from "../actions/conversationActions";
-import { getLocalUser } from "../helpers/localStorage";
 
 export const conversationReducer = function (state, action) {
+    console.debug('Action: ', action, ' STATE ', state);
     let newState = state;
     const {type} = action;
     switch (type) {
         case Actions.START_CONVERSATION:
-            const {contact} = action;
-            const channel = `${getLocalUser().email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
-            newState = {
-                channel,
-                contacts:[contact],
-                loading:true,
-                started:false,
-                waiting:false,
-                left: false,
-            };
-            break;
-        case Actions.CONVERSATION_STARTED:
             newState = {
                 ...state,
-                loading: false,
-                started: true,
-                waiting: false,
-                left: false,
+                startingConversation: true
             };
-            break;
-        case Actions.WAITING_FOR_CONTACT:
+             break;
+        case Actions.JOIN_CONVERSATION:
             newState = {
                 ...state,
-                loading: false,
-                started: false,
-                waiting: true,
-                left: false
+                joiningConversation: true,
+                channel: action.conversation.channel,
+                contacts: action.conversation.contacts
             };
             break;
-        case Actions.LEAVE_CONVERSATION:
+        case Actions.JOIN_AUDIO_CHANNEL:
             newState = {
                 ...state,
-                loading: false,
-                started: false,
-                waiting: false,
-                left: true
+                joiningAudioChannel: true,
+                channel: action.channel
             };
             break;
-        case Actions.CONVERSATION_LEFT:
+        case Actions.AUDIO_CHANNEL_JOINED:
             newState = {
-                channel: null,
-                contacts: null,
-                loading: false,
-                started: false,
-                waiting: false,
-                left: false
+                ...state,
+                joiningAudioChannel: false,
+                joinedAudioChannel: true
+            };
+            break;
+        case Actions.LOCAL_STREAM_READY_FOR_CONVERSATION:
+            newState = {
+                ...state,
+                readyForConversation: true
+            };
+            break;
+        case Actions.ADD_CONTACT_TO_CONVERSATION:
+            const currentContacts = state.contacts ? state.contacts : [];
+            newState = {
+                ...state,
+                addingContactToConversation: true,
+                contacts: [...currentContacts, action.contact]
+            };
+            break;
+        case Actions.WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM:
+            newState = {
+                ...state,
+                addingContactToConversation: false,
+                waitingForAddedContactRemoteStream: true
+            };
+            break;
+        case Actions.CONTACT_REMOTE_STREAM_RECEIVED:
+            const {receivedRemoteStream} = action;
+            const streamId = receivedRemoteStream.getId();
+            const contacts = state.contacts.map( contact => {
+                if(contact.id === streamId){
+                    contact.stream = receivedRemoteStream;
+                }
+                return contact;
+            });
+            newState = {
+                ...state,
+                waitingForAddedContactRemoteStream: false,
+                contactRemoteStreamReceived: true,
+                contacts
+            };
+            break;
+        case Actions.PLAY_CONTACT_REMOTE_STREAM:
+            newState = {
+                ...state,
+                contactRemoteStreamReceived: false,
+                playingContactRemoteStream: true,
+                receivedRemoteStream: null
+            };
+            break;
+        case Actions.CONTACT_REMOTE_STREAM_PLAYED:
+            newState = {
+                ...state,
+                playingContactRemoteStream: false
             };
             break;
         case Actions.CONVERSATION_ERROR:

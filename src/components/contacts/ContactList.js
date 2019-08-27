@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import ContactAvatar from './ContactAvatar';
 import { GET_USERS } from "../../graphql/queries";
 import { graphql } from 'react-apollo';
@@ -6,18 +6,28 @@ import { AgoraContext } from "../../contexts/AgoraContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './contacts.css';
+import {joinAudioChannel} from "../../actions/conversationActions";
 
 const DEGREE_PREFIX = "deg";
 const STARTING_DEGREE = 30;
 const DEGREE_OFFSET = 60;
 const NUMBER_OF_AVATARS = 7;
 
-const ContactList = function ({data}) {
+const ContactList = function ({data, history}) {
     const {agoraError} = useContext(AgoraContext);
-    const {conversation} = useContext(ConversationContext);
-
+    const {conversation, dispatch} = useContext(ConversationContext);
+    const {loading, users} = data;
+    useEffect( _ => {
+        if (conversation.playingContactRemoteStream){
+            history.push({
+                pathname: '/conversation',
+            });
+        }
+        if (conversation.joiningConversation && !conversation.joiningAudioChannel && !conversation.joinedAudioChannel){
+            dispatch(joinAudioChannel(conversation.channel));
+        }
+    });
     const displayList = _ => {
-        const {loading, users} = data;
         if (loading){
             return <div className="loading-contacts">Loading users...</div>
         }else if (!users || users.length === 0){
@@ -40,7 +50,7 @@ const ContactList = function ({data}) {
                 {displayList()}
             </div>
             {conversation && conversation.error ? <div className="error">Error: {conversation.error}</div> : ''}
-            {agoraError ? <div className="error">{agoraError}</div> : ''}
+            {agoraError ? <div className="error">{agoraError.message ? agoraError.message : `Agora Error: ${agoraError}`}</div> : ''}
         </div>
     );
 };

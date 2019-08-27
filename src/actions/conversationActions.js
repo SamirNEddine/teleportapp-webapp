@@ -1,17 +1,21 @@
 export const Actions = {
     START_CONVERSATION: 'START_CONVERSATION',
-    CONVERSATION_STARTED: 'CONVERSATION_STARTED',
-    WAITING_FOR_CONTACT: 'WAITING_FOR_CONTACT',
-    LEAVE_CONVERSATION: 'LEAVE_CONVERSATION',
-    CONVERSATION_LEFT: 'CONVERSATION_LEFT',
+    JOIN_CONVERSATION: 'JOIN_CONVERSATION',
+    JOIN_AUDIO_CHANNEL: 'JOIN_AUDIO_CHANNEL',
+    AUDIO_CHANNEL_JOINED: 'AUDIO_CHANNEL_JOINED',
+    LOCAL_STREAM_READY_FOR_CONVERSATION: 'LOCAL_STREAM_READY_FOR_CONVERSATION',
+    ADD_CONTACT_TO_CONVERSATION: 'ADD_CONTACT_TO_CONVERSATION',
+    WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM: 'WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM',
+    CONTACT_REMOTE_STREAM_RECEIVED: 'CONTACT_REMOTE_STREAM_RECEIVED',
+    PLAY_CONTACT_REMOTE_STREAM: 'PLAY_CONTACT_REMOTE_STREAM',
+    CONTACT_REMOTE_STREAM_PLAYED: 'CONTACT_REMOTE_STREAM_PLAYED',
     CONVERSATION_ERROR: 'CONVERSATION_ERROR'
 };
 
 /** Helpers **/
-export function startConversationWithContact(contact) {
+export function startConversation() {
     return {
         type: Actions.START_CONVERSATION,
-        contact
     }
 }
 export function conversationError(error) {
@@ -20,23 +24,54 @@ export function conversationError(error) {
         error
     }
 }
-export function conversationStarted() {
+export function joinConversation(channel, contacts) {
     return {
-        type: Actions.CONVERSATION_STARTED
+        type: Actions.JOIN_CONVERSATION,
+        conversation: {channel, contacts}
     }
 }
-export function waitingForContact() {
+export function joinAudioChannel(channel) {
     return {
-        type: Actions.WAITING_FOR_CONTACT
+        type: Actions.JOIN_AUDIO_CHANNEL,
+        channel
     }
 }
-export function leaveConversation() {
+export function audioChannelJoined() {
     return {
-        type: Actions.LEAVE_CONVERSATION
+        type: Actions.AUDIO_CHANNEL_JOINED
     }
 }
-export function conversationLeft() {
+export function  localStreamReadyForConversation() {
     return {
-        type: Actions.CONVERSATION_LEFT
+        type: Actions.LOCAL_STREAM_READY_FOR_CONVERSATION
     }
 }
+export function  addContactToConversation(contact) {
+    return {
+        type: Actions.ADD_CONTACT_TO_CONVERSATION,
+        contact
+    }
+}
+export function waitingForAddedContactRemoteStream() {
+    return {
+        type: Actions.WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM
+    }
+}
+export function contactRemoteStreamReceived(receivedRemoteStream) {
+    return {
+        type: Actions.CONTACT_REMOTE_STREAM_RECEIVED,
+        receivedRemoteStream
+    }
+}
+export function playContactRemoteStream() {
+    return {
+        type: Actions.PLAY_CONTACT_REMOTE_STREAM
+    }
+}
+export function contactRemoteStreamPlayed() {
+    return {
+        type: Actions.CONTACT_REMOTE_STREAM_PLAYED
+    }
+}
+
+
