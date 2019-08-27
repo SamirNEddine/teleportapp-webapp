@@ -9,7 +9,7 @@ import {contactRemoteStreamPlayed} from "../../actions/conversationActions";
 const Conversation = function ({location, data}) {
     const { remoteStreams, agoraError } = useContext(AgoraContext);
     const {conversation, dispatch} = useContext(ConversationContext);
-    const [speakingUser, setSpeakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
+    const [speakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
     useEffect(_ => {
         if (remoteStreams && remoteStreams.length) {
             remoteStreams.forEach(stream => {
@@ -39,6 +39,7 @@ const Conversation = function ({location, data}) {
             )
         }else{
             //To do
+            return <div></div>
         }
     });
     const audioDivs = remoteStreams && remoteStreams.length ?  remoteStreams.map(stream => {

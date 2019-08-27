@@ -4,7 +4,6 @@ import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
 import {
     addContactToConversation,
-    contactRemoteStreamPlayed,
     joinAudioChannel,
     startConversation
 } from "../../actions/conversationActions";
@@ -13,7 +12,7 @@ import './contacts.css';
 
 const ContactAvatar = function ({positionClassName, contact}) {
     const {user} = useContext(AuthenticationContext);
-    const {conversation, dispatch, error} = useContext(ConversationContext);
+    const {conversation, dispatch} = useContext(ConversationContext);
     const [selected, setSelected] = useState(false);
 
     useEffect(_ => {

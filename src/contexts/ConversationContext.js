@@ -70,10 +70,6 @@ export const ConversationContextProvider = function ({children}) {
     }else if (socket && !user){
         //To do
     }
-    const x = function () {
-            console.log("test");
-    };
-
     if(!listenersAdded){
         //Setup client listeners
         agoraClient.on('stream-published', evt => {
