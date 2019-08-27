@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, useContext, useState } from 'react';
 import { conversationReducer } from "../reducers/conversationReducer";
 import { AuthenticationContext } from "./AuthenticationContext";
-import { AgoraContext, agoraClient } from "./AgoraContext";
+import { AgoraContext } from "./AgoraContext";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_AGORA_TOKEN } from "../graphql/queries";
 import {
@@ -18,7 +18,7 @@ export const ConversationContext = createContext();
 let socket = null;
 export const ConversationContextProvider = function ({children}) {
     const {user} = useContext(AuthenticationContext);
-    const {localStream, listenersAdded, setListenersAdded, remoteStreams, setRemoteStreams, setAgoraError} = useContext(AgoraContext);
+    const {agoraClient, localStream, listenersAdded, setListenersAdded, remoteStreams, setRemoteStreams, setAgoraError} = useContext(AgoraContext);
     const [conversation, dispatch] = useReducer(conversationReducer, {
         channel: null,
         contacts: null,

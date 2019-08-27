@@ -2,11 +2,11 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import AgoraRTC from "agora-rtc-sdk";
 import {AuthenticationContext} from "./AuthenticationContext";
 
-export const agoraClient = AgoraRTC.createClient({ mode: "live", codec: "h264" });
 export const AgoraContext = createContext();
 
 export const AgoraContextProvider = function({children}) {
     const {user} = useContext(AuthenticationContext);
+    const [agoraClient, setAgoraClient] = useState(AgoraRTC.createClient({ mode: "live", codec: "h264" }));
     const [localStream, setLocalStream] = useState(null);
     const [remoteStreams, setRemoteStreams] = useState( []);
     const [agoraError, setAgoraError] = useState(null);
@@ -29,7 +29,6 @@ export const AgoraContextProvider = function({children}) {
                 setAgoraError(err);
             });
         }
-
         if(!clientInitialized){
             agoraClient.init(process.env.REACT_APP_AGORA_APP_ID, function () {
                 console.log("AgoraRTC client initialized");
@@ -43,7 +42,7 @@ export const AgoraContextProvider = function({children}) {
     });
 
     return (
-        <AgoraContext.Provider value={{localStream, remoteStreams, setRemoteStreams, agoraError, setAgoraError, listenersAdded, setListenersAdded}}>
+        <AgoraContext.Provider value={{agoraClient, localStream, remoteStreams, setRemoteStreams, agoraError, setAgoraError, listenersAdded, setListenersAdded}}>
             {children}
         </AgoraContext.Provider>
     );
