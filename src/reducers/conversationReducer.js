@@ -1,5 +1,4 @@
 import { Actions } from "../actions/conversationActions";
-import { getLocalUser } from "../helpers/localStorage";
 
 export const conversationReducer = function (state, action) {
     console.log('Action: ', action, ' STATE ', state);
@@ -14,7 +13,8 @@ export const conversationReducer = function (state, action) {
         case Actions.JOIN_CONVERSATION:
             newState = {
                 joiningConversation: true,
-                channel: action.channel
+                channel: action.conversation.channel,
+                contacts: action.conversation.contacts
             };
             break;
         case Actions.JOIN_AUDIO_CHANNEL:
@@ -56,7 +56,16 @@ export const conversationReducer = function (state, action) {
             newState = {
                 ...state,
                 waitingForAddedContactRemoteStream: false,
-                contactRemoteStreamReceived: true
+                contactRemoteStreamReceived: true,
+                receivedRemoteStream: action.receivedRemoteStream
+            };
+            break;
+        case Actions.PLAY_CONTACT_REMOTE_STREAM:
+            newState = {
+                ...state,
+                contactRemoteStreamReceived: false,
+                playingContactRemoteStream: true,
+                receivedRemoteStream: null
             };
             break;
         case Actions.CONTACT_REMOTE_STREAM_PLAYED:
@@ -64,7 +73,6 @@ export const conversationReducer = function (state, action) {
                 channel: state.channel,
                 contacts: state.contacts
             };
-            break;
             break;
         case Actions.CONVERSATION_ERROR:
             const {error} = action;

@@ -6,15 +6,25 @@ import { AgoraContext } from "../../contexts/AgoraContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './contacts.css';
+import {joinAudioChannel} from "../../actions/conversationActions";
 
 const DEGREE_PREFIX = "deg";
 const STARTING_DEGREE = 30;
 const DEGREE_OFFSET = 60;
 const NUMBER_OF_AVATARS = 7;
 
-const ContactList = function ({data}) {
-    const {agoraError} = useContext(AgoraContext);
-    const {conversation} = useContext(ConversationContext);
+const ContactList = function ({data, history}) {
+    const {agoraError, remoteStreams} = useContext(AgoraContext);
+    const {conversation, dispatch} = useContext(ConversationContext);
+    if (conversation.joiningConversation && !conversation.joiningAudioChannel && !conversation.joinedAudioChannel){
+        dispatch(joinAudioChannel(conversation.channel));
+    }
+    if (conversation.playingContactRemoteStream){
+        history.push({
+            pathname: '/conversation',
+        });
+        console.log(remoteStreams);
+    }
 
     const displayList = _ => {
         const {loading, users} = data;

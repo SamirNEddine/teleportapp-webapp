@@ -11,7 +11,7 @@ import {
 
 import './contacts.css';
 
-const ContactAvatar = function ({positionClassName, contact, history}) {
+const ContactAvatar = function ({positionClassName, contact}) {
     const {user} = useContext(AuthenticationContext);
     const {conversation, dispatch, error} = useContext(ConversationContext);
     const [selected, setSelected] = useState(false);
@@ -31,12 +31,7 @@ const ContactAvatar = function ({positionClassName, contact, history}) {
     if (selected && conversation.readyForConversation && !conversation.addingContactToConversation){
         dispatch(addContactToConversation(contact));
     }
-    if (conversation.contactRemoteStreamReceived){
-        dispatch(contactRemoteStreamPlayed());
-        history.push({
-            pathname: '/conversation',
-        });
-    }
+
     // if (conversation.left){
     //     setOpenConversationAnimation(false);
     // }

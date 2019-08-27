@@ -7,7 +7,8 @@ export const Actions = {
     ADD_CONTACT_TO_CONVERSATION: 'ADD_CONTACT_TO_CONVERSATION',
     WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM: 'WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM',
     CONTACT_REMOTE_STREAM_RECEIVED: 'CONTACT_REMOTE_STREAM_RECEIVED',
-    CONTACT_REMOTE_STREAM_PLAYED: 'CONTACT_REMOTE_STREAM_RECEIVED',
+    PLAY_CONTACT_REMOTE_STREAM: 'PLAY_CONTACT_REMOTE_STREAM',
+    CONTACT_REMOTE_STREAM_PLAYED: 'CONTACT_REMOTE_STREAM_PLAYED',
     CONVERSATION_ERROR: 'CONVERSATION_ERROR'
 };
 
@@ -23,10 +24,10 @@ export function conversationError(error) {
         error
     }
 }
-export function joinConversation(channel) {
+export function joinConversation(channel, contacts) {
     return {
         type: Actions.JOIN_CONVERSATION,
-        channel
+        conversation: {channel, contacts}
     }
 }
 export function joinAudioChannel(channel) {
@@ -56,9 +57,15 @@ export function waitingForAddedContactRemoteStream() {
         type: Actions.WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM
     }
 }
-export function contactRemoteStreamReceived() {
+export function contactRemoteStreamReceived(receivedRemoteStream) {
     return {
-        type: Actions.CONTACT_REMOTE_STREAM_RECEIVED
+        type: Actions.CONTACT_REMOTE_STREAM_RECEIVED,
+        receivedRemoteStream
+    }
+}
+export function playContactRemoteStream() {
+    return {
+        type: Actions.PLAY_CONTACT_REMOTE_STREAM
     }
 }
 export function contactRemoteStreamPlayed() {

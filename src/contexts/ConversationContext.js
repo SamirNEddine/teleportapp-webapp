@@ -8,7 +8,7 @@ import {
     contactRemoteStreamReceived,
     audioChannelJoined,
     conversationError,
-    localStreamReadyForConversation, waitingForAddedContactRemoteStream,
+    localStreamReadyForConversation, waitingForAddedContactRemoteStream, joinConversation, playContactRemoteStream
 } from "../actions/conversationActions";
 import openSocket from 'socket.io-client';
 import {getAuthenticationToken} from "../helpers/localStorage";
@@ -29,7 +29,8 @@ export const ConversationContextProvider = function ({children}) {
         readyForConversation: false,
         addingContactToConversation: false,
         waitingForAddedContactRemoteStream: false,
-        contactRemoteStreamReceived: false
+        contactRemoteStreamReceived: false,
+        playingContactRemoteStream: false
     });
 
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
@@ -43,25 +44,31 @@ export const ConversationContextProvider = function ({children}) {
                 token: `Bearer ${getAuthenticationToken()}`
             }
         });
-
         //Add contact event
         socket.on('contact-added', ({contact, channel}) => {
             console.log('Contact add confirmed');
             dispatch(waitingForAddedContactRemoteStream());
         });
+        //Join conversation event
+        socket.on('join-conversation', ({channel, contacts}) => {
+            dispatch(joinConversation(channel, contacts));
+        });
     }else if (socket && !user){
         //To do
     }
+    const x = function () {
+            console.log("test");
+    };
 
     if(!listenersAdded){
         //Setup client listeners
-        agoraClient.on('stream-published', function (evt) {
+        agoraClient.on('stream-published', evt => {
             //Ready for conversation on the agora front.
             console.log("Publish local stream successfully. Ready for conversation");
             dispatch(localStreamReadyForConversation());
             setAgoraError(null);
         });
-        agoraClient.on('stream-added', function (evt) {
+        agoraClient.on('stream-added', evt => {
             const theStream = evt.stream;
             console.log("New stream added: " + theStream.getId());
             agoraClient.subscribe(theStream, function (err) {
@@ -70,13 +77,12 @@ export const ConversationContextProvider = function ({children}) {
             });
         });
         //Listen to remote streams and update state
-        agoraClient.on('stream-subscribed', function (evt) {
-            dispatch(contactRemoteStreamReceived());
+        agoraClient.on('stream-subscribed', evt => {
             const remoteStream = evt.stream;
-            setRemoteStreams(remoteStreams.push(remoteStream));
+            setRemoteStreams(remoteStreams.push(conversation.receivedRemoteStream));
+            dispatch(contactRemoteStreamReceived(remoteStream));
             const streamId = remoteStream.getId();
             console.log("Subscribe remote stream successfully: " + streamId);
-            remoteStream.play('audio-stream_'+streamId);
             setAgoraError(null);
         });
         setListenersAdded(true);
@@ -88,11 +94,11 @@ export const ConversationContextProvider = function ({children}) {
         if (!loading && data){
             const {userAgoraToken} = data;
             console.log(userAgoraToken, conversation.channel, user.userId);
-            agoraClient.join(userAgoraToken, conversation.channel, user.userId, function(uid) {
+            agoraClient.join(userAgoraToken, conversation.channel, user.userId, (uid) => {
                 console.log("User " + uid + " join channel successfully");
                 setAgoraError(null);
                 dispatch(audioChannelJoined());
-                agoraClient.publish(localStream, function (err) {
+                agoraClient.publish(localStream, err => {
                     console.log("Failed to publish stream", err);
                     setAgoraError(err);
                     dispatch(conversationError("Agora error"));
@@ -112,6 +118,11 @@ export const ConversationContextProvider = function ({children}) {
         //The contact to add is the last one added to the contacts list
         const contactToAdd = conversation.contacts[conversation.contacts.length -1];
         socket.emit('add-contact', {channel: conversation.channel, contact: contactToAdd})
+    }
+
+    if (conversation.receivedRemoteStream && !conversation.playingContactRemoteStream){
+        setRemoteStreams([conversation.receivedRemoteStream]);
+        dispatch(playContactRemoteStream());
     }
 
     // if(conversation && conversation.left){
