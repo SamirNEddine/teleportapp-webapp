@@ -59,7 +59,7 @@ export const conversationReducer = function (state, action) {
             const streamId = receivedRemoteStream.getId();
             const contacts = state.contacts.map( contact => {
                 if(contact.id === streamId){
-                    contact.remoteStream = receivedRemoteStream;
+                    contact.stream = receivedRemoteStream;
                 }
                 return contact;
             });

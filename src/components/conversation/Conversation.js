@@ -11,18 +11,21 @@ const Conversation = function ({location, data}) {
     const {conversation, dispatch} = useContext(ConversationContext);
     const [speakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
     useEffect(_ => {
-        if (remoteStreams && remoteStreams.length) {
-            remoteStreams.forEach(stream => {
-                if (stream.isPlaying()){
-                    stream.resume();
-                }else{
-                    const streamId = stream.getId();
-                    stream.play('audio-div_' + streamId);
-                }
-            });
-            if (conversation.playingContactRemoteStream) {
-                dispatch(contactRemoteStreamPlayed());
-            }
+        // if (remoteStreams && remoteStreams.length) {
+        //     remoteStreams.forEach(stream => {
+        //         if (stream.isPlaying()){
+        //             stream.resume();
+        //         }else{
+        //             const streamId = stream.getId();
+        //             stream.play('audio-div_' + streamId);
+        //         }
+        //     });
+        if (conversation.playingContactRemoteStream) {
+            //Play the stream of the last added contact
+            const stream = contacts[contacts.length - 1].stream;
+            const streamId = stream.getId();
+            stream.play('audio-div_' + streamId);
+            dispatch(contactRemoteStreamPlayed());
         }
     });
     if (!conversation || !conversation.contacts || !conversation.contacts.length){
@@ -35,6 +38,7 @@ const Conversation = function ({location, data}) {
                 <div key={`${contact.userId}_div`}>
                     <img src={contact.profilePicture} className="speaking-user" alt="user" key={`${contact.userId}_img`}/>
                     <div className="speaking-user-name" key={`${contact.userId}_name`}>{`${contact.firstName} ${contact.lastName}`}</div>
+                    {contact.stream ? <div id={`audio-div_${contact.stream.getId()}`} key={`audio-div_${contact.stream.getId()}`}/> : ''}
                 </div>
             )
         }else{
