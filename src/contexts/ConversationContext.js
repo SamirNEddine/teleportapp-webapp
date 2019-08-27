@@ -19,7 +19,7 @@ import {getAuthenticationToken} from "../helpers/localStorage";
 
 export const ConversationContext = createContext();
 
-let socket = null;
+export let socket = null;
 export const ConversationContextProvider = function ({children}) {
     const {user} = useContext(AuthenticationContext);
     const {agoraClient, localStream, listenersAdded, setListenersAdded, remoteStreams, setRemoteStreams, setAgoraError} = useContext(AgoraContext);
@@ -38,7 +38,7 @@ export const ConversationContextProvider = function ({children}) {
     });
 
     useEffect(_ => {
-        if(conversation && !conversation.error && conversation.addingContactToConversation && conversation.contacts && conversation.contacts.length){
+        if(conversation && !conversation.error && conversation.addingContactToConversation){
             //Ask the contact through socket to join the conversation
             //The contact to add is the last one added to the contacts list
             const contactToAdd = conversation.contacts[conversation.contacts.length -1];
@@ -126,6 +126,11 @@ export const ConversationContextProvider = function ({children}) {
             agoraClient.join(userAgoraToken, conversation.channel, user.id, (uid) => {
                 console.log("User " + uid + " join channel successfully");
                 setAgoraError(null);
+                if(conversation.startingConversation){
+                    //Update socket
+                    console.log("START CHANNEL", conversation);
+                    socket.emit('start-conversation', {channel: conversation.channel});
+                }
                 dispatch(audioChannelJoined());
                 agoraClient.publish(localStream, err => {
                     console.log("Failed to publish stream", err);

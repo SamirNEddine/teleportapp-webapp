@@ -1,4 +1,5 @@
 import { Actions } from "../actions/conversationActions";
+import { socket } from "../contexts/ConversationContext";
 
 export const conversationReducer = function (state, action) {
     console.debug('Action: ', action, ' STATE ', state);
@@ -8,12 +9,12 @@ export const conversationReducer = function (state, action) {
         case Actions.START_CONVERSATION:
             newState = {
                 ...state,
-                startingConversation: true
+                startingConversation: true,
+                channel: null
             };
              break;
         case Actions.JOIN_CONVERSATION:
             newState = {
-                ...state,
                 joiningConversation: true,
                 channel: action.conversation.channel,
                 contacts: action.conversation.contacts
@@ -88,7 +89,14 @@ export const conversationReducer = function (state, action) {
             const {stream} = action;
             //Remove corresponding contact
             const updatedContacts = state.contacts.filter( contact => {
-                return contact.stream.getId() !== stream.getId();
+                 if (contact.stream.getId() !== stream.getId()){
+                     return true;
+                 }else{
+                     //Avoid sending the stream.
+                     contact.stream = '';
+                     socket.emit('contact-left', {contact, channel: state.channel});
+                     return false;
+                 }
             });
             newState = {
                 ...state,
