@@ -30,8 +30,11 @@ export const AuthenticationContextProvider = function({children}) {
                 token: `Bearer ${getAuthenticationToken()}`
             }
         });
-    }else{
-        //To do
+    }else if(!authState.user && socket){
+        //Happens after logout
+        console.debug("Closing Status socket after logout");
+        socket.close();
+        socket = null;
     }
 
     return (

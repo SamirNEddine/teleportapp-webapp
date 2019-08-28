@@ -71,7 +71,10 @@ export const ConversationContextProvider = function ({children}) {
             dispatch(joinConversation(channel, contacts));
         });
     }else if (socket && !authState.user){
-        //To do
+        //Happens after logout
+        console.debug("Closing Status socket after logout");
+        socket.close();
+        socket = null;
     }
     if(!listenersAdded){
         //Setup client listeners
