@@ -2,7 +2,7 @@ import { Actions } from "../actions/conversationActions";
 import { socket } from "../contexts/ConversationContext";
 
 export const conversationReducer = function (state, action) {
-    console.debug('Action: ', action, ' STATE ', state);
+    console.debug('Action: ', action, '\nSTATE ', state);
     let newState = state;
     const {type} = action;
     switch (type) {
