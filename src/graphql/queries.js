@@ -21,6 +21,18 @@ export const GET_USERS = gql`
     }
 `;
 
+export const GET_ME = gql`
+    query{
+        user{
+            id
+            firstName
+            lastName
+            profilePicture
+            email
+        }
+    }
+`;
+
 export const GET_AGORA_TOKEN = gql`
     query($channel: String!){
         userAgoraToken(channel: $channel)

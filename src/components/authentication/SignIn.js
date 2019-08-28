@@ -28,13 +28,15 @@ const SignIn = function ({history}) {
         }
     };
     return (
-        <div className="signin-container">
-            <form className="signin-form" onSubmit={handleSubmit}>
-                <input type="email" onChange={(e) => setEmail(e.target.value)} placeholder="email"  autoComplete="username"/>
-                <input type="password" onChange={(e) => setPassword(e.target.value)} placeholder="password"  autoComplete="current-password"/>
-                <button>login</button>
-
-            </form>
+        <div>
+            <div className="signin-container">
+                <form className="signin-form" onSubmit={handleSubmit}>
+                    <input type="email" onChange={(e) => setEmail(e.target.value)} placeholder="email"  autoComplete="username"/>
+                    <input type="password" onChange={(e) => setPassword(e.target.value)} placeholder="password"  autoComplete="current-password"/>
+                    <button>login</button>
+                </form>
+            </div>
+            <img src="https://storage.googleapis.com/teleport_public/logo/white.svg" className="teleport-logo" alt="Logo"/>
         </div>
     );
 };

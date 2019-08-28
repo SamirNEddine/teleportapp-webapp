@@ -1,0 +1,49 @@
+import React, { useContext, useEffect } from 'react';
+import { useQuery } from '@apollo/react-hooks';
+import {GET_ME} from "../../graphql/queries";
+
+import './navBar.css';
+import {AuthenticationContext} from "../../contexts/AuthenticationContext";
+
+const NavBar = () => {
+    const { authState } = useContext(AuthenticationContext);
+    const {loading, error, data, refetch} = useQuery(GET_ME, {
+        skip: !authState.user
+    });
+
+    const user = data ? data.user : null;
+    useEffect(_ =>{
+        if (authState.user){
+            refetch();
+        }
+    },[authState, refetch]);
+
+    if (!authState.user){
+        return <div/>
+    }else{
+        return (
+            <nav className="mb-1 navbar navbar-expand navbar-dark secondary-color lighten-1">
+                {/*<a className="navbar-brand" href="#">Navbar</a>*/}
+                <div className="collapse navbar-collapse" id="navbarSupportedContent-555">
+                    <ul className="navbar-nav ml-auto nav-flex-icons">
+                        <li className="nav-item avatar dropdown">
+                            <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-55"
+                               data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                {(user && user.profilePicture )? <img src={user.profilePicture} className="rounded-circle z-depth-0"
+                                                                    alt="avatar image" /> : <div/>}
+                            </a>
+                            <div className="dropdown-menu   dropdown-secondary"
+                                 aria-labelledby="navbarDropdownMenuLink-55">
+                                <div className="dropdown-item" >Action</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        );
+    }
+
+};
+
+export default NavBar;
