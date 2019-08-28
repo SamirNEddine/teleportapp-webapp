@@ -1,0 +1,9 @@
+.navbar {
+    height:100px;
+}
+
+.rounded-circle {
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+}

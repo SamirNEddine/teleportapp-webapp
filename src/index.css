@@ -15,11 +15,13 @@
   }
 }
 
-
-body {
+body{
+  background: linear-gradient(90deg, #00f2ff, #8800f0, #e127eb );
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(90deg, #00f2ff, #8800f0, #e127eb );
+}
+
+.app-content {
   overflow: hidden;
   padding: 0;
   margin: 0;
@@ -33,7 +35,6 @@ body {
   width: calc(var(--circle-radius)*2);
   height: calc(var(--circle-radius)*2);
   padding: 2em;
-  margin-top: 4em;
   /*2.8em = 2em*1.4 (2em = half the width of a link with img, 1.4 = sqrt(2))*/
   border: dashed 1px;
   border-radius: 50%;
