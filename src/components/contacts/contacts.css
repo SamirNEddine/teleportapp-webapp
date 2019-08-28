@@ -1,7 +1,7 @@
 :root{
-    --avatar-radius: 5.7em;
-    --translation-ratio: 1.32;
-    --scale-factor: 1.05;
+    --avatar-radius: calc(var(--circle-radius)/5.3);
+    --translation-ratio: calc(var(--circle-radius-no-metric)/9.2);
+    --scale-factor: 1.06;
     --selection-animation-time: 0.3s;
     --selection-animation-function: ease;
 }
@@ -13,7 +13,8 @@
     left: 50%;
     width: calc(var(--avatar-radius)*2);
     height: calc(var(--avatar-radius)*2);
-    margin: calc(var(--avatar-radius)*-1.07);
+    margin: calc(var(--avatar-radius)*-1.09);
+    margin-top: calc(var(--avatar-radius)*-1);
     background: white;
     border-radius: 50%;
     cursor: pointer;

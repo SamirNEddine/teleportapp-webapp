@@ -1,5 +1,6 @@
 :root{
-  --circle-radius: 17.2em;
+  --circle-radius: 21em;
+  --circle-radius-no-metric: 21;
 }
 
 body {
@@ -18,11 +19,15 @@ body {
   position: relative;
   width: calc(var(--circle-radius)*2);
   height: calc(var(--circle-radius)*2);
-  padding: 2.8em;
+  padding: 2em;
+  margin-top: 4em;
   /*2.8em = 2em*1.4 (2em = half the width of a link with img, 1.4 = sqrt(2))*/
   border: dashed 1px;
   border-radius: 50%;
-  background: #000000;
+  background-image: url('https://storage.googleapis.com/teleport_public/device/front-extracted.jpg');
+  background-size: calc(var(--circle-radius)*2.4);
+  background-repeat: no-repeat;
+  background-position: center;
   overflow: hidden;
 }
 
