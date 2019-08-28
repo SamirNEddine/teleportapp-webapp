@@ -8,11 +8,14 @@ import {AuthenticationContext} from "../../contexts/AuthenticationContext";
 const NavBar = () => {
     const { authState } = useContext(AuthenticationContext);
     const {loading, error, data, refetch} = useQuery(GET_ME, {
-        skip: !authState.user,
+        skip: !authState.user
     });
-    const {user} = data;
+
+    const user = data ? data.user : null;
     useEffect(_ =>{
-        refetch();
+        if (authState.user){
+            refetch();
+        }
     },[authState, refetch]);
 
     if (!authState.user){
@@ -27,7 +30,7 @@ const NavBar = () => {
                             <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-55"
                                data-toggle="dropdown"
                                aria-haspopup="true" aria-expanded="false">
-                                {user && user.profilePicture ? <img src={user.profilePicture} className="rounded-circle z-depth-0"
+                                {(user && user.profilePicture )? <img src={user.profilePicture} className="rounded-circle z-depth-0"
                                                                     alt="avatar image" /> : <div/>}
                             </a>
                             <div className="dropdown-menu   dropdown-secondary"

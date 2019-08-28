@@ -7,11 +7,15 @@
 }
 
 .signin-container {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
     z-index: 1;
     background: #FFFFFF;
     max-width: 360px;
-    margin: 0 auto 100px;
     padding: 45px;
     text-align: center;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
@@ -56,4 +60,15 @@
 .signin-container .message a {
     color: #4CAF50;
     text-decoration: none;
+}
+
+.teleport-logo {
+    width: 100px;
+    height: auto;
+    position: absolute;
+    top: 22%;
+    left: 49%;
+    -moz-transform: translateX(-49%) translateY(-22%);
+    -webkit-transform: translateX(-49%) translateY(-22%);
+    transform: translateX(-49%) translateY(-22%);
 }
