@@ -8,12 +8,12 @@ import { signInSuccess } from '../../actions/authenticationActions'
 import './authentication.css'
 
 const SignIn = function ({history}) {
-    const { user, dispatch } = useContext(AuthenticationContext);
+    const { authState, dispatch } = useContext(AuthenticationContext);
     const [email, setEmail] = useState(null);
     const [password, setPassword] = useState(null);
     const [signIn] = useMutation(LOGIN_USER);
     useEffect( _ => {
-        if (user){
+        if (authState.user){
             history.push('/');
         }
     });

@@ -7,10 +7,16 @@ export const authenticationReducer = function (state, action) {
     switch (type) {
         case Actions.SIGN_IN_SUCCESS:
             const {user} = action;
-            newState = user;
+            newState = {
+                user
+            };
             break;
         case Actions.SIGN_IN_ERROR:
-            newState = null;
+        case Actions.AUTH_ERROR:
+            const {error} = action;
+            newState = {
+                error
+            };
             break;
         default:
             newState = state;

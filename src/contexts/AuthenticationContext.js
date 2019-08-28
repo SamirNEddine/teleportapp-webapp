@@ -1,16 +1,30 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useEffect } from 'react';
 import { authenticationReducer } from '../reducers/authenticationReducer'
 import {getAuthenticationToken, getLocalUser} from "../helpers/localStorage";
 import openSocket from "socket.io-client";
+import authenticationStore from "../stores/authenticationStore";
 
 export const AuthenticationContext = createContext();
 
 let socket = null;
 export const AuthenticationContextProvider = function({children}) {
+    const [authState, dispatch] = useReducer(authenticationReducer, {user: getLocalUser()});
+    const stateRef = React.useRef(authState);
 
-    const [user, dispatch] = useReducer(authenticationReducer, getLocalUser());
+    useEffect(_ => {
+        stateRef.current = authState;
+        authenticationStore.__onStateUpdated();
+    }, [authState]);
+    useEffect(_ => {
+        if (!authenticationStore.isReady){
+            authenticationStore.init({
+                dispatch: params => dispatch(params),
+                getState: () => ({...stateRef.current}),
+            })
+        }
+    }, []);
 
-    if (user && !socket){
+    if (authState.user && !socket){
         socket = openSocket(process.env.REACT_APP_STATUS_SOCKET_URL, {
             query: {
                 token: `Bearer ${getAuthenticationToken()}`
@@ -21,7 +35,7 @@ export const AuthenticationContextProvider = function({children}) {
     }
 
     return (
-        <AuthenticationContext.Provider value={{user, dispatch}}>
+        <AuthenticationContext.Provider value={{authState, dispatch}}>
             {children}
         </AuthenticationContext.Provider>
     );

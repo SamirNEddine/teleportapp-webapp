@@ -6,7 +6,7 @@ export const AgoraContext = createContext();
 const client = AgoraRTC.createClient({ mode: "live", codec: "h264" });
 
 export const AgoraContextProvider = function({children}) {
-    const {user} = useContext(AuthenticationContext);
+    const {authState} = useContext(AuthenticationContext);
     const [agoraClient] = useState(client);
     const [localStream, setLocalStream] = useState(null);
     const [remoteStreams, setRemoteStreams] = useState( []);
@@ -16,8 +16,8 @@ export const AgoraContextProvider = function({children}) {
     const [listenersAdded, setListenersAdded] = useState(false);
 
     useEffect(_ => {
-        if (!localStream && user){
-            setLocalStream(AgoraRTC.createStream({streamID: user.id, audio: true, video: false, screen: false}));
+        if (!localStream && authState.user){
+            setLocalStream(AgoraRTC.createStream({streamID: authState.user.id, audio: true, video: false, screen: false}));
         }
         if(localStream && !localStreamInitialized){
             localStream.init( _ => {
@@ -40,7 +40,7 @@ export const AgoraContextProvider = function({children}) {
                 setAgoraError(err);
             });
         }
-    }, [localStream, user, localStreamInitialized, clientInitialized, agoraClient]);
+    }, [localStream, authState, localStreamInitialized, clientInitialized, agoraClient]);
 
     return (
         <AgoraContext.Provider value={{agoraClient, localStream, remoteStreams, setRemoteStreams, agoraError, setAgoraError, listenersAdded, setListenersAdded}}>

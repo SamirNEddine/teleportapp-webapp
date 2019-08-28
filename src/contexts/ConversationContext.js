@@ -21,7 +21,7 @@ export const ConversationContext = createContext();
 
 export let socket = null;
 export const ConversationContextProvider = function ({children}) {
-    const {user} = useContext(AuthenticationContext);
+    const {authState} = useContext(AuthenticationContext);
     const {agoraClient, localStream, listenersAdded, setListenersAdded, remoteStreams, setRemoteStreams, setAgoraError} = useContext(AgoraContext);
     const [conversation, dispatch] = useReducer(conversationReducer, {
         channel: null,
@@ -55,7 +55,7 @@ export const ConversationContextProvider = function ({children}) {
         skip: !conversation.channel
     });
 
-    if (!socket && user){
+    if (!socket && authState.user){
         socket = openSocket(process.env.REACT_APP_CONVERSATION_SOCKET_URL, {
             query: {
                 token: `Bearer ${getAuthenticationToken()}`
@@ -70,7 +70,7 @@ export const ConversationContextProvider = function ({children}) {
         socket.on('join-conversation', ({channel, contacts}) => {
             dispatch(joinConversation(channel, contacts));
         });
-    }else if (socket && !user){
+    }else if (socket && !authState.user){
         //To do
     }
     if(!listenersAdded){
@@ -122,8 +122,8 @@ export const ConversationContextProvider = function ({children}) {
         if (error) dispatch(conversationError(error));
         if (!loading && data){
             const {userAgoraToken} = data;
-            console.log(userAgoraToken, conversation.channel, user.id);
-            agoraClient.join(userAgoraToken, conversation.channel, user.id, (uid) => {
+            console.log(userAgoraToken, conversation.channel, authState.user.id);
+            agoraClient.join(userAgoraToken, conversation.channel, authState.user.id, (uid) => {
                 console.log("User " + uid + " join channel successfully");
                 setAgoraError(null);
                 if(conversation.startingConversation){

@@ -11,13 +11,13 @@ import {
 import './contacts.css';
 
 const ContactAvatar = function ({positionClassName, contact}) {
-    const {user} = useContext(AuthenticationContext);
+    const {authState} = useContext(AuthenticationContext);
     const {conversation, dispatch} = useContext(ConversationContext);
     const [selected, setSelected] = useState(false);
 
     useEffect(_ => {
         if (selected && conversation.startingConversation && !conversation.channel){
-            const channel = `${user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
+            const channel = `${authState.user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
             dispatch(joinAudioChannel(channel))
         }
         if (selected && conversation.joinedAudioChannel && (!conversation.contacts.length || !conversation.contacts.some( c => { return c.id === contact.id }))){

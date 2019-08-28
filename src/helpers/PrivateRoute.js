@@ -4,8 +4,8 @@ import { AuthenticationContext } from "../contexts/AuthenticationContext";
 
 class PrivateRoute extends Route{
     render() {
-        const { user } = this.context;
-        if(!user){
+        const { authState } = this.context;
+        if(!authState.user){
             return <Redirect to="/signin" />
         }else{
             return super.render()
