@@ -1,4 +1,5 @@
 import { Actions } from '../actions/authenticationActions'
+import {clearLocalStorage} from "../helpers/localStorage";
 
 export const authenticationReducer = function (state, action) {
     console.debug('Action: ', action, '\nSTATE ', state);
@@ -16,6 +17,13 @@ export const authenticationReducer = function (state, action) {
             const {error} = action;
             newState = {
                 error
+            };
+            break;
+        case Actions.LOGOUT:
+            clearLocalStorage();
+            newState = {
+                user: null,
+                error: null
             };
             break;
         default:

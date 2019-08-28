@@ -2,7 +2,8 @@ export const Actions = {
     SIGN_IN_PENDING: 'SIGN_IN_PENDING',
     SIGN_IN_SUCCESS: 'SIGN_IN_SUCCESS',
     SIGN_IN_ERROR: 'SIGN_IN_ERROR',
-    AUTH_ERROR:'AUTH_ERROR'
+    AUTH_ERROR:'AUTH_ERROR',
+    LOGOUT:'LOGOUT'
 };
 
 /** Helpers **/
@@ -27,5 +28,10 @@ export function authError(error) {
     return {
         type: Actions.AUTH_ERROR,
         error
+    }
+}
+export function logout() {
+    return {
+        type: Actions.LOGOUT
     }
 }

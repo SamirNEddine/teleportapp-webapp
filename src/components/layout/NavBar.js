@@ -4,9 +4,10 @@ import {GET_ME} from "../../graphql/queries";
 
 import './navBar.css';
 import {AuthenticationContext} from "../../contexts/AuthenticationContext";
+import {logout} from "../../actions/authenticationActions";
 
 const NavBar = () => {
-    const { authState } = useContext(AuthenticationContext);
+    const { authState, dispatch } = useContext(AuthenticationContext);
     const {loading, error, data, refetch} = useQuery(GET_ME, {
         skip: !authState.user
     });
@@ -17,6 +18,10 @@ const NavBar = () => {
             refetch();
         }
     },[authState, refetch]);
+
+    const handleLogout = function () {
+        dispatch(logout());
+    };
 
     if (!authState.user){
         return <div/>
@@ -35,7 +40,7 @@ const NavBar = () => {
                             </a>
                             <div className="dropdown-menu   dropdown-secondary"
                                  aria-labelledby="navbarDropdownMenuLink-55">
-                                <div className="dropdown-item" >Action</div>
+                                <div className="dropdown-item" onClick={handleLogout}>Logout</div>
                             </div>
                         </li>
                     </ul>
