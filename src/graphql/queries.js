@@ -14,6 +14,7 @@ export const GET_USERS = gql`
             lastName
             email
             profilePicture
+            status
             company{
                 id
             }

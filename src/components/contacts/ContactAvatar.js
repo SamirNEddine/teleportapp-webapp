@@ -26,12 +26,14 @@ const ContactAvatar = function ({positionClassName, contact}) {
     });
 
     const onClick = _ => {
-        if(selected){
-            // setOpenConversationAnimation(false);
-            // dispatch(leaveConversation());
-        }else{
-            setSelected(true);
-            dispatch(startConversation());
+        if(contact.status === 'available'){
+            if(selected){
+                // setOpenConversationAnimation(false);
+                // dispatch(leaveConversation());
+            }else{
+                setSelected(true);
+                dispatch(startConversation());
+            }
         }
     };
 
@@ -39,7 +41,7 @@ const ContactAvatar = function ({positionClassName, contact}) {
     //     setOpenConversationAnimation(false);
     // }
     return (
-        <div className={'contact-avatar ' + positionClassName + (selected ? ' selected' : '')} onClick={onClick}>
+        <div className={'contact-avatar ' + contact.status + ' ' + positionClassName + (selected ? ' selected' : '')} onClick={onClick}>
             <img src={contact.profilePicture} alt="avatar"/>
         </div>
     )
