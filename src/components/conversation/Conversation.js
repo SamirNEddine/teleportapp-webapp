@@ -31,10 +31,12 @@ const Conversation = function ({history}) {
     const {contacts} = conversation;
     const contactsDivs = contacts.map(contact => {
         if (contact.id === speakingUser.id){
+            const backgrouldImageStyle = {backgroundImage: `url('${contact.profilePicture}')`};
             return (
                 <div key={`${contact.id}_div`}>
-                    <img src={contact.profilePicture} className="speaking-user" alt="user" key={`${contact.id}_img`}/>
-                    <div className="speaking-user-name" key={`${contact.id}_name`}>{`${contact.firstName} ${contact.lastName}`}</div>
+                    <div style={backgrouldImageStyle} className="speaking-user" key={`${contact.id}_img`}>
+                        <div className="speaking-user-name" key={`${contact.id}_name`}>{`${contact.firstName} ${contact.lastName}`}</div>
+                    </div>
                     {contact.stream ? <div id={`audio-div_${contact.stream.getId()}`} key={`audio-div_${contact.stream.getId()}`}/> : ''}
                 </div>
             )
@@ -43,15 +45,11 @@ const Conversation = function ({history}) {
             return <div></div>
         }
     });
-    // const audioDivs = remoteStreams && remoteStreams.length ?  remoteStreams.map(stream => {
-    //     return <div id={`audio-div_${stream.getId()}`} key={`audio-div_${stream.getId()}`}/>
-    // }) : '';
 
     return (
         <div className="screen-container">
             {agoraError ? <div className="error">Error!</div> : ''}
             {contactsDivs}
-            {/*{audioDivs}*/}
         </div>
     )
 };
