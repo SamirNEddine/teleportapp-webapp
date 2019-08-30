@@ -5,6 +5,8 @@ import { graphql } from 'react-apollo';
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './contacts.css';
+import {startConversation} from "../../reducers/conversationReducer";
+import {AuthenticationContext} from "../../contexts/AuthenticationContext";
 
 const DEGREE_PREFIX = "deg";
 const STARTING_DEGREE = 30;
@@ -12,6 +14,8 @@ const DEGREE_OFFSET = 60;
 const NUMBER_OF_AVATARS = 7;
 
 const ContactList = function ({data, history}) {
+    const {authState} = useContext(AuthenticationContext);
+
     const {conversation, dispatch} = useContext(ConversationContext);
     useEffect( _ => {
         if (conversation.contacts && conversation.contacts.length){
@@ -20,6 +24,10 @@ const ContactList = function ({data, history}) {
             });
         }
     }, conversation.contacts);
+
+    const onContactClick = contactId => {
+        dispatch(startConversation(authState.user.id, contactId))
+    };
 
     const {error, loading, users} = data;
     const displayList = _ => {
@@ -36,7 +44,7 @@ const ContactList = function ({data, history}) {
             for(let i=0; i< NUMBER_OF_AVATARS && i< users.length; i++){
                 const user = users[i];
                 const positionClassName = i === 0 ? "center" : DEGREE_PREFIX + String(STARTING_DEGREE + (i-1)*DEGREE_OFFSET);
-                const avatar = <ContactAvatar positionClassName={positionClassName} contact={user} key={user.id}/>;
+                const avatar = <ContactAvatar positionClassName={positionClassName} contact={user} key={user.id} onClick={onContactClick}/>;
                 avatars.push(avatar);
             }
             return avatars;

@@ -31,7 +31,7 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [error, loading, data]);
 
-    const [agoraError, event, eventData] = useAgora(state.channel);
+    const [agoraError, event, eventData] = useAgora(authState, state.channel);
     useEffect( () => {
         if (!agoraError && eventData){
             switch(event){

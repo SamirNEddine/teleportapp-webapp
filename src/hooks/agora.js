@@ -12,8 +12,7 @@ export const AgoraEvents = {
     REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED'
 };
 
-export function useAgora(channel) {
-    const {authState} = useContext(AuthenticationContext);
+export function useAgora(authState, channel) {
     const [agoraError, setAgoraError] = useState(null);
     const [event, setEvent] = useState(null);
     const [client, setClient] = useState(null);
