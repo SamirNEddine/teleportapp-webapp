@@ -5,7 +5,6 @@ import { graphql } from 'react-apollo';
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './contacts.css';
-import {joinAudioChannel} from "../../actions/conversationActions";
 
 const DEGREE_PREFIX = "deg";
 const STARTING_DEGREE = 30;
@@ -50,6 +49,7 @@ const ContactList = function ({data, history}) {
                 {displayList()}
             </div>
             {conversation && conversation.error ? <div className="error">Error: {conversation.error}</div> : ''}
+
         </div>
     );
 };

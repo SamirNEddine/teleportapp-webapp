@@ -4,7 +4,6 @@ import { AgoraContext } from "../../contexts/AgoraContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './conversation.css'
-import {contactRemoteStreamPlayed} from "../../actions/conversationActions";
 
 const Conversation = function ({history}) {
     const {agoraError} = useContext(AgoraContext);
@@ -16,13 +15,12 @@ const Conversation = function ({history}) {
                 pathname: '/',
             });
         }
-        if (conversation.playingContactRemoteStream) {
+        if (true) {
             console.log("CONTACTS: ", conversation.contacts);
             //Play the stream of the last added contact
             const stream = conversation.contacts[contacts.length - 1].stream;
             const streamId = stream.getId();
             stream.play('audio-div_' + streamId);
-            dispatch(contactRemoteStreamPlayed());
         }
     });
     if (!conversation || !conversation.contacts || !conversation.contacts.length){

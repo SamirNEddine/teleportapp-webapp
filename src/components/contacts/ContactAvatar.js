@@ -2,11 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { withRouter } from 'react-router-dom'
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
-import {
-    addContactToConversation,
-    joinAudioChannel,
-    startConversation
-} from "../../actions/conversationActions";
 
 import './contacts.css';
 
@@ -15,15 +10,15 @@ const ContactAvatar = function ({positionClassName, contact}) {
     const {conversation, dispatch} = useContext(ConversationContext);
     const [selected, setSelected] = useState(false);
 
-    useEffect(_ => {
-        if (selected && conversation.startingConversation && !conversation.channel){
-            const channel = `${authState.user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
-            dispatch(joinAudioChannel(channel))
-        }
-        if (selected && conversation.joinedAudioChannel && (!conversation.contacts.length || !conversation.contacts.some( c => { return c.id === contact.id }))){
-            dispatch(addContactToConversation(contact));
-        }
-    });
+    // useEffect(_ => {
+    //     if (selected && conversation.startingConversation && !conversation.channel){
+    //         const channel = `${authState.user.email}_${contact.email}_${Math.floor(Math.random() * 10000)}`;
+    //         dispatch(joinAudioChannel(channel))
+    //     }
+    //     if (selected && conversation.joinedAudioChannel && (!conversation.contacts.length || !conversation.contacts.some( c => { return c.id === contact.id }))){
+    //         dispatch(addContactToConversation(contact));
+    //     }
+    // });
 
     const onClick = _ => {
         if(contact.status === 'available'){

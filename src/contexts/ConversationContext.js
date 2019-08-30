@@ -1,5 +1,10 @@
 import React, { createContext, useReducer, useContext, useEffect, useState } from 'react';
-import { conversationReducer } from "../reducers/conversationReducer";
+import {
+    contactFetched,
+    conversationReducer,
+    remoteStreamReceived,
+    remoteStreamRemoved
+} from "../reducers/conversationReducer";
 import { AuthenticationContext } from "./AuthenticationContext";
 import {useAgora, AgoraEvents} from "../hooks/agora";
 import {useLazyQuery} from "@apollo/react-hooks";
@@ -19,7 +24,8 @@ export const ConversationContextProvider = function ({children}) {
     useEffect( () => {
         if(!error && loading){
             const {user} = data;
-            //Disaptch
+            //Update contacts
+            dispatch(contactFetched(user));
         }else{
             //Todo: Error handling
         }
@@ -31,12 +37,16 @@ export const ConversationContextProvider = function ({children}) {
             switch(event){
                 case AgoraEvents.REMOTE_STREAM_RECEIVED:
                     const {receivedStream} = eventData;
+                    //Update remote streams
+                    dispatch(remoteStreamReceived(receivedStream));
+                    //Fetch the contact info
                     const contactId = receivedStream.getId();
                     getUser({variables: {id: contactId}});
                     break;
                 case AgoraEvents.REMOTE_STREAM_REMOVED:
                     const {removedStream} = eventData;
-                    //Dispatch
+                    //Update contacts and remote streams
+                    dispatch(remoteStreamRemoved(removedStream));
                     break;
                 default:
                     break;
