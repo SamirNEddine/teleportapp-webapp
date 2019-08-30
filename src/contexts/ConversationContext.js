@@ -1,7 +1,7 @@
-import React, { createContext, useReducer, useContext, useEffect } from 'react';
+import React, { createContext, useReducer, useContext, useEffect, useState } from 'react';
 import { conversationReducer } from "../reducers/conversationReducer";
 import { AuthenticationContext } from "./AuthenticationContext";
-import { AgoraContext } from "./AgoraContext";
+import AgoraRTC from "agora-rtc-sdk";
 import { useQuery } from "@apollo/react-hooks";
 import { GET_AGORA_TOKEN } from "../graphql/queries";
 import {
@@ -15,14 +15,21 @@ import {
     remoteStreamRemoved
 } from "../actions/conversationActions";
 import openSocket from 'socket.io-client';
-import {getAuthenticationToken} from "../helpers/localStorage";
 
 export const ConversationContext = createContext();
 
 export let socket = null;
 export const ConversationContextProvider = function ({children}) {
     const {authState} = useContext(AuthenticationContext);
-    const {agoraClient, localStream, listenersAdded, setListenersAdded, remoteStreams, setRemoteStreams, setAgoraError} = useContext(AgoraContext);
+    const {agoraClient, setAgoraClient} = useState(null);
+    useEffect( _ => {
+        if(authState.user && !authState.error){
+            setAgoraClient(AgoraRTC.createClient({ mode: "live", codec: "h264" }));
+        }else{
+            agoraClient.stop();
+        }
+    }, [authState, agoraClient]);
+
     const [conversation, dispatch] = useReducer(conversationReducer, {
         channel: null,
         contacts: [],
@@ -85,71 +92,10 @@ export const ConversationContextProvider = function ({children}) {
             setAgoraError(null);
         });
         //Stream received. Update state
-        agoraClient.on('stream-added', evt => {
-            const remoteStream = evt.stream;
-            console.debug("New stream added: " + remoteStream.getId());
-            setRemoteStreams(remoteStreams.push(remoteStream));
-            dispatch(contactRemoteStreamReceived(remoteStream));
-            agoraClient.subscribe(remoteStream, function (err) {
-                console.debug("Subscribe stream failed", err);
-                setAgoraError(err);
-            });
-        });
-        //Subscribe to streams changes
-        agoraClient.on('stream-subscribed', evt => {
-            const remoteStream = evt.stream;
-            const streamId = remoteStream.getId();
-            console.debug("Subscribe remote stream successfully: " + streamId);
-            setAgoraError(null);
-        });
-        //Listen for remove and leave events
-        agoraClient.on('stream-removed', evt => {
-            const stream = evt.stream;
-            const streamId = stream.getId();
-            stream.stop();
-            console.debug('Stream removed:', streamId);
-            dispatch(remoteStreamRemoved(stream));
-        });
-        agoraClient.on('peer-leave', evt => {
-            const stream = evt.stream;
-            const streamId = stream.getId();
-            stream.stop();
-            console.debug('Peer left:', streamId);
-            dispatch(remoteStreamRemoved(stream));
-        });
+
         setListenersAdded(true);
     }
-
-    if(conversation && !conversation.error && conversation.joiningAudioChannel){
-        refetch();
-        if (error) dispatch(conversationError(error));
-        if (!loading && data){
-            const {userAgoraToken} = data;
-            console.log(userAgoraToken, conversation.channel, authState.user.id);
-            agoraClient.join(userAgoraToken, conversation.channel, authState.user.id, (uid) => {
-                console.log("User " + uid + " join channel successfully");
-                setAgoraError(null);
-                if(conversation.startingConversation){
-                    //Update socket
-                    console.log("START CHANNEL", conversation);
-                    socket.emit('start-conversation', {channel: conversation.channel});
-                }
-                dispatch(audioChannelJoined());
-                agoraClient.publish(localStream, err => {
-                    console.log("Failed to publish stream", err);
-                    setAgoraError(err);
-                    dispatch(conversationError("Agora error"));
-                });
-            }, function(err) {
-                console.log("Join channel failed", err);
-                setAgoraError(err);
-                dispatch(conversationError("Agora error"));
-            });
-        }else if(!loading){
-            dispatch(conversationError("Unexpected error from Teleport server"));
-        }
-    }
-
+    // socket.emit('start-conversation', {channel: conversation.channel});
 
     // if(conversation && conversation.left){
     //     agoraClient.leave(function() {
