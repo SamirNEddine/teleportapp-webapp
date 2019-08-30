@@ -16,8 +16,8 @@ export const CONVERSATION_SOCKET_OUTGOING_MESSAGES = {
 };
 
 const socketIncomingMessagesMap = {
-    STATUS_SOCKET: STATUS_SOCKET_INCOMING_MESSAGES,
-    CONVERSATION_SOCKET: CONVERSATION_SOCKET_INCOMING_MESSAGES
+    [STATUS_SOCKET]: STATUS_SOCKET_INCOMING_MESSAGES,
+    [CONVERSATION_SOCKET]: CONVERSATION_SOCKET_INCOMING_MESSAGES
 };
 
 export function useSocket(authState, nameSpace) {
@@ -33,12 +33,16 @@ export function useSocket(authState, nameSpace) {
                 }
             }));
         }else if(authState.user && socket){
+            console.debug(`Setup ${nameSpace} socket listeners`);
             //Setup listeners
             const incomingMessages = socketIncomingMessagesMap[nameSpace];
+            console.debug(`${nameSpace} socket: incoming messages: ${incomingMessages}`);
             for(let incomingMessageKey in incomingMessages) {
                 if (incomingMessages.hasOwnProperty(incomingMessageKey)) {
                     const incomingMessage = incomingMessages[incomingMessageKey];
+                    console.debug(`${nameSpace} socket: listening to ${incomingMessage}`);
                     socket.on(incomingMessage, (data) => {
+                        console.debug(`Incoming message: ${incomingMessage} on ${nameSpace} socket`);
                         setMessage(incomingMessage);
                         setData(data);
                     });
@@ -47,6 +51,15 @@ export function useSocket(authState, nameSpace) {
         }else if (!authState.user && socket){
                 console.debug(`Closing ${nameSpace} socket`);
                 socket.close();
+        }
+        return _ => {
+            if (socket){
+                //Cleaning
+                console.debug(`${nameSpace} socket: unsubscribe from all events`);
+                for(let key in socketIncomingMessagesMap[nameSpace]) {
+                    socket.off(socketIncomingMessagesMap[nameSpace][key]);
+                }
+            }
         }
 
     }, [authState.user, nameSpace, socket, message, data, error]);

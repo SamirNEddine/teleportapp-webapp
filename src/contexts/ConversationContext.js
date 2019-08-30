@@ -29,14 +29,14 @@ export const ConversationContextProvider = function ({children}) {
         contactIdToAdd:null
     });
 
-    useSocket(authState, STATUS_SOCKET);
-
     const [socketError, message, socketData, sendMessage] = useSocket(authState, CONVERSATION_SOCKET);
-    if(message === CONVERSATION_SOCKET_INCOMING_MESSAGES.JOIN_CONVERSATION && socketData){
-        const {channel} = socketData;
-        console.debug(`Incoming conversation: ${channel}`);
-        dispatch(joinConversation(channel));
-    }
+    useEffect( () => {
+        if(message === CONVERSATION_SOCKET_INCOMING_MESSAGES.JOIN_CONVERSATION && socketData){
+            const {channel} = socketData;
+            console.debug(`Incoming conversation: ${channel}`);
+            dispatch(joinConversation(channel));
+        }
+    }, [message, socketData]);
 
     useEffect( () => {
         if(state.contactIdToAdd){
@@ -47,36 +47,40 @@ export const ConversationContextProvider = function ({children}) {
 
 
     const [getUser, {error, loading, data}] = useLazyQuery(GET_USER);
-    if(!error && loading){
-        const {user} = data;
-        //Update contacts
-        dispatch(contactFetched(user));
-    }else{
-        //Todo: Error handling
-    }
+    useEffect( ()=> {
+        if(!error && !loading && data){
+            const {user} = data;
+            //Update contacts
+            dispatch(contactFetched(user));
+        }else{
+            //Todo: Error handling
+        }
+    }, [error, loading, data]);
 
     const [agoraError, event, eventData] = useAgora(authState, state.channel);
-    if (!agoraError && eventData){
-        switch(event){
-            case AgoraEvents.REMOTE_STREAM_RECEIVED:
-                const {receivedStream} = eventData;
-                //Update remote streams
-                dispatch(remoteStreamReceived(receivedStream));
-                //Fetch the contact info
-                const contactId = receivedStream.getId();
-                getUser({variables: {id: contactId}});
-                break;
-            case AgoraEvents.REMOTE_STREAM_REMOVED:
-                const {removedStream} = eventData;
-                //Update contacts and remote streams
-                dispatch(remoteStreamRemoved(removedStream));
-                break;
-            default:
-                break;
+    useEffect( () => {
+        if (!agoraError && eventData){
+            switch(event){
+                case AgoraEvents.REMOTE_STREAM_RECEIVED:
+                    const {receivedStream} = eventData;
+                    //Update remote streams
+                    dispatch(remoteStreamReceived(receivedStream));
+                    //Fetch the contact info
+                    const contactId = receivedStream.getId();
+                    getUser({variables: {id: contactId}});
+                    break;
+                case AgoraEvents.REMOTE_STREAM_REMOVED:
+                    const {removedStream} = eventData;
+                    //Update contacts and remote streams
+                    dispatch(remoteStreamRemoved(removedStream));
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            //Todo: Error handling strategy for Agora
         }
-    }else{
-        //Todo: Error handling strategy for Agora
-    }
+    }, [agoraError, event, eventData]);
 
     return (
         <ConversationContext.Provider value={{conversation: state, dispatch}}>

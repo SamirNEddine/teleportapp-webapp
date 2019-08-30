@@ -8,7 +8,8 @@ export const AgoraEvents = {
     GET_AGORA_TOKEN: 'GET_AGORA_TOKEN',
     JOIN_CHANNEL: 'JOIN_CHANNEL',
     REMOTE_STREAM_RECEIVED: 'REMOTE_STREAM_RECEIVED',
-    REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED'
+    REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED',
+    REMOTE_STREAM_SUBSCRIBED: 'REMOTE_STREAM_SUBSCRIBED'
 };
 
 export function useAgora(authState, channel) {
@@ -33,8 +34,25 @@ export function useAgora(authState, channel) {
     const [configured, setConfigured] = useState(false);
     useEffect( () => {
         if(client && !configured){
+            //Init the client
+            client.init(process.env.REACT_APP_AGORA_APP_ID, function () {
+                console.debug('AgoraRTC client initialized');
+            }, function (err) {
+                console.debug('AgoraRTC client init failed', err);
+                setAgoraError(err);
+            });
+            //Init the local stream to have access to microphone
+            localStream.init( _ => {
+                console.log('Access to microphone successful');
+                setEvent(AgoraEvents.INIT_LOCAL_STREAM);
+            }, function (err) {
+                console.log('Access to microphone failed:', err);
+                setEvent(AgoraEvents.INIT_LOCAL_STREAM);
+                setAgoraError(err);
+            });
             //Setup listeners
             //Remote stream received: A new contact added to the conversation.
+            console.debug('Configuring Agora client and local stream');
             client.on('stream-added', evt => {
                 const stream = evt.stream;
                 console.debug(`New stream received for contact id: ${stream.getId()}`);
@@ -48,6 +66,7 @@ export function useAgora(authState, channel) {
             //Subscribe to streams changes
             client.on('stream-subscribed', evt => {
                 console.debug(`Subscribed to stream changes for contact ${evt.stream.getId()}`);
+                setEvent(AgoraEvents.REMOTE_STREAM_SUBSCRIBED);
             });
             //Listen for remove and leave events
             client.on('stream-removed', evt => {
@@ -59,15 +78,6 @@ export function useAgora(authState, channel) {
                 console.debug(`Contact ${evt.stream.getId()} left. (peer-left event)`);
                 setEventData({removedStream: evt.stream});
                 setEvent(AgoraEvents.REMOTE_STREAM_REMOVED);
-            });
-            //Init the local stream to have access to microphone
-            localStream.init( _ => {
-                console.log('Access to microphone successful');
-                setEvent(AgoraEvents.INIT_LOCAL_STREAM);
-            }, function (err) {
-                console.log('Access to microphone failed:', err);
-                setEvent(AgoraEvents.INIT_LOCAL_STREAM);
-                setAgoraError(err);
             });
             setConfigured(true);
         }else if(!authState.user){
@@ -82,6 +92,7 @@ export function useAgora(authState, channel) {
         skip: !channel
     });
     useEffect( () => {
+        console.log(`Channel : ${channel} channelIsKoined: ${channelJoined}`);
         if (channel && !channelJoined) {
             if (error) {
                 setEvent(GET_AGORA_TOKEN);
@@ -97,6 +108,7 @@ export function useAgora(authState, channel) {
                     client.join(userAgoraToken, channel, authState.user.id, (userId) => {
                         console.debug(`Channel ${channel} joined`);
                         setEvent(AgoraEvents.JOIN_CHANNEL);
+                        setChannelJoined(true);
                         console.debug('Publishing local stream');
                         client.publish(localStream, err => {
                             console.log(`Failed to publish local stream for channel ${channel}. Error: ${err}`);
@@ -115,8 +127,9 @@ export function useAgora(authState, channel) {
             console.debug(`Leaving channel ${channel}`);
             client.leave();
             setChannelJoined(false);
+            setEvent(null);
         }
-    }, [channel, channelJoined, loading, error, data, refetch, localStream, agoraError, authState.user, client]);
+    }, [channel, channelJoined, loading, error, data, refetch]);
 
     return [agoraError, event, eventData];
 }

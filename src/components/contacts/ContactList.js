@@ -5,7 +5,9 @@ import { graphql } from 'react-apollo';
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './contacts.css';
-import {addContact, startConversation} from "../../reducers/conversationReducer";
+import {addContact, joinConversation, startConversation} from "../../reducers/conversationReducer";
+import {STATUS_SOCKET, useSocket} from "../../hooks/socket";
+import {AuthenticationContext} from "../../contexts/AuthenticationContext";
 
 const DEGREE_PREFIX = "deg";
 const STARTING_DEGREE = 30;
@@ -21,6 +23,12 @@ const ContactList = function ({data, history}) {
             });
         }
     }, [conversation.contacts, history]);
+
+    const {authState} = useContext(AuthenticationContext);
+    const [socketError, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
+    useEffect( () => {
+
+    }, [message, socketData]);
 
     const onContactClick = contact => {
         dispatch(startConversation());

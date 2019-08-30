@@ -12,29 +12,29 @@ const Conversation = function ({history}) {
                 pathname: '/',
             });
         }
-    }, [conversation.contacts, history]);
 
-    const playRemoteStreams = _ => {
         //Todo: Check if you need optimization here
+        console.debug(`Remote streams: ${conversation.remoteStreams}`);
         for (let i = 0; i < conversation.contacts.length; i++) {
-            const contact = conversation.contact[i];
+            const contact = conversation.contacts[i];
             if (conversation.remoteStreams[contact.id]) {
+                console.log(`Playing stream for contact ${contact.id}`);
                 conversation.remoteStreams[contact.id].play('audio-div_' + contact.id);
             }
         }
-    };
+    }, [conversation.contacts, conversation.remoteStreams, history]);
 
     console.log('Conversation with contacts:\n', conversation.contacts);
     const {contacts} = conversation;
     const contactsDivs = contacts.map(contact => {
         if (contact.id === speakingUser.id){
-            const backgrouldImageStyle = {backgroundImage: `url('${contact.profilePicture}')`};
+            const backgroundImageStyle = {backgroundImage: `url('${contact.profilePicture}')`};
             return (
                 <div key={`${contact.id}_div`}>
-                    <div style={backgrouldImageStyle} className="speaking-user" key={`${contact.id}_img`}>
+                    <div style={backgroundImageStyle} className="speaking-user" key={`${contact.id}_img`}>
                         <div className="speaking-user-name" key={`${contact.id}_name`}>{`${contact.firstName} ${contact.lastName}`}</div>
                     </div>
-                    {contact.stream ? <div id={`audio-div_${contact.stream.getId()}`} key={`audio-div_${contact.stream.getId()}`}/> : ''}
+                    <div id={`audio-div_${contact.id}`} key={`audio-div_${contact.id}`}/>
                 </div>
             )
         }else{
@@ -46,7 +46,6 @@ const Conversation = function ({history}) {
     return (
         <div className="screen-container">
             {contactsDivs}
-            {playRemoteStreams()}
         </div>
     )
 };

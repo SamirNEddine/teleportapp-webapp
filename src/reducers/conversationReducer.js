@@ -76,21 +76,21 @@ export const conversationReducer = function (state, action) {
             const {channel} = action;
             newState = {
                 channel,
-                contacts: null,
-                remoteStreams: null
+                contacts: [],
+                remoteStreams: {}
             };
              break;
         case Actions.LEAVE_CONVERSATION:
             newState = {
                 channel: null,
-                contacts: null,
-                remoteStreams: null
+                contacts: [],
+                remoteStreams: {}
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
             const {receivedStream} = action;
-            const updatedRemoteStreams = state.remoteStreams ? state.remoteStreams : {};
-            updatedRemoteStreams[receivedStream.getId] = receivedStream;
+            const updatedRemoteStreams = state.remoteStreams;
+            updatedRemoteStreams[receivedStream.getId()] = receivedStream;
             newState = {
                 ...state,
                 remoteStreams: updatedRemoteStreams
@@ -101,13 +101,14 @@ export const conversationReducer = function (state, action) {
             const {removedStream} = action;
             const contactId = removedStream.getId();
             delete remoteStreams[contactId];
-            const updatedContacts = contacts.filter( contact => {return contact !== contactId})
+            const updatedContacts = contacts.filter( contact => {return contact.id !== contactId});
             newState = {
-                ...newState,
+                ...state,
                 channel: updatedContacts.length ? state.channel : null,
                 remoteStreams,
                 contacts: updatedContacts
             };
+            console.log(newState);
             break;
         case Actions.ADD_CONTACT:
             newState = {
