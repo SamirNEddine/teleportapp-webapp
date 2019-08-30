@@ -18,7 +18,7 @@ export function useAgora(channel) {
     const [event, setEvent] = useState(null);
     const [client, setClient] = useState(null);
     const [localStream, setLocalStream] = useState(null);
-    let remoteStream = null;
+    const [eventData, setEventData] = useState(null);
     useEffect( () => {
         const clean = _ => {
             localStream.close();
@@ -44,7 +44,7 @@ export function useAgora(channel) {
             client.on('stream-added', evt => {
                 const stream = evt.stream;
                 console.debug(`New stream received for contact id: ${stream.getId()}`);
-                remoteStream = stream;
+                setEventData({receivedStream: stream});
                 setEvent(AgoraEvents.REMOTE_STREAM_RECEIVED);
                 client.subscribe(stream, function (err) {
                     console.debug(`Failed to subscribe for stream changes for contact ${stream.getId()}. Error: ${err}`);
@@ -60,12 +60,12 @@ export function useAgora(channel) {
             //Listen for remove and leave events
             client.on('stream-removed', evt => {
                 console.debug(`Remote stream for contact ${evt.stream.getId()} removed`);
-                remoteStream = evt.stream;
+                setEventData({removedStream: evt.stream});
                 setEvent(AgoraEvents.REMOTE_STREAM_REMOVED);
             });
             client.on('peer-leave', evt => {
                 console.debug(`Contact ${evt.stream.getId()} left. (peer-left event)`);
-                remoteStream = evt.stream;
+                setEventData({removedStream: evt.stream});
                 setEvent(AgoraEvents.REMOTE_STREAM_REMOVED);
             });
         }else if (client){
@@ -74,7 +74,7 @@ export function useAgora(channel) {
         return _ => {
             clean();
         }
-    }, [authState, client, localStream, agoraError]);
+    }, [authState, client, localStream, agoraError, eventData]);
 
     const [channelJoined, setChannelJoined] = useState(false);
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
@@ -119,5 +119,5 @@ export function useAgora(channel) {
         }
     }, [channel, channelJoined, loading, error, data, refetch, localStream, agoraError]);
 
-    return [agoraError, event, remoteStream];
+    return [agoraError, event, eventData];
 }
