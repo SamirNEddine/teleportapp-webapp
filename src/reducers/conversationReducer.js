@@ -1,116 +1,132 @@
-import { Actions } from "../actions/conversationActions";
-import { socket } from "../contexts/ConversationContext";
+const Actions = {
+    START_CONVERSATION: 'START_CONVERSATION',
+    JOIN_CONVERSATION: 'JOIN_CONVERSATION',
+    LEAVE_CONVERSATION: 'LEAVE_CONVERSATION',
+    REMOTE_STREAM_RECEIVED: 'REMOTE_STREAM_RECEIVED',
+    REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED',
+    ADD_CONTACT: 'ADD_CONTACT',
+    CONTACT_ADDED:'CONTACT_ADDED',
+    CONTACT_FETCHED: 'CONTACT_FETCHED'
+};
+
+function randomString() {
+    return  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+/** Helpers **/
+export function startConversation() {
+    //Generate channel name.
+    //Todo: Check if you need to move this code somewhere else.
+    const channel = randomString();
+    return {
+        type: Actions.START_CONVERSATION,
+        channel
+    }
+}
+export function joinConversation(channel) {
+    return {
+        type: Actions.JOIN_CONVERSATION,
+        channel
+    }
+}
+export function leaveConversation() {
+    return {
+        type: Actions.LEAVE_CONVERSATION,
+    }
+}
+export function remoteStreamReceived(receivedStream) {
+    return {
+        type: Actions.REMOTE_STREAM_RECEIVED,
+        receivedStream
+    }
+}
+export function remoteStreamRemoved(removedStream) {
+    return {
+        type: Actions.REMOTE_STREAM_REMOVED,
+        removedStream
+    }
+}
+export function addContact(contactId) {
+    return {
+        type: Actions.ADD_CONTACT,
+        contactId
+    }
+}
+export function contactAdded(contactId) {
+    return {
+        type: Actions.CONTACT_ADDED,
+        contactId
+    }
+}
+export function contactFetched(contact) {
+    return {
+        type: Actions.CONTACT_FETCHED,
+        contact
+    }
+}
+
 
 export const conversationReducer = function (state, action) {
-    console.debug('Action: ', action, '\nSTATE ', state);
+    console.debug('Conversation Reducer:\nAction: ', action, '\nSTATE ', state);
     let newState = state;
     const {type} = action;
     switch (type) {
         case Actions.START_CONVERSATION:
+        case Actions.JOIN_CONVERSATION:
+            const {channel} = action;
             newState = {
-                ...state,
-                startingConversation: true,
-                channel: null
+                channel,
+                contacts: [],
+                remoteStreams: {}
             };
              break;
-        case Actions.JOIN_CONVERSATION:
+        case Actions.LEAVE_CONVERSATION:
             newState = {
-                joiningConversation: true,
-                channel: action.conversation.channel,
-                contacts: action.conversation.contacts
+                channel: null,
+                contacts: [],
+                remoteStreams: {}
             };
             break;
-        case Actions.JOIN_AUDIO_CHANNEL:
+        case Actions.REMOTE_STREAM_RECEIVED:
+            const {receivedStream} = action;
+            const updatedRemoteStreams = state.remoteStreams;
+            updatedRemoteStreams[receivedStream.getId()] = receivedStream;
             newState = {
                 ...state,
-                joiningAudioChannel: true,
-                channel: action.channel
-            };
-            break;
-        case Actions.AUDIO_CHANNEL_JOINED:
-            newState = {
-                ...state,
-                joiningAudioChannel: false,
-                joinedAudioChannel: true
-            };
-            break;
-        case Actions.LOCAL_STREAM_READY_FOR_CONVERSATION:
-            newState = {
-                ...state,
-                readyForConversation: true
-            };
-            break;
-        case Actions.ADD_CONTACT_TO_CONVERSATION:
-            const currentContacts = state.contacts ? state.contacts : [];
-            newState = {
-                ...state,
-                addingContactToConversation: true,
-                contacts: [...currentContacts, action.contact]
-            };
-            break;
-        case Actions.WAITING_FOR_ADDED_CONTACT_REMOTE_STREAM:
-            newState = {
-                ...state,
-                addingContactToConversation: false,
-                waitingForAddedContactRemoteStream: true
-            };
-            break;
-        case Actions.CONTACT_REMOTE_STREAM_RECEIVED:
-            const {receivedRemoteStream} = action;
-            const streamId = receivedRemoteStream.getId();
-            const contacts = state.contacts.map( contact => {
-                if(contact.id === streamId){
-                    contact.stream = receivedRemoteStream;
-                }
-                return contact;
-            });
-            newState = {
-                ...state,
-                waitingForAddedContactRemoteStream: false,
-                contactRemoteStreamReceived: true,
-                contacts
-            };
-            break;
-        case Actions.PLAY_CONTACT_REMOTE_STREAM:
-            newState = {
-                ...state,
-                contactRemoteStreamReceived: false,
-                playingContactRemoteStream: true,
-                receivedRemoteStream: null
-            };
-            break;
-        case Actions.CONTACT_REMOTE_STREAM_PLAYED:
-            newState = {
-                ...state,
-                playingContactRemoteStream: false
+                remoteStreams: updatedRemoteStreams
             };
             break;
         case Actions.REMOTE_STREAM_REMOVED:
-            const {stream} = action;
-            //Remove corresponding contact
-            const updatedContacts = state.contacts.filter( contact => {
-                 if (contact.stream.getId() !== stream.getId()){
-                     return true;
-                 }else{
-                     //Avoid sending the stream.
-                     contact.stream = '';
-                     socket.emit('contact-left', {contact, channel: state.channel});
-                     return false;
-                 }
-            });
-            if(!updatedContacts.length){
-               //Leave conversation
-                socket.emit('leave-conversation', {channel: state.channel});
-            }
+            let {contacts, remoteStreams} = state;
+            const {removedStream} = action;
+            const contactId = removedStream.getId();
+            delete remoteStreams[contactId];
+            const updatedContacts = contacts.filter( contact => {return contact.id !== contactId});
             newState = {
                 ...state,
+                channel: updatedContacts.length ? state.channel : null,
+                remoteStreams,
                 contacts: updatedContacts
             };
+            console.log(newState);
             break;
-        case Actions.CONVERSATION_ERROR:
-            const {error} = action;
+        case Actions.ADD_CONTACT:
             newState = {
-                error
+                ...newState,
+                contactIdToAdd: action.contactId
+            };
+            break;
+        case Actions.CONTACT_ADDED:
+            newState = {
+                ...newState,
+                contactIdToAdd: null
+            };
+            break;
+        case Actions.CONTACT_FETCHED:
+            const {contact} = action;
+            newState = {
+                ...newState,
+                contacts: [...state.contacts, contact]
             };
             break;
         default:

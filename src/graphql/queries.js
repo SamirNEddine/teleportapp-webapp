@@ -22,6 +22,18 @@ export const GET_USERS = gql`
     }
 `;
 
+export const GET_USER = gql`
+    query($id: ID!){
+        user(id: $id){
+            id
+            firstName
+            lastName
+            profilePicture
+            email
+        }
+    }
+`;
+
 export const GET_ME = gql`
     query{
         user{
