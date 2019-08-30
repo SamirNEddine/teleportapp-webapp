@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import AgoraRTC from "agora-rtc-sdk";
-import {AuthenticationContext} from "../contexts/AuthenticationContext";
 import { useQuery } from "@apollo/react-hooks";
 import {GET_AGORA_TOKEN} from "../graphql/queries";
 
@@ -19,25 +18,21 @@ export function useAgora(authState, channel) {
     const [localStream, setLocalStream] = useState(null);
     const [eventData, setEventData] = useState(null);
     useEffect( () => {
-        const clean = _ => {
-            localStream.close();
-            setLocalStream(null);
-            client.leave();
-            setClient(null);
-        };
         if (!authState.error && authState.user && !client){
             //Create client and stream
             setClient(AgoraRTC.createClient({ mode: "live", codec: "h264" }));
             setLocalStream(AgoraRTC.createStream({streamID: authState.user.id, audio: true, video: false, screen: false}));
-            //Init the local stream to have access to microphone
-            localStream.init( _ => {
-                console.log('Access to microphone successful');
-                setEvent(AgoraEvents.INIT_LOCAL_STREAM);
-            }, function (err) {
-                console.log('Access to microphone failed:', error);
-                setEvent(AgoraEvents.INIT_LOCAL_STREAM);
-                setAgoraError(error);
-            });
+            setConfigured(false);
+        }else if (!authState.user && client){
+            localStream.stop();
+            setLocalStream(null);
+            setClient(null);
+        }
+    }, [authState, client, localStream, agoraError, eventData]);
+
+    const [configured, setConfigured] = useState(false);
+    useEffect( () => {
+        if(client && !configured){
             //Setup listeners
             //Remote stream received: A new contact added to the conversation.
             client.on('stream-added', evt => {
@@ -52,8 +47,6 @@ export function useAgora(authState, channel) {
             });
             //Subscribe to streams changes
             client.on('stream-subscribed', evt => {
-                const stream = evt.stream;
-                const streamId = stream.getId();
                 console.debug(`Subscribed to stream changes for contact ${evt.stream.getId()}`);
             });
             //Listen for remove and leave events
@@ -67,13 +60,21 @@ export function useAgora(authState, channel) {
                 setEventData({removedStream: evt.stream});
                 setEvent(AgoraEvents.REMOTE_STREAM_REMOVED);
             });
-        }else if (client){
-            clean();
+            //Init the local stream to have access to microphone
+            localStream.init( _ => {
+                console.log('Access to microphone successful');
+                setEvent(AgoraEvents.INIT_LOCAL_STREAM);
+            }, function (err) {
+                console.log('Access to microphone failed:', err);
+                setEvent(AgoraEvents.INIT_LOCAL_STREAM);
+                setAgoraError(err);
+            });
+            setConfigured(true);
+        }else if(!authState.user){
+            setConfigured(false);
         }
-        return _ => {
-            clean();
-        }
-    }, [authState, client, localStream, agoraError, eventData]);
+
+    }, [configured, client, localStream, authState.user]);
 
     const [channelJoined, setChannelJoined] = useState(false);
     const {loading, error, data, refetch } = useQuery(GET_AGORA_TOKEN, {
@@ -112,11 +113,10 @@ export function useAgora(authState, channel) {
         }else if (!channel && channelJoined){
             //Leave channel
             console.debug(`Leaving channel ${channel}`);
-            localStream.stop();
             client.leave();
             setChannelJoined(false);
         }
-    }, [channel, channelJoined, loading, error, data, refetch, localStream, agoraError]);
+    }, [channel, channelJoined, loading, error, data, refetch, localStream, agoraError, authState.user, client]);
 
     return [agoraError, event, eventData];
 }

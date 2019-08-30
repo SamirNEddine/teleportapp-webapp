@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import openSocket from "socket.io-client";
+import {getAuthenticationToken} from "../helpers/localStorage";
 
 export const STATUS_SOCKET = "status";
 export const STATUS_SOCKET_INCOMING_MESSAGES = {
@@ -23,24 +24,19 @@ export function useSocket(authState, nameSpace) {
     const [socket, setSocket] = useState(null);
     const [message, setMessage] = useState(null);
     const [data, setData] = useState(null);
-    const [error, setError] = useState(null);
+    const [error] = useState(null);
     useEffect( () => {
-        const clean = _ => {
-            if(socket){
-                console.debug(`Closing ${nameSpace} socket`);
-                socket.close();
-            }
-        };
         if (authState.user && !socket){
             setSocket(openSocket(`${process.env.REACT_APP_SOCKET_URL}/${nameSpace}`, {
                 query: {
-                    token: `Bearer ${authState.token}`
+                    token: `Bearer ${getAuthenticationToken()}`
                 }
             }));
+        }else if(authState.user && socket){
             //Setup listeners
             const incomingMessages = socketIncomingMessagesMap[nameSpace];
-            for(let incomingMessageKey in incomingMessages){
-                if (incomingMessages.hasOwnProperty(incomingMessageKey)){
+            for(let incomingMessageKey in incomingMessages) {
+                if (incomingMessages.hasOwnProperty(incomingMessageKey)) {
                     const incomingMessage = incomingMessages[incomingMessageKey];
                     socket.on(incomingMessage, (data) => {
                         setMessage(incomingMessage);
@@ -48,13 +44,12 @@ export function useSocket(authState, nameSpace) {
                     });
                 }
             }
-        }else{
-            clean();
+        }else if (!authState.user && socket){
+                console.debug(`Closing ${nameSpace} socket`);
+                socket.close();
         }
-        return _ => {
-            clean();
-        }
-    }, [authState.user, nameSpace, socket, message, data, error];
+
+    }, [authState.user, nameSpace, socket, message, data, error]);
 
     const sendMessage = (message, data) => {
         if(socket){

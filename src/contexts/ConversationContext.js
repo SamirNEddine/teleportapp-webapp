@@ -1,60 +1,82 @@
-import React, { createContext, useReducer, useContext, useEffect, useState } from 'react';
-import {
-    contactFetched,
-    conversationReducer,
-    remoteStreamReceived,
-    remoteStreamRemoved
-} from "../reducers/conversationReducer";
+import React, { createContext, useReducer, useContext, useEffect } from 'react';
 import { AuthenticationContext } from "./AuthenticationContext";
 import {useAgora, AgoraEvents} from "../hooks/agora";
 import {useLazyQuery} from "@apollo/react-hooks";
 import {GET_USER} from "../graphql/queries";
+import {
+    CONVERSATION_SOCKET,
+    CONVERSATION_SOCKET_INCOMING_MESSAGES,
+    CONVERSATION_SOCKET_OUTGOING_MESSAGES, STATUS_SOCKET,
+    useSocket
+} from "../hooks/socket";
+import {
+    contactAdded,
+    contactFetched,
+    conversationReducer, joinConversation,
+    remoteStreamReceived,
+    remoteStreamRemoved
+} from "../reducers/conversationReducer";
 
 export const ConversationContext = createContext();
 
 export const ConversationContextProvider = function ({children}) {
     const {authState} = useContext(AuthenticationContext);
+
     const [state, dispatch] = useReducer(conversationReducer, {
         channel: null,
         contacts: [],
-        remoteStreams: {}
+        remoteStreams: {},
+        contactIdToAdd:null
     });
 
-    const [getUser, {error, loading, data}] = useLazyQuery(GET_USER);
+    useSocket(authState, STATUS_SOCKET);
+
+    const [socketError, message, socketData, sendMessage] = useSocket(authState, CONVERSATION_SOCKET);
+    if(message === CONVERSATION_SOCKET_INCOMING_MESSAGES.JOIN_CONVERSATION && socketData){
+        const {channel} = socketData;
+        console.debug(`Incoming conversation: ${channel}`);
+        dispatch(joinConversation(channel));
+    }
+
     useEffect( () => {
-        if(!error && loading){
-            const {user} = data;
-            //Update contacts
-            dispatch(contactFetched(user));
-        }else{
-            //Todo: Error handling
+        if(state.contactIdToAdd){
+            sendMessage(CONVERSATION_SOCKET_OUTGOING_MESSAGES.ADD_CONTACT, {contactId: state.contactIdToAdd, channel: state.channel});
+            dispatch(contactAdded(state.contactIdToAdd));
         }
-    }, [error, loading, data]);
+    }, [state.contactIdToAdd, state.channel, sendMessage]);
+
+
+    const [getUser, {error, loading, data}] = useLazyQuery(GET_USER);
+    if(!error && loading){
+        const {user} = data;
+        //Update contacts
+        dispatch(contactFetched(user));
+    }else{
+        //Todo: Error handling
+    }
 
     const [agoraError, event, eventData] = useAgora(authState, state.channel);
-    useEffect( () => {
-        if (!agoraError && eventData){
-            switch(event){
-                case AgoraEvents.REMOTE_STREAM_RECEIVED:
-                    const {receivedStream} = eventData;
-                    //Update remote streams
-                    dispatch(remoteStreamReceived(receivedStream));
-                    //Fetch the contact info
-                    const contactId = receivedStream.getId();
-                    getUser({variables: {id: contactId}});
-                    break;
-                case AgoraEvents.REMOTE_STREAM_REMOVED:
-                    const {removedStream} = eventData;
-                    //Update contacts and remote streams
-                    dispatch(remoteStreamRemoved(removedStream));
-                    break;
-                default:
-                    break;
-            }
-        }else{
-            //Todo: Error handling strategy for Agora
+    if (!agoraError && eventData){
+        switch(event){
+            case AgoraEvents.REMOTE_STREAM_RECEIVED:
+                const {receivedStream} = eventData;
+                //Update remote streams
+                dispatch(remoteStreamReceived(receivedStream));
+                //Fetch the contact info
+                const contactId = receivedStream.getId();
+                getUser({variables: {id: contactId}});
+                break;
+            case AgoraEvents.REMOTE_STREAM_REMOVED:
+                const {removedStream} = eventData;
+                //Update contacts and remote streams
+                dispatch(remoteStreamRemoved(removedStream));
+                break;
+            default:
+                break;
         }
-    }, [agoraError, event, eventData]);
+    }else{
+        //Todo: Error handling strategy for Agora
+    }
 
     return (
         <ConversationContext.Provider value={{conversation: state, dispatch}}>

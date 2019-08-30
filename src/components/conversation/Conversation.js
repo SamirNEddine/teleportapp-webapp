@@ -1,13 +1,10 @@
 import React, {useState, useContext, useEffect} from 'react';
-import { Redirect } from 'react-router-dom';
-import { AgoraContext } from "../../contexts/AgoraContext";
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './conversation.css'
 
 const Conversation = function ({history}) {
-    const {agoraError} = useContext(AgoraContext);
-    const {conversation, dispatch} = useContext(ConversationContext);
+    const {conversation} = useContext(ConversationContext);
     const [speakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
     useEffect(_ => {
         if (!conversation.contacts.length){
@@ -15,17 +12,19 @@ const Conversation = function ({history}) {
                 pathname: '/',
             });
         }
-        if (true) {
-            console.log("CONTACTS: ", conversation.contacts);
-            //Play the stream of the last added contact
-            const stream = conversation.contacts[contacts.length - 1].stream;
-            const streamId = stream.getId();
-            stream.play('audio-div_' + streamId);
+    }, [conversation.contacts, history]);
+
+    const playRemoteStreams = _ => {
+        //Todo: Check if you need optimization here
+        for (let i = 0; i < conversation.contacts.length; i++) {
+            const contact = conversation.contact[i];
+            if (conversation.remoteStreams[contact.id]) {
+                conversation.remoteStreams[contact.id].play('audio-div_' + contact.id);
+            }
         }
-    });
-    if (!conversation || !conversation.contacts || !conversation.contacts.length){
-        return <Redirect to="/"/>
-    }
+    };
+
+    console.log('Conversation with contacts:\n', conversation.contacts);
     const {contacts} = conversation;
     const contactsDivs = contacts.map(contact => {
         if (contact.id === speakingUser.id){
@@ -40,15 +39,16 @@ const Conversation = function ({history}) {
             )
         }else{
             //To do
-            return <div></div>
+            return <div/>
         }
     });
 
     return (
         <div className="screen-container">
-            {agoraError ? <div className="error">Error!</div> : ''}
             {contactsDivs}
+            {playRemoteStreams()}
         </div>
     )
 };
+
 export default Conversation;
