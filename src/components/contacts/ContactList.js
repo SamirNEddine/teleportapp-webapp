@@ -1,12 +1,12 @@
 import React, { useContext, useEffect } from 'react';
 import ContactAvatar from './ContactAvatar';
 import { GET_USERS } from "../../graphql/queries";
-import { graphql } from 'react-apollo';
+import { useQuery } from "@apollo/react-hooks";
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './contacts.css';
 import {addContact, joinConversation, startConversation} from "../../reducers/conversationReducer";
-import {STATUS_SOCKET, useSocket} from "../../hooks/socket";
+import {STATUS_SOCKET, STATUS_SOCKET_INCOMING_MESSAGES, useSocket} from "../../hooks/socket";
 import {AuthenticationContext} from "../../contexts/AuthenticationContext";
 
 const DEGREE_PREFIX = "deg";
@@ -14,7 +14,7 @@ const STARTING_DEGREE = 30;
 const DEGREE_OFFSET = 60;
 const NUMBER_OF_AVATARS = 7;
 
-const ContactList = function ({data, history}) {
+const ContactList = function ({history}) {
     const {conversation, dispatch} = useContext(ConversationContext);
     useEffect( _ => {
         if (conversation.contacts && conversation.contacts.length){
@@ -24,10 +24,14 @@ const ContactList = function ({data, history}) {
         }
     }, [conversation.contacts, history]);
 
+    const {error, loading, data, refetch} = useQuery(GET_USERS);
+
     const {authState} = useContext(AuthenticationContext);
     const [socketError, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
     useEffect( () => {
-
+        if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE){
+            refetch()
+        }
     }, [message, socketData]);
 
     const onContactClick = contact => {
@@ -35,8 +39,8 @@ const ContactList = function ({data, history}) {
         dispatch(addContact(contact.id));
     };
 
-    const {error, loading, users} = data;
     const displayList = _ => {
+        const {users} = data;
         if (error){
             //Todo: Error messaging
             return <div>Error!</div>
@@ -68,4 +72,4 @@ const ContactList = function ({data, history}) {
     );
 };
 
-export default graphql(GET_USERS)(ContactList);
+export default ContactList;
