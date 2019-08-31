@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from 'react';
+import DeviceComponent from "../device/DeviceComponent";
 import ContactAvatar from './ContactAvatar';
 import { GET_USERS } from "../../graphql/queries";
 import { useQuery } from "@apollo/react-hooks";
@@ -54,7 +55,7 @@ const ContactList = function ({history}) {
             for(let i=0; i< NUMBER_OF_AVATARS && i< users.length; i++){
                 const user = users[i];
                 const positionClassName = i === 0 ? "center" : DEGREE_PREFIX + String(STARTING_DEGREE + (i-1)*DEGREE_OFFSET);
-                const avatar = <ContactAvatar positionClassName={positionClassName} contact={user} key={user.id} onContactClick={onContactClick}/>;
+                const avatar = <ContactAvatar styles={`${positionClassName} ${user.status}`} contact={user} scaleOnHover={user.status === 'available'} key={user.id} onContactClick={onContactClick}/>;
                 avatars.push(avatar);
             }
             return avatars;
@@ -62,12 +63,11 @@ const ContactList = function ({history}) {
     };
     return (
         <div>
-            <div className="screen-container">
+            <DeviceComponent>
                 {conversation && (conversation.waiting || conversation.loading) ? <div className="message">Contacting...</div> : ''}
                 {displayList()}
-            </div>
+            </DeviceComponent>
             {conversation && conversation.error ? <div className="error">Error: {conversation.error}</div> : ''}
-
         </div>
     );
 };

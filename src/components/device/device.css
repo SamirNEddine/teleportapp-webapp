@@ -1,0 +1,13 @@
+.device-container {
+    position: relative;
+    width: calc(var(--circle-radius)*2);
+    height: calc(var(--circle-radius)*2);
+    margin: auto;
+    border: dashed 1px;
+    border-radius: 50%;
+    background-image: url('https://storage.googleapis.com/teleport_public/device/front-extracted.jpg');
+    background-size: calc(var(--circle-radius)*2.4);
+    background-repeat: no-repeat;
+    background-position: center;
+    overflow: hidden;
+}

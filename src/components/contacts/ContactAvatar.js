@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom'
 
 import './contacts.css';
 
-const ContactAvatar = function ({positionClassName, contact, onContactClick}) {
+const ContactAvatar = function ({contact, styles, showContactInfo, scaleOnHover, onContactClick}) {
     const [selected, setSelected] = useState(false);
 
     const onClick = _ => {
@@ -19,8 +19,11 @@ const ContactAvatar = function ({positionClassName, contact, onContactClick}) {
     };
 
     return (
-        <div className={'contact-avatar ' + contact.status + ' ' + positionClassName + (selected ? ' selected' : '')} onClick={onClick}>
+        <div className={`contact-avatar ${styles} ${scaleOnHover ? ' hoverEnabled':''}`} onClick={onClick}>
             <img src={contact.profilePicture} alt="avatar"/>
+            {showContactInfo && <div className="contact-info-background">
+                <div className="contact-info-text">{`${contact.firstName} ${contact.lastName}`}</div>
+            </div>}
         </div>
     )
 };
