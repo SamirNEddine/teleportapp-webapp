@@ -4,6 +4,15 @@
     --selection-animation-time: 0.3s;
     --selection-animation-function: ease;
 }
+
+.contact-list-avatar {
+    position: absolute;
+    top: 40.2%;
+    left: 39.5%;
+    width: 21%;
+    height: 21%;
+}
+
 .available {
     border: 6px solid mediumseagreen;
 }
@@ -40,11 +49,6 @@
 
 /** ContactAvatar Styling **/
 .contact-avatar {
-    position: absolute;
-    top: 40.2%;
-    left: 39.5%;
-    width: 21%;
-    height: 21%;
     background: white;
     border-radius: 50%;
     cursor: pointer;
@@ -84,7 +88,7 @@
     top: 10%;
     width: 100%;
     font-family: ".SF NS Display";
-    font-size: 0.9vw;
+    font-size: 17-0%;
     text-align: center;
 }
 

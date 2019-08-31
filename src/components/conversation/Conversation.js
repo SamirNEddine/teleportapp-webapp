@@ -2,6 +2,8 @@ import React, {useState, useContext, useEffect} from 'react';
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './conversation.css'
+import DeviceComponent from "../device/DeviceComponent";
+import ContactAvatar from "../contacts/ContactAvatar";
 
 const Conversation = function ({history}) {
     const {conversation} = useContext(ConversationContext);
@@ -31,9 +33,7 @@ const Conversation = function ({history}) {
             const backgroundImageStyle = {backgroundImage: `url('${contact.profilePicture}')`};
             return (
                 <div key={`${contact.id}_div`}>
-                    <div style={backgroundImageStyle} className="speaking-user" key={`${contact.id}_img`}>
-                        <div className="speaking-user-name" key={`${contact.id}_name`}>{`${contact.firstName} ${contact.lastName}`}</div>
-                    </div>
+                    <ContactAvatar  contact={contact} styles="speaking-user"  showContactInfo={true} />
                     <div id={`audio-div_${contact.id}`} key={`audio-div_${contact.id}`}/>
                 </div>
             )
@@ -44,9 +44,9 @@ const Conversation = function ({history}) {
     });
 
     return (
-        <div className="screen-container">
+        <DeviceComponent>
             {contactsDivs}
-        </div>
+        </DeviceComponent>
     )
 };
 

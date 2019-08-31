@@ -58,7 +58,7 @@ const ContactList = function ({history}) {
             for(let i=0; i< NUMBER_OF_AVATARS && i< users.length; i++){
                 const user = users[i];
                 const positionClassName = i === 0 ? "center" : DEGREE_PREFIX + String(STARTING_DEGREE + (i-1)*DEGREE_OFFSET);
-                const avatar = <ContactAvatar styles={`${positionClassName} ${user.status} ${openingConversation ? (selectedContactId === user.id ? 'selected' : '') : ''}`} contact={user} scaleOnHover={!openingConversation && user.status === 'available'} key={user.id} onContactClick={onContactClick}/>;
+                const avatar = <ContactAvatar styles={`contact-list-avatar ${positionClassName} ${user.status} ${openingConversation ? (selectedContactId === user.id ? 'selected' : '') : ''}`} contact={user} scaleOnHover={!openingConversation && user.status === 'available'} key={user.id} onContactClick={onContactClick}/>;
                 avatars.push(avatar);
             }
             return avatars;
