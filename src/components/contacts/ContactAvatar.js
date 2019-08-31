@@ -1,20 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router-dom'
 
 import './contacts.css';
 
 const ContactAvatar = function ({contact, styles, showContactInfo, scaleOnHover, onContactClick}) {
-    const [selected, setSelected] = useState(false);
 
     const onClick = _ => {
-        if(contact.status === 'available'){
-            if(selected){
-                // setOpenConversationAnimation(false);
-                // dispatch(leaveConversation());
-            }else{
-                setSelected(true);
-                onContactClick(contact);
-            }
+        if(onContactClick){
+            onContactClick(contact)
         }
     };
 

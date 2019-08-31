@@ -45,19 +45,3 @@ body{
   font-size: x-large;
   text-align: center;
 }
-.message {
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0, 0.4); /* Black w/opacity/see-through */
-  color: white;
-  font-family: ".SF NS Display";
-  font-size: xx-large;
-  position: absolute;
-  top: 90%;
-  left: 55%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  width: 65%;
-  padding: 40px 0 140px 210px;
-  vertical-align: top;
-}
-

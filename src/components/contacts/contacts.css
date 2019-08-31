@@ -26,13 +26,14 @@
 .deg330 { transform: rotate(330deg) translate(var(--avatar-translate)) rotate(-330deg); }
 .available.deg330:hover { transform: rotate(330deg) translate(var(--avatar-translate)) rotate(-330deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
 
-.available.selected {
+.available.selected, .available.selected:hover {
+    pointer-events: none;
+    border: 2px solid mediumseagreen;
     transform: scale(3.3);
     z-index: 2;
     transition: all var(--selection-animation-time);
     transition-timing-function: var(--selection-animation-function);
 }
-
 .unavailable {
     border: 6px solid gray;
 }
@@ -87,11 +88,12 @@
     text-align: center;
 }
 
-.loading-contacts {
+.loading {
     display: block;
     position: absolute;
     top: 50%;
     left: 42%;
     color: white;
     font-family: sans-serif;
+    z-index: 5;
 }
