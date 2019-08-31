@@ -1,138 +1,62 @@
 :root{
-    --avatar-radius: calc(var(--circle-radius)/4.8);
-    --translation-ratio: calc(var(--circle-radius-no-metric)/5.3/1.75);
-    --scale-factor: 1.06;
+    --avatar-translate: 106%;
+    --scale-factor: 1.04;
     --selection-animation-time: 0.3s;
     --selection-animation-function: ease;
 }
 
-@media screen and (min-width: 320px) and (max-width: 499px) {
-    :root{
-        --avatar-radius: calc(var(--circle-radius)/4.8);
-        --translation-ratio: calc(var(--circle-radius-no-metric)/5.3/1.15);
-        --scale-factor: 1.06;
-        --selection-animation-time: 0.3s;
-        --selection-animation-function: ease;
-    }
-
-}
-@media screen and (min-width: 500px) and (max-width: 735px) {
-    :root{
-        --avatar-radius: calc(var(--circle-radius)/4.8);
-        --translation-ratio: calc(var(--circle-radius-no-metric)/5.3/1.5);
-        --scale-factor: 1.06;
-        --selection-animation-time: 0.3s;
-        --selection-animation-function: ease;
-    }
-
-}
-
-.contact-avatar {
-    display: block;
+.contact-list-avatar {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: calc(var(--avatar-radius)*2);
-    height: calc(var(--avatar-radius)*2);
-    margin: calc(var(--avatar-radius)*-1.0);
-    margin-top: calc(var(--avatar-radius)*-0.92);
+    top: 40.2%;
+    left: 39.5%;
+    width: 21%;
+    height: 21%;
+}
+
+.available {
+    border: 6px solid mediumseagreen;
+}
+
+.available.center:hover { transform: scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg0 { transform: translate(var(--avatar-translate)); }
+.available.deg0:hover {transform: translate(var(--avatar-translate)) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg30 { transform: rotate(30deg) translate(var(--avatar-translate)) rotate(-30deg); }
+.available.deg30:hover { transform: rotate(30deg) translate(var(--avatar-translate)) rotate(-30deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg90 { transform: rotate(90deg) translate(var(--avatar-translate)) rotate(-90deg); }
+.available.deg90:hover { transform: rotate(90deg) translate(var(--avatar-translate)) rotate(-90deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg150 { transform: rotate(150deg) translate(var(--avatar-translate)) rotate(-150deg); }
+.available.deg150:hover { transform: rotate(150deg) translate(var(--avatar-translate)) rotate(-150deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg180 { transform: translate(calc(var(--avatar-translate)*-1)); }
+.available.deg180:hover { transform: translate(calc(var(--avatar-translate)*-1)) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg210 { transform: rotate(210deg) translate(var(--avatar-translate)) rotate(-210deg); }
+.available.deg270:hover { transform: rotate(270deg) translate(var(--avatar-translate)) rotate(-270deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg270 { transform: rotate(270deg) translate(var(--avatar-translate)) rotate(-270deg); }
+.available.deg270:hover { transform: rotate(270deg) translate(var(--avatar-translate)) rotate(-270deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg330 { transform: rotate(330deg) translate(var(--avatar-translate)) rotate(-330deg); }
+.available.deg330:hover { transform: rotate(330deg) translate(var(--avatar-translate)) rotate(-330deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+
+.available.selected, .available.selected:hover {
+    pointer-events: none;
+    border: 2px solid mediumseagreen;
+    transform: scale(3.3);
+    z-index: 2;
+    transition: all var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
+}
+.unavailable {
+    border: 6px solid gray;
+}
+
+/** ContactAvatar Styling **/
+.contact-avatar {
     background: white;
     border-radius: 50%;
     cursor: pointer;
     transition: transform .25s;
     transition-timing-function: ease-in;
-    border: 6px solid mediumseagreen;
-}
-.contact-avatar.available.center:hover {
-    transform: scale(var(--scale-factor));
-}
-.contact-avatar.available.center.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
-}
-.contact-avatar.available.deg0:hover {
-    transform: translate(calc(var(--circle-radius)/var(--translation-ratio))) scale(var(--scale-factor));
-}
-.contact-avatar.available.deg0.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
-}
-.contact-avatar.available.deg30:hover {
-    transform: rotate(30deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-30deg) scale(var(--scale-factor));
-}
-.contact-avatar.available.deg30.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
-}
-.contact-avatar.available.deg90:hover {
-    transform: rotate(90deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-90deg) scale(var(--scale-factor));
-}
-.contact-avatar.available.deg90.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
-}
-.contact-avatar.available.deg150:hover {
-    transform: rotate(150deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-150deg) scale(var(--scale-factor));
-}
-.contact-avatar.available.deg150.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
-}
-.contact-avatar.available.deg180:hover {
-    transform: translate(calc(var(--circle-radius)/var(--translation-ratio)*-1)) scale(var(--scale-factor));
-}
-.contact-avatar.available.deg180.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
-}
-.contact-avatar.available.deg210:hover {
-    transform: rotate(210deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-210deg) scale(var(--scale-factor));
-}
-.contact-avatar.available.deg210.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
-}
-.contact-avatar.available.deg270:hover {
-    transform: rotate(270deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-270deg) scale(var(--scale-factor));
-}
-.contact-avatar.available.deg270.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
-}
-.contact-avatar.available.deg330:hover {
-    transform: rotate(330deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-330deg) scale(var(--scale-factor));
-}
-.contact-avatar.available.deg330.selected {
-    transform: scale(3.3);
-    z-index: 2;
-    transition: all var(--selection-animation-time);
-    transition-timing-function: var(--selection-animation-function);
+    overflow: hidden;
 }
 
-.deg0 { transform: translate(calc(var(--circle-radius)/var(--translation-ratio))); }
-.deg30 { transform: rotate(30deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-30deg); }
-.deg90 { transform: rotate(90deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-90deg); }
-.deg150 { transform: rotate(150deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-150deg); }
-.deg180 { transform: translate(calc(var(--circle-radius)/var(--translation-ratio)*-1)); }
-.deg210 { transform: rotate(210deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-210deg); }
-.deg270 { transform: rotate(270deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-270deg); }
-.deg330 { transform: rotate(330deg) translate(calc(var(--circle-radius)/var(--translation-ratio))) rotate(-330deg); }
 
 .contact-avatar img {
     width: 100%;
@@ -141,24 +65,39 @@
     object-fit: cover;
     display: block;
     border-radius: 50%;
+    transition: transform var(--selection-animation-time);
+    transition-timing-function: var(--selection-animation-function);
 }
 
-.contact-avatar.available img:hover {
+.contact-avatar.hoverEnabled img:hover {
     transform: scale(calc(var(--scale-factor)*1.02));
 }
 
-.contact-avatar.unavailable {
-    border-color: gray;
-    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-    filter: grayscale(100%);
+.contact-info-background {
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0, 0.6); /* Black w/opacity/see-through */
+    position: absolute;
+    width: 100%;
+    height: 30%;
+    top: 70%;
+    color: white;
 }
 
+.contact-info-text {
+    position: absolute;
+    top: 10%;
+    width: 100%;
+    font-family: ".SF NS Display";
+    font-size: 170%;
+    text-align: center;
+}
 
-.loading-contacts {
+.loading {
     display: block;
     position: absolute;
     top: 50%;
     left: 42%;
     color: white;
     font-family: sans-serif;
+    z-index: 5;
 }
