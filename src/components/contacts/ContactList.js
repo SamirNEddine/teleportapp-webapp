@@ -64,9 +64,13 @@ const ContactList = function ({history}) {
             return avatars;
         }
     };
+
+    const onHardwareButtonClick = _ => {
+        console.log("hardware button clicked!");
+    };
     return (
         <div>
-            <DeviceComponent>
+            <DeviceComponent onHardwareButtonClick={onHardwareButtonClick}>
                 {selectedContactId ? <div className="loading">Contacting...</div> : ''}
                 {displayList()}
             </DeviceComponent>

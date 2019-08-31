@@ -43,8 +43,11 @@ const Conversation = function ({history}) {
         }
     });
 
+    const onHardwareButtonClick = _ => {
+        console.log("hardware button clicked!");
+    };
     return (
-        <DeviceComponent>
+        <DeviceComponent onHardwareButtonClick={onHardwareButtonClick}>
             {contactsDivs}
         </DeviceComponent>
     )

@@ -11,3 +11,12 @@
     background-position: center;
     overflow: hidden;
 }
+
+.hardware-button {
+    /*background-color: rgba(0,0,0, 0.6);*/
+    width: 65px;
+    height: 58px;
+    position: absolute;
+    top: 88%;
+    left: 45%;
+}
