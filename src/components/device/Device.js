@@ -40,6 +40,8 @@ const Device = function () {
     useEffect( () => {
         if(conversation.channel){
             setStatus('busy');
+        }else{
+            setStatus('available');
         }
     }, [conversation.channel, sendMessage]);
 
