@@ -5,13 +5,16 @@ import './device.css';
 import {ConversationContext} from "../../contexts/ConversationContext";
 import {leaveConversation} from "../../reducers/conversationReducer";
 import {AuthenticationContext} from "../../contexts/AuthenticationContext";
-import {STATUS_SOCKET, STATUS_SOCKET_INCOMING_MESSAGES, useSocket} from "../../hooks/socket";
+import {
+    STATUS_SOCKET,
+    STATUS_SOCKET_INCOMING_MESSAGES,
+    STATUS_SOCKET_OUTGOING_MESSAGES,
+    useSocket
+} from "../../hooks/socket";
 import {useQuery} from "@apollo/react-hooks";
 import { GET_USERS } from "../../graphql/queries";
 
 const Device = function () {
-    const {conversation, dispatch} = useContext(ConversationContext);
-
     const [contacts, setContacts] = useState([]);
     const {error, loading, data, refetch} = useQuery(GET_USERS);
     useEffect( () => {
@@ -21,13 +24,24 @@ const Device = function () {
     }, [error, loading, data, contacts]);
 
     const {authState} = useContext(AuthenticationContext);
-    const [status, setStatus] = useState('available');
     const [socketError, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
     useEffect( () => {
         if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE){
+            //To do: Update locally instead of refetching.
             refetch()
         }
     }, [message, socketData]);
+
+    const {conversation, dispatch} = useContext(ConversationContext);
+    const [status, setStatus] = useState('available');
+    useEffect( () => {
+        sendMessage(STATUS_SOCKET_OUTGOING_MESSAGES.UPDATE_STATUS, {status});
+    }, [status]);
+    useEffect( () => {
+        if(conversation.channel){
+            setStatus('busy');
+        }
+    }, [conversation.channel, sendMessage]);
 
     const onButtonClick = _ => {
         if (conversation.channel){

@@ -6,6 +6,9 @@ export const STATUS_SOCKET = "status";
 export const STATUS_SOCKET_INCOMING_MESSAGES = {
     STATUS_UPDATE: 'status-update'
 };
+export const STATUS_SOCKET_OUTGOING_MESSAGES = {
+    UPDATE_STATUS: 'update-status'
+};
 
 export const CONVERSATION_SOCKET = "conversation";
 export const CONVERSATION_SOCKET_INCOMING_MESSAGES = {
