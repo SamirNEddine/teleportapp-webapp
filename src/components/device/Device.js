@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ContactList from "../contacts/ContactList";
 import Conversation from "../conversation/Conversation";
+import Unavailable from './Unavailable';
 import './device.css';
 import {ConversationContext} from "../../contexts/ConversationContext";
 import {leaveConversation} from "../../reducers/conversationReducer";
@@ -40,14 +41,18 @@ const Device = function () {
     useEffect( () => {
         if(conversation.channel){
             setStatus('busy');
-        }else{
+        }else if (status !== 'unavailable'){
             setStatus('available');
         }
-    }, [conversation.channel, sendMessage]);
+    }, [conversation.channel, sendMessage, status]);
 
     const onButtonClick = _ => {
         if (conversation.channel){
+            //leave conversation
             dispatch(leaveConversation());
+        }else{
+            //Switch status
+            setStatus(status === 'available' ? 'unavailable' : 'available');
         }
     };
     return (
@@ -55,6 +60,7 @@ const Device = function () {
             <div className="hardware-button" onClick={onButtonClick}/>
             <ContactList contacts={contacts}/>
             {conversation.contacts.length ? <Conversation/> : ''}
+            {status === 'unavailable' ? <Unavailable/> : ''}
         </div>
     );
 };
