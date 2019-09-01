@@ -4,10 +4,9 @@ import PrivateRoute from './helpers/PrivateRoute';
 import { AuthenticationContextProvider } from "./contexts/AuthenticationContext";
 import { ApolloProvider } from '@apollo/react-hooks';
 import { graphQLClient } from "./helpers/graphql";
-import NavBar from "./components/layout/NavBar";
-import ContactList  from './components/contacts/ContactList'
 import SignIn from "./components/authentication/SignIn";
-import Conversation from "./components/conversation/Conversation";
+import NavBar from "./components/layout/NavBar";
+import Device from "./components/device/Device";
 import {ConversationContextProvider} from "./contexts/ConversationContext";
 
 function App() {
@@ -20,8 +19,7 @@ function App() {
                             <NavBar/>
                             <div className="app-content">
                                 <ConversationContextProvider>
-                                    <PrivateRoute exact path="/" component={ContactList}/>
-                                    <PrivateRoute path="/conversation" component={Conversation}/>
+                                    <PrivateRoute exact path="/" component={Device}/>
                                 </ConversationContextProvider>
                             </div>
                             <Route exact path="/signin" component={SignIn}/>
