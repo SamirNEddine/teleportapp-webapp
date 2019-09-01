@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import DeviceComponent from "../device/DeviceComponent";
+import Device from "../device/Device";
 import ContactAvatar from './ContactAvatar';
 import { GET_USERS } from "../../graphql/queries";
 import { useQuery } from "@apollo/react-hooks";
@@ -65,15 +65,10 @@ const ContactList = function ({history}) {
         }
     };
 
-    const onHardwareButtonClick = _ => {
-        console.log("hardware button clicked!");
-    };
     return (
         <div>
-            <DeviceComponent onHardwareButtonClick={onHardwareButtonClick}>
-                {selectedContactId ? <div className="loading">Contacting...</div> : ''}
-                {displayList()}
-            </DeviceComponent>
+            {selectedContactId ? <div className="loading">Contacting...</div> : ''}
+            {displayList()}
             {conversation && conversation.error ? <div className="error">Error: {conversation.error}</div> : ''}
         </div>
     );

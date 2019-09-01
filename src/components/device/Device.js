@@ -1,17 +1,17 @@
 import React from 'react';
-
+import ContactList from "../contacts/ContactList";
 import './device.css';
 
-const DeviceComponent = function ({children, onHardwareButtonClick}) {
+const Device = function () {
     const onButtonClick = _ => {
-        if (onHardwareButtonClick) onHardwareButtonClick();
+        console.log('Hardware button clicked')
     };
     return (
         <div className="device-container">
             <div className="hardware-button" onClick={onButtonClick}/>
-            {children}
+            <ContactList/>
         </div>
     );
 };
 
-export default DeviceComponent;
+export default Device;

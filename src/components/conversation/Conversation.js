@@ -2,7 +2,7 @@ import React, {useState, useContext, useEffect} from 'react';
 import { ConversationContext } from "../../contexts/ConversationContext";
 
 import './conversation.css'
-import DeviceComponent from "../device/DeviceComponent";
+import Device from "../device/Device";
 import ContactAvatar from "../contacts/ContactAvatar";
 
 const Conversation = function ({history}) {
@@ -47,9 +47,9 @@ const Conversation = function ({history}) {
         console.log("hardware button clicked!");
     };
     return (
-        <DeviceComponent onHardwareButtonClick={onHardwareButtonClick}>
+        <Device onHardwareButtonClick={onHardwareButtonClick}>
             {contactsDivs}
-        </DeviceComponent>
+        </Device>
     )
 };
 
