@@ -71,6 +71,7 @@ export function useAgora(authState, channel) {
             //Listen for remove and leave events
             client.on('stream-removed', evt => {
                 console.debug(`Remote stream for contact ${evt.stream.getId()} removed`);
+                evt.stream.stop();
                 setEventData({removedStream: evt.stream});
                 setEvent(AgoraEvents.REMOTE_STREAM_REMOVED);
             });
@@ -92,7 +93,6 @@ export function useAgora(authState, channel) {
         skip: !channel
     });
     useEffect( () => {
-        console.log(`Channel : ${channel} channelIsKoined: ${channelJoined}`);
         if (channel && !channelJoined) {
             if (error) {
                 setEvent(GET_AGORA_TOKEN);
@@ -124,7 +124,7 @@ export function useAgora(authState, channel) {
             }
         }else if (!channel && channelJoined){
             //Leave channel
-            console.debug(`Leaving channel ${channel}`);
+            console.debug(`Leaving current channel`);
             client.leave();
             setChannelJoined(false);
             setEvent(null);

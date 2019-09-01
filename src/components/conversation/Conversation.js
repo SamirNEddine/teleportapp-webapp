@@ -7,12 +7,19 @@ const Conversation = function () {
     const {conversation} = useContext(ConversationContext);
     useEffect(_ => {
         //Todo: Check if you need optimization here
-        console.debug(`Remote streams: ${conversation.remoteStreams}`);
         for (let i = 0; i < conversation.contacts.length; i++) {
             const contact = conversation.contacts[i];
             if (conversation.remoteStreams[contact.id]) {
                 console.log(`Playing stream for contact ${contact.id}`);
                 conversation.remoteStreams[contact.id].play('audio-div_' + contact.id);
+            }
+        }
+
+        return _ => {
+            console.debug("Stopping remote streams");
+            for(const remoteStreamId in conversation.remoteStreams){
+                const remoteStream = conversation.remoteStreams[remoteStreamId];
+                remoteStream.stop();
             }
         }
     }, [conversation.contacts, conversation.remoteStreams]);
