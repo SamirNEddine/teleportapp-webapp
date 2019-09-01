@@ -3,13 +3,16 @@ import ContactList from "../contacts/ContactList";
 import Conversation from "../conversation/Conversation";
 import './device.css';
 import {ConversationContext} from "../../contexts/ConversationContext";
+import {leaveConversation} from "../../reducers/conversationReducer";
 
 const Device = function () {
 
-    const {conversation} = useContext(ConversationContext);
+    const {conversation, dispatch} = useContext(ConversationContext);
 
     const onButtonClick = _ => {
-        console.log('Hardware button clicked')
+        if (conversation.channel){
+            dispatch(leaveConversation());
+        }
     };
     return (
         <div className="device-container">

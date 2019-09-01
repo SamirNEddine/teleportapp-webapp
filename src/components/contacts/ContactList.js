@@ -15,6 +15,13 @@ const NUMBER_OF_AVATARS = 7;
 
 const ContactList = function () {
     const {conversation, dispatch} = useContext(ConversationContext);
+    const [selectedContactId, setSelectedContactId] = useState(null);
+    useEffect( () => {
+        if(selectedContactId && conversation.contacts.length){
+            //Reset for next time
+            setSelectedContactId(null);
+        }
+    },[conversation.contacts, selectedContactId]);
     const {error, loading, data, refetch} = useQuery(GET_USERS);
 
     const {authState} = useContext(AuthenticationContext);
@@ -25,7 +32,7 @@ const ContactList = function () {
         }
     }, [message, socketData]);
 
-    const [selectedContactId, setSelectedContactId] = useState(null);
+
     const onContactClick = contact => {
         setSelectedContactId(contact.id);
         dispatch(startConversation());

@@ -82,9 +82,9 @@ export const conversationReducer = function (state, action) {
              break;
         case Actions.LEAVE_CONVERSATION:
             newState = {
+                ...state,
                 channel: null,
-                contacts: [],
-                remoteStreams: {}
+                contacts: []
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
