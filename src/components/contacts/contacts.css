@@ -37,7 +37,7 @@
 
 .available.selected, .available.selected:hover {
     pointer-events: none;
-    border: 2px solid mediumseagreen;
+    border: none;
     transform: scale(3.3);
     z-index: 2;
     transition: all var(--selection-animation-time);
@@ -99,5 +99,5 @@
     left: 42%;
     color: white;
     font-family: sans-serif;
-    z-index: 5;
+    z-index: 3;
 }

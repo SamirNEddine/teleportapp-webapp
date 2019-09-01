@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import Device from "../device/Device";
 import ContactAvatar from './ContactAvatar';
 import { GET_USERS } from "../../graphql/queries";
 import { useQuery } from "@apollo/react-hooks";
 import { ConversationContext } from "../../contexts/ConversationContext";
-
 import './contacts.css';
 import {STATUS_SOCKET, STATUS_SOCKET_INCOMING_MESSAGES, useSocket} from "../../hooks/socket";
 import {AuthenticationContext} from "../../contexts/AuthenticationContext";
@@ -15,16 +13,8 @@ const DEGREE_PREFIX = "deg";
 const STARTING_DEGREE = 30;
 const NUMBER_OF_AVATARS = 7;
 
-const ContactList = function ({history}) {
+const ContactList = function () {
     const {conversation, dispatch} = useContext(ConversationContext);
-    useEffect( _ => {
-        if (conversation.contacts && conversation.contacts.length){
-            history.push({
-                pathname: '/conversation',
-            });
-        }
-    }, [conversation.contacts, history]);
-
     const {error, loading, data, refetch} = useQuery(GET_USERS);
 
     const {authState} = useContext(AuthenticationContext);
@@ -54,7 +44,7 @@ const ContactList = function ({history}) {
             return <div>No users.</div>
         }else{
             const avatars = [];
-            const openingConversation = selectedContactId !== null;
+            const openingConversation = (!conversation.contacts.length && selectedContactId !== null);
             for(let i=0; i< NUMBER_OF_AVATARS && i< users.length; i++){
                 const user = users[i];
                 const positionClassName = i === 0 ? "center" : DEGREE_PREFIX + String(STARTING_DEGREE + (i-1)*DEGREE_OFFSET);
@@ -69,7 +59,6 @@ const ContactList = function ({history}) {
         <div>
             {selectedContactId ? <div className="loading">Contacting...</div> : ''}
             {displayList()}
-            {conversation && conversation.error ? <div className="error">Error: {conversation.error}</div> : ''}
         </div>
     );
 };
