@@ -6,7 +6,9 @@ const Actions = {
     REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED',
     ADD_CONTACT: 'ADD_CONTACT',
     CONTACT_ADDED:'CONTACT_ADDED',
-    CONTACT_FETCHED: 'CONTACT_FETCHED'
+    CONTACT_FETCHED: 'CONTACT_FETCHED',
+    MUTE_AUDIO: 'MUTE_AUDIO',
+    UNMUTE_AUDIO: 'UNMUTE_AUDIO'
 };
 
 function randomString() {
@@ -64,7 +66,16 @@ export function contactFetched(contact) {
         contact
     }
 }
-
+export function muteAudio() {
+    return {
+        type: Actions.MUTE_AUDIO
+    }
+}
+export function unmuteAudio() {
+    return {
+        type: Actions.UNMUTE_AUDIO
+    }
+}
 
 export const conversationReducer = function (state, action) {
     console.debug('Conversation Reducer:\nAction: ', action, '\nSTATE ', state);
@@ -72,12 +83,19 @@ export const conversationReducer = function (state, action) {
     const {type} = action;
     switch (type) {
         case Actions.START_CONVERSATION:
-        case Actions.JOIN_CONVERSATION:
-            const {channel} = action;
             newState = {
-                channel,
+                channel: action.channel,
                 contacts: [],
-                remoteStreams: {}
+                remoteStreams: {},
+                muteAudio: false
+            };
+            break;
+        case Actions.JOIN_CONVERSATION:
+            newState = {
+                channel: action.channel,
+                contacts: [],
+                remoteStreams: {},
+                muteAudio: true
             };
              break;
         case Actions.LEAVE_CONVERSATION:
@@ -127,6 +145,18 @@ export const conversationReducer = function (state, action) {
             newState = {
                 ...newState,
                 contacts: [...state.contacts, contact]
+            };
+            break;
+        case Actions.MUTE_AUDIO:
+            newState = {
+              ...state,
+              muteAudio: true,
+            };
+            break;
+        case Actions.UNMUTE_AUDIO:
+            newState = {
+                ...state,
+                muteAudio: false
             };
             break;
         default:

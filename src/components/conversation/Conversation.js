@@ -2,9 +2,10 @@ import React, {useState, useContext, useEffect} from 'react';
 import { ConversationContext } from "../../contexts/ConversationContext";
 import './conversation.css'
 import ContactAvatar from "../contacts/ContactAvatar";
+import {unmuteAudio} from "../../reducers/conversationReducer";
 
 const Conversation = function () {
-    const {conversation} = useContext(ConversationContext);
+    const {conversation, dispatch} = useContext(ConversationContext);
     useEffect(_ => {
         //Todo: Check if you need optimization here
         for (let i = 0; i < conversation.contacts.length; i++) {
@@ -26,6 +27,10 @@ const Conversation = function () {
 
     const [speakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
 
+    const unmute = function () {
+        dispatch(unmuteAudio());
+    };
+
     const {contacts} = conversation;
     console.log('Conversation with contacts:\n', contacts);
     return (
@@ -44,6 +49,12 @@ const Conversation = function () {
                     return <div/>
                 }
             })}
+            {conversation.muteAudio ? (
+                <div className="mute-container" onClick={unmute}>
+                    <div className="mute-indicator"/>
+                    <div className='mute-text'>You are in a conversation.<br/>Tap to unmute.</div>
+                </div>
+            ) : ('')}
         </div>
     )
 };
