@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, useContext, useEffect } from 'react';
 import { AuthenticationContext } from "./AuthenticationContext";
-import {useAgora, AgoraEvents} from "../hooks/agora";
+import {useAgora, AgoraEvents, AgoraActions} from "../hooks/agora";
 import {useLazyQuery} from "@apollo/react-hooks";
 import {GET_USER} from "../graphql/queries";
 import {
@@ -26,7 +26,8 @@ export const ConversationContextProvider = function ({children}) {
         channel: null,
         contacts: [],
         remoteStreams: {},
-        contactIdToAdd:null
+        contactIdToAdd:null,
+        muteAudio: true
     });
 
     const [socketError, message, socketData, sendMessage] = useSocket(authState, CONVERSATION_SOCKET);
@@ -57,7 +58,7 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [error, loading, data]);
 
-    const [agoraError, event, eventData] = useAgora(authState, state.channel);
+    const [agoraError, event, eventData, performAgoraAction] = useAgora(authState, state.channel);
     useEffect( () => {
         if (!agoraError && eventData){
             switch(event){
@@ -81,6 +82,10 @@ export const ConversationContextProvider = function ({children}) {
             //Todo: Error handling strategy for Agora
         }
     }, [agoraError, event, eventData]);
+
+    useEffect( () => {
+        performAgoraAction(state.muteAudio ? AgoraActions.MUTE_AUDIO : AgoraActions.UNMUTE_AUDIO);
+    }, [state.muteAudio]);
 
     return (
         <ConversationContext.Provider value={{conversation: state, dispatch}}>

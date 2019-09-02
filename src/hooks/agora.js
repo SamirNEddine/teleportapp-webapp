@@ -12,6 +12,11 @@ export const AgoraEvents = {
     REMOTE_STREAM_SUBSCRIBED: 'REMOTE_STREAM_SUBSCRIBED'
 };
 
+export const AgoraActions = {
+    MUTE_AUDIO: 'MUTE_AUDIO',
+    UNMUTE_AUDIO: 'UNMUTE_AUDIO'
+};
+
 export function useAgora(authState, channel) {
     const [agoraError, setAgoraError] = useState(null);
     const [event, setEvent] = useState(null);
@@ -21,7 +26,7 @@ export function useAgora(authState, channel) {
     useEffect( () => {
         if (!authState.error && authState.user && !client){
             //Create client and stream
-            setClient(AgoraRTC.createClient({ mode: "live", codec: "h264" }));
+            setClient(AgoraRTC.createClient({ mode: "rtc", codec: "h264" }));
             setLocalStream(AgoraRTC.createStream({streamID: authState.user.id, audio: true, video: false, screen: false}));
             setConfigured(false);
         }else if (!authState.user && client){
@@ -45,6 +50,9 @@ export function useAgora(authState, channel) {
             localStream.init( _ => {
                 console.log('Access to microphone successful');
                 setEvent(AgoraEvents.INIT_LOCAL_STREAM);
+                setEventData({localStream});
+                //Muted by default
+                localStream.muteAudio()
             }, function (err) {
                 console.log('Access to microphone failed:', err);
                 setEvent(AgoraEvents.INIT_LOCAL_STREAM);
@@ -131,5 +139,18 @@ export function useAgora(authState, channel) {
         }
     }, [channel, channelJoined, loading, error, data, refetch]);
 
-    return [agoraError, event, eventData];
+    const performAction = (action, actionData) => {
+        if(configured){
+            switch (action) {
+                case AgoraActions.MUTE_AUDIO:
+                    localStream.muteAudio();
+                    break;
+                case AgoraActions.UNMUTE_AUDIO:
+                    localStream.unmuteAudio();
+                    break;
+            }
+        }
+    };
+
+    return [agoraError, event, eventData, performAction];
 }
