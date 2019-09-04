@@ -1,8 +1,9 @@
 import React, { createContext, useReducer, useContext, useEffect } from 'react';
 import { AuthenticationContext } from "./AuthenticationContext";
-import {useAgora, AgoraEvents, AgoraActions} from "../hooks/agora";
-import {useLazyQuery} from "@apollo/react-hooks";
-import {GET_USER} from "../graphql/queries";
+import { useAgora, AgoraEvents, AgoraActions } from "../hooks/agora";
+import { useOpenTok, OpenTokEvents } from "../hooks/openTok";
+import { useLazyQuery } from "@apollo/react-hooks";
+import { GET_USER } from "../graphql/queries";
 import {
     CONVERSATION_SOCKET,
     CONVERSATION_SOCKET_INCOMING_MESSAGES,
@@ -58,19 +59,44 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [error, loading, data]);
 
-    const [agoraError, event, eventData, performAgoraAction] = useAgora(authState, state.channel);
+    // const [agoraError, event, eventData, performAgoraAction] = useAgora(authState, state.channel);
+    // useEffect( () => {
+    //     if (!agoraError && eventData){
+    //         switch(event){
+    //             case AgoraEvents.REMOTE_STREAM_RECEIVED:
+    //                 const {receivedStream} = eventData;
+    //                 //Update remote streams
+    //                 dispatch(remoteStreamReceived(receivedStream));
+    //                 //Fetch the contact info
+    //                 const contactId = receivedStream.getId();
+    //                 getUser({variables: {id: contactId}});
+    //                 break;
+    //             case AgoraEvents.REMOTE_STREAM_REMOVED:
+    //                 const {removedStream} = eventData;
+    //                 //Update contacts and remote streams
+    //                 dispatch(remoteStreamRemoved(removedStream));
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     }else{
+    //         //Todo: Error handling strategy for Agora
+    //     }
+    // }, [agoraError, event, eventData]);
+
+    const [openTokError, event, eventData] = useOpenTok(authState, state.channel);
     useEffect( () => {
-        if (!agoraError && eventData){
+        if (!openTokError && eventData){
             switch(event){
-                case AgoraEvents.REMOTE_STREAM_RECEIVED:
+                case OpenTokEvents.REMOTE_STREAM_RECEIVED:
                     const {receivedStream} = eventData;
                     //Update remote streams
                     dispatch(remoteStreamReceived(receivedStream));
                     //Fetch the contact info
-                    const contactId = receivedStream.getId();
+                    const contactId = receivedStream.name;
                     getUser({variables: {id: contactId}});
                     break;
-                case AgoraEvents.REMOTE_STREAM_REMOVED:
+                case OpenTokEvents.REMOTE_STREAM_REMOVED:
                     const {removedStream} = eventData;
                     //Update contacts and remote streams
                     dispatch(remoteStreamRemoved(removedStream));
