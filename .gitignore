@@ -4,5 +4,8 @@
 # Dependency directories
 node_modules/
 
+#production builds
+build
+
 #Webstorm
 .idea

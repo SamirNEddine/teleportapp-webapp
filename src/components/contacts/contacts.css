@@ -26,8 +26,8 @@
 .available.deg90:hover { transform: rotate(90deg) translate(var(--avatar-translate)) rotate(-90deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
 .deg150 { transform: rotate(150deg) translate(var(--avatar-translate)) rotate(-150deg); }
 .available.deg150:hover { transform: rotate(150deg) translate(var(--avatar-translate)) rotate(-150deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg180 { transform: translate(calc(var(--avatar-translate)*-1)); }
-.available.deg180:hover { transform: translate(calc(var(--avatar-translate)*-1)) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
+.deg180 { transform: translate(calc(var(--avatar-translate) * -1)); }
+.available.deg180:hover { transform: translate(calc(var(--avatar-translate) * -1)) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
 .deg210 { transform: rotate(210deg) translate(var(--avatar-translate)) rotate(-210deg); }
 .available.deg270:hover { transform: rotate(270deg) translate(var(--avatar-translate)) rotate(-270deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
 .deg270 { transform: rotate(270deg) translate(var(--avatar-translate)) rotate(-270deg); }
