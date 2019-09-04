@@ -84,9 +84,10 @@ export const ConversationContextProvider = function ({children}) {
     //     }
     // }, [agoraError, event, eventData]);
 
-    const [openTokError, event, eventData] = useOpenTok(authState, state.channel);
+    const [openTokError, event, eventData, performOpenTokAction] = useOpenTok(authState, state.channel);
     useEffect( () => {
         if (!openTokError && eventData){
+            console.debug('OpenTok event:', event, eventData);
             switch(event){
                 case OpenTokEvents.REMOTE_STREAM_RECEIVED:
                     const {receivedStream} = eventData;
@@ -107,10 +108,11 @@ export const ConversationContextProvider = function ({children}) {
         }else{
             //Todo: Error handling strategy for Agora
         }
-    }, [agoraError, event, eventData]);
+    }, [openTokError, event, eventData, getUser, performOpenTokAction]);
 
     useEffect( () => {
-        performAgoraAction(state.muteAudio ? AgoraActions.MUTE_AUDIO : AgoraActions.UNMUTE_AUDIO);
+        // performAgoraAction(state.muteAudio ? AgoraActions.MUTE_AUDIO : AgoraActions.UNMUTE_AUDIO);
+        performOpenTokAction(state.muteAudio ? OpenTokEvents.MUTE_AUDIO : OpenTokEvents.UNMUTE_AUDIO);
     }, [state.muteAudio]);
 
     return (

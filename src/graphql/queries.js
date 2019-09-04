@@ -52,14 +52,14 @@ export const GET_AGORA_TOKEN = gql`
     }
 `;
 
-export const GET_OPENTOK_SESSION = gql `
-    query(){
+export const GET_OPENTOK_SESSION = gql`
+    query{
         openTokSession
     }
 `;
 
-export const GET_OPENTOK_TOKEN = gql `
+export const GET_OPENTOK_TOKEN = gql`
     query($sessionId: String!){
-        userOpenTalkToken($sessionId: $sessionId)
+        userOpenTalkToken(sessionId: $sessionId)
     }
 `;

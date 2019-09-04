@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import OT from '@opentok/session'
+import OT from '@opentok/client'
 import { useQuery } from "@apollo/react-hooks";
 import { GET_OPENTOK_TOKEN } from "../graphql/queries";
 
@@ -7,7 +7,14 @@ export const OpenTokEvents = {
     INIT_PUBLISHER: 'INIT_PUBLISHER',
     SESSION_INITIALIZED: 'SESSION_INITIALIZED',
     SESSION_JOINED: 'SESSION_JOINED',
-    REMOTE_STREAM_RECEIVED: 'REMOTE_STREAM_RECEIVED'
+    REMOTE_STREAM_RECEIVED: 'REMOTE_STREAM_RECEIVED',
+    REMOTE_STREAM_SUBSCRIBED: 'REMOTE_STREAM_SUBSCRIBED',
+    REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED'
+};
+
+export const OpenTokActions = {
+    MUTE_AUDIO: 'MUTE_AUDIO',
+    UNMUTE_AUDIO: 'UNMUTE_AUDIO'
 };
 
 export function useOpenTok(authState, sessionId) {
@@ -18,7 +25,7 @@ export function useOpenTok(authState, sessionId) {
     const [publisher, setPublisher] = useState(null);
     useEffect( () => {
         if(authState.user && !publisher){
-            const options = {videoSource: null, name: authState.user.id};
+            const options = {videoSource: null, name: authState.user.id, publishAudio:false};
             const newPublisher = OT.initPublisher(null, options, function (err) {
                if(err){
                    setOpenTokError(err);
@@ -28,7 +35,7 @@ export function useOpenTok(authState, sessionId) {
                }
            });
            setPublisher(newPublisher);
-           setEventData(OpenTokEvents.INIT_PUBLISHER);
+           setEvent(OpenTokEvents.INIT_PUBLISHER);
         }
     }, [authState, publisher]);
 
@@ -60,18 +67,21 @@ export function useOpenTok(authState, sessionId) {
         }else if (error){
             setOpenTokError(error);
         }
-    },[loading, error, data, session, publisher]);
+    },[loading, error, data, session, publisher, sessionId]);
 
     useEffect( () => {
         if(sessionId && !openTokError && publisher && !session){
             const newSession = OT.initSession(process.env.REACT_APP_OPENTOK_API_KEY, sessionId);
             //Setup listeners
-            session.on('streamCreated', function(event) {
+            newSession.on('streamCreated', function(event) {
+                console.debug('EVENT :', event, event.stream);
                 setEvent(OpenTokEvents.REMOTE_STREAM_RECEIVED);
                 setEventData({receivedStream: event.stream});
                 console.debug(`New stream received ${event.stream.name}`);
                 console.debug(`Subscribing to stream ${event.stream.name}`);
-                session.subscribe(event.stream, null, null, function(err){
+                newSession.subscribe(event.stream, null, null, function(err){
+                    setEvent(OpenTokEvents.REMOTE_STREAM_SUBSCRIBED);
+                    setEventData(null);
                     if(err){
                         console.debug(`Failed to subscribe to stream ${event.stream.name}`);
                     }else{
@@ -79,12 +89,37 @@ export function useOpenTok(authState, sessionId) {
                     }
                 });
             });
+            newSession.on('streamDestroyed', function(event) {
+                setEventData({removedStream: event.stream});
+                setEvent(OpenTokEvents.REMOTE_STREAM_REMOVED);
+            });
             setSession(newSession);
             setEvent(OpenTokEvents.SESSION_INITIALIZED);
             console.debug(`Get token to join session ${sessionId}`);
             refetch();
+        }else if (!sessionId && session){
+            console.debug(`Leaving current session`);
+            session.disconnect();
+            setSession(null);
+            setEvent(null);
+            setEventData(null);
+            setOpenTokError(null);
+            publisher.publishAudio(false);
         }
     }, [sessionId, session, openTokError, publisher, refetch]);
 
-    return [openTokError, event, eventData];
+    const performAction = (action, actionData) => {
+        if(publisher){
+            switch (action) {
+                case OpenTokActions.MUTE_AUDIO:
+                    publisher.publishAudio(false);
+                    break;
+                case OpenTokActions.UNMUTE_AUDIO:
+                    publisher.publishAudio(true);
+                    break;
+            }
+        }
+    };
+
+    return [openTokError, event, eventData, performAction];
 }

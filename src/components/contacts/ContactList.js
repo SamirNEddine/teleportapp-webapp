@@ -2,7 +2,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import ContactAvatar from './ContactAvatar';
 import { ConversationContext } from "../../contexts/ConversationContext";
 import './contacts.css';
-import {addContact, startConversation} from "../../reducers/conversationReducer";
+import {addContact, contactFetched, startConversation} from "../../reducers/conversationReducer";
+import { useLazyQuery } from '@apollo/react-hooks'
+import {GET_OPENTOK_SESSION} from '../../graphql/queries'
 
 const DEGREE_OFFSET = 60;
 const DEGREE_PREFIX = "deg";
@@ -19,10 +21,19 @@ const ContactList = function ({contacts}) {
         }
     },[conversation.contacts, selectedContactId]);
 
+    const [getOpenTokSession, {error, loading, data}] = useLazyQuery(GET_OPENTOK_SESSION);
+    useEffect( () => {
+        if(selectedContactId && !conversation.channel && !error && !loading && data){
+            console.log(data);
+            const {openTokSession} = data;
+            dispatch(startConversation(openTokSession));
+            dispatch(addContact(selectedContactId));
+        }
+    }, [conversation.channel, error, data, loading, selectedContactId]);
+
     const onContactClick = contact => {
         setSelectedContactId(contact.id);
-        dispatch(startConversation());
-        dispatch(addContact(contact.id));
+        getOpenTokSession();
     };
 
     const displayList = _ => {
