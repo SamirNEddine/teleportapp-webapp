@@ -105,8 +105,7 @@ export const conversationReducer = function (state, action) {
         case Actions.REMOTE_STREAM_RECEIVED:
             const {receivedStream} = action;
             const updatedRemoteStreams = state.remoteStreams;
-            // updatedRemoteStreams[receivedStream.getId()] = receivedStream;
-            updatedRemoteStreams[receivedStream.name] = receivedStream;
+            updatedRemoteStreams[receivedStream.contactId] = receivedStream;
             newState = {
                 ...state,
                 remoteStreams: updatedRemoteStreams
@@ -115,8 +114,7 @@ export const conversationReducer = function (state, action) {
         case Actions.REMOTE_STREAM_REMOVED:
             let {contacts, remoteStreams} = state;
             const {removedStream} = action;
-            // const contactId = removedStream.getId();
-            const contactId = removedStream.name;
+            const contactId = removedStream.contactId;
             delete remoteStreams[contactId];
             const updatedContacts = contacts.filter( contact => {return contact.id !== contactId});
             newState = {
