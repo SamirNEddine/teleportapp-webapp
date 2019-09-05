@@ -137,7 +137,7 @@ export const ConversationContextProvider = function ({children}) {
                 channel = randomString();
                 break;
             case 'tokbox':
-                const {error, data } = await apolloClient.query({query: GET_OPENTOK_SESSION});
+                const {error, data } = await apolloClient.query({query: GET_OPENTOK_SESSION, fetchPolicy: 'no-cache'});
                 if(error) throw(error);
                 channel = data.openTokSession;
                 break;
