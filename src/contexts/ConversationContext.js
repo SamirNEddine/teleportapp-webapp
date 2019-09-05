@@ -1,9 +1,9 @@
 import React, { createContext, useReducer, useContext, useEffect } from 'react';
 import { AuthenticationContext } from "./AuthenticationContext";
 import { useAgora, AgoraEvents, AgoraActions } from "../hooks/agora";
-import { useOpenTok, OpenTokEvents } from "../hooks/openTok";
-import { useLazyQuery } from "@apollo/react-hooks";
-import { GET_USER } from "../graphql/queries";
+import {useOpenTok, OpenTokEvents, OpenTokActions} from "../hooks/openTok";
+import { useApolloClient } from "@apollo/react-hooks";
+import {GET_OPENTOK_SESSION, GET_USER} from "../graphql/queries";
 import {
     CONVERSATION_SOCKET,
     CONVERSATION_SOCKET_INCOMING_MESSAGES,
@@ -17,10 +17,15 @@ import {
     remoteStreamReceived,
     remoteStreamRemoved
 } from "../reducers/conversationReducer";
+import {randomString} from "../utils/utils";
 
 export const ConversationContext = createContext();
 
+const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
+if(!voicePlatform) throw(new Error('Voice platform missing.'));
+
 export const ConversationContextProvider = function ({children}) {
+    const apolloClient = useApolloClient();
     const {authState} = useContext(AuthenticationContext);
 
     const [state, dispatch] = useReducer(conversationReducer, {
@@ -42,63 +47,36 @@ export const ConversationContextProvider = function ({children}) {
 
     useEffect( () => {
         if(state.contactIdToAdd){
+            console.debug(`Inviting contact ${state.contactIdToAdd} to the conversation`);
             sendMessage(CONVERSATION_SOCKET_OUTGOING_MESSAGES.ADD_CONTACT, {contactId: state.contactIdToAdd, channel: state.channel});
             dispatch(contactAdded(state.contactIdToAdd));
         }
     }, [state.contactIdToAdd, state.channel, sendMessage]);
 
+    const fetchContact = async function (contactId) {
+        console.debug(`Fetching contact ${contactId}`);
+        const {error, data} = await apolloClient.query({query: GET_USER, variables:{id: contactId}});
+        if(error) throw(new Error('Failed to fetch contact info'));
+        dispatch(contactFetched(data.user));
+    };
 
-    const [getUser, {error, loading, data}] = useLazyQuery(GET_USER);
-    useEffect( ()=> {
-        if(!error && !loading && data){
-            const {user} = data;
-            //Update contacts
-            dispatch(contactFetched(user));
-        }else{
-            //Todo: Error handling
-        }
-    }, [error, loading, data]);
-
-    // const [agoraError, event, eventData, performAgoraAction] = useAgora(authState, state.channel);
-    // useEffect( () => {
-    //     if (!agoraError && eventData){
-    //         switch(event){
-    //             case AgoraEvents.REMOTE_STREAM_RECEIVED:
-    //                 const {receivedStream} = eventData;
-    //                 //Update remote streams
-    //                 dispatch(remoteStreamReceived(receivedStream));
-    //                 //Fetch the contact info
-    //                 const contactId = receivedStream.getId();
-    //                 getUser({variables: {id: contactId}});
-    //                 break;
-    //             case AgoraEvents.REMOTE_STREAM_REMOVED:
-    //                 const {removedStream} = eventData;
-    //                 //Update contacts and remote streams
-    //                 dispatch(remoteStreamRemoved(removedStream));
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //     }else{
-    //         //Todo: Error handling strategy for Agora
-    //     }
-    // }, [agoraError, event, eventData]);
-
-    const [openTokError, event, eventData, performOpenTokAction] = useOpenTok(authState, state.channel);
-    useEffect( () => {
-        if (!openTokError && eventData){
-            console.debug('OpenTok event:', event, eventData);
-            switch(event){
-                case OpenTokEvents.REMOTE_STREAM_RECEIVED:
-                    const {receivedStream} = eventData;
+    const [agoraError, agoraEvent, agoraEventData, performAgoraAction] = useAgora (
+        voicePlatform === 'agora' ? authState : {},
+        voicePlatform === 'agora' ? state.channel : null
+    );
+    useEffect(  () => {
+        if (!agoraError && agoraEventData){
+            switch(agoraEvent){
+                case AgoraEvents.REMOTE_STREAM_RECEIVED:
+                    const {receivedStream} = agoraEventData;
                     //Update remote streams
                     dispatch(remoteStreamReceived(receivedStream));
                     //Fetch the contact info
-                    const contactId = receivedStream.name;
-                    getUser({variables: {id: contactId}});
+                    const contactId = receivedStream.getId();
+                    fetchContact(contactId);
                     break;
-                case OpenTokEvents.REMOTE_STREAM_REMOVED:
-                    const {removedStream} = eventData;
+                case AgoraEvents.REMOTE_STREAM_REMOVED:
+                    const {removedStream} = agoraEventData;
                     //Update contacts and remote streams
                     dispatch(remoteStreamRemoved(removedStream));
                     break;
@@ -106,17 +84,71 @@ export const ConversationContextProvider = function ({children}) {
                     break;
             }
         }else{
-            //Todo: Error handling strategy for Agora
+            //Todo: Error handling strategy
         }
-    }, [openTokError, event, eventData, getUser, performOpenTokAction]);
+    }, [agoraError, agoraEvent, agoraEventData]);
+
+    const [openTokError, openTokEvent, openTokEventData, performOpenTokAction] = useOpenTok(
+        voicePlatform === 'tokbox' ? authState : {},
+        voicePlatform === 'tokbox' ? state.channel : null
+    );
+    useEffect(  () => {
+        if (!openTokError && openTokEventData){
+            console.debug('OpenTok event:', openTokEvent, openTokEventData);
+            switch(openTokEvent){
+                case OpenTokEvents.REMOTE_STREAM_RECEIVED:
+                    const {receivedStream} = openTokEventData;
+                    //Update remote streams
+                    dispatch(remoteStreamReceived(receivedStream));
+                    //Fetch the contact info
+                    const contactId = receivedStream.name;
+                    fetchContact(contactId);
+                    break;
+                case OpenTokEvents.REMOTE_STREAM_REMOVED:
+                    const {removedStream} = openTokEventData;
+                    //Update contacts and remote streams
+                    dispatch(remoteStreamRemoved(removedStream));
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            //Todo: Error handling strategy
+        }
+    }, [openTokError, openTokEvent, openTokEventData]);
 
     useEffect( () => {
-        // performAgoraAction(state.muteAudio ? AgoraActions.MUTE_AUDIO : AgoraActions.UNMUTE_AUDIO);
-        performOpenTokAction(state.muteAudio ? OpenTokEvents.MUTE_AUDIO : OpenTokEvents.UNMUTE_AUDIO);
+        switch (voicePlatform) {
+            case 'agora':
+                performAgoraAction(state.muteAudio ? AgoraActions.MUTE_AUDIO : AgoraActions.UNMUTE_AUDIO);
+                break;
+            case 'tokbox':
+                performOpenTokAction(state.muteAudio ? OpenTokActions.MUTE_AUDIO : OpenTokActions.UNMUTE_AUDIO);
+                break;
+            default:
+                throw(new Error('Unsupported platform'))
+        }
     }, [state.muteAudio]);
 
+    const generateNewConversationChannel = async function () {
+        let channel = null;
+        switch(voicePlatform) {
+            case 'agora':
+                channel = randomString();
+                break;
+            case 'tokbox':
+                const {error, data } = await apolloClient.query({query: GET_OPENTOK_SESSION});
+                if(error) throw(error);
+                channel = data.openTokSession;
+                break;
+            default:
+                throw(new Error('Unsupported platform'))
+        }
+        return channel;
+    };
+
     return (
-        <ConversationContext.Provider value={{conversation: state, dispatch}}>
+        <ConversationContext.Provider value={{conversation: state, dispatch, generateNewConversationChannel}}>
             {children}
         </ConversationContext.Provider>
     );

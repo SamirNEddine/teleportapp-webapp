@@ -17,9 +17,6 @@ function randomString() {
 
 /** Helpers **/
 export function startConversation(channel) {
-    //Generate channel name.
-    //Todo: Check if you need to move this code somewhere else.
-    if(!channel) channel = randomString();
     return {
         type: Actions.START_CONVERSATION,
         channel

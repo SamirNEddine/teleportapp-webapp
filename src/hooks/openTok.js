@@ -110,6 +110,7 @@ export function useOpenTok(authState, sessionId) {
 
     const performAction = (action, actionData) => {
         if(publisher){
+            console.log(`Performing action: ${action} with data: ${actionData}`);
             switch (action) {
                 case OpenTokActions.MUTE_AUDIO:
                     publisher.publishAudio(false);
