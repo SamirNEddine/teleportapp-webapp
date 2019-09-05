@@ -10,7 +10,7 @@ const STARTING_DEGREE = 30;
 const NUMBER_OF_AVATARS = 7;
 
 const ContactList = function ({contacts}) {
-    const {conversation, dispatch} = useContext(ConversationContext);
+    const {conversation, dispatch, generateNewConversationChannel} = useContext(ConversationContext);
     const [selectedContactId, setSelectedContactId] = useState(null);
     useEffect( () => {
         if(selectedContactId && conversation.contacts.length){
@@ -19,10 +19,11 @@ const ContactList = function ({contacts}) {
         }
     },[conversation.contacts, selectedContactId]);
 
-    const onContactClick = contact => {
-        setSelectedContactId(contact.id);
-        dispatch(startConversation());
+    const onContactClick = async contact => {
+        const channel = await generateNewConversationChannel();
+        dispatch(startConversation(channel));
         dispatch(addContact(contact.id));
+        setSelectedContactId(contact.id);
     };
 
     const displayList = _ => {

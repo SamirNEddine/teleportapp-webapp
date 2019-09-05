@@ -6,21 +6,24 @@ import {unmuteAudio} from "../../reducers/conversationReducer";
 
 const Conversation = function () {
     const {conversation, dispatch} = useContext(ConversationContext);
-    useEffect(_ => {
-        //Todo: Check if you need optimization here
-        for (let i = 0; i < conversation.contacts.length; i++) {
-            const contact = conversation.contacts[i];
-            if (conversation.remoteStreams[contact.id]) {
-                console.log(`Playing stream for contact ${contact.id}`);
-                conversation.remoteStreams[contact.id].play('audio-div_' + contact.id);
+    useEffect(() => {
+        if(process.env.REACT_APP_VOICE_PLATFORM === 'agora'){
+            //Todo: Check if you need optimization here
+            for (let i = 0; i < conversation.contacts.length; i++) {
+                const contact = conversation.contacts[i];
+                if (conversation.remoteStreams[contact.id]) {
+                    console.log(`Playing stream for contact ${contact.id}`);
+                    conversation.remoteStreams[contact.id].play('audio-div_' + contact.id);
+                }
             }
         }
-
         return _ => {
-            console.debug("Stopping remote streams");
-            for(const remoteStreamId in conversation.remoteStreams){
-                const remoteStream = conversation.remoteStreams[remoteStreamId];
-                remoteStream.stop();
+            if(process.env.REACT_APP_VOICE_PLATFORM === 'agora'){
+                console.debug("Stopping remote streams");
+                for(const remoteStreamId in conversation.remoteStreams){
+                    const remoteStream = conversation.remoteStreams[remoteStreamId];
+                    remoteStream.stop();
+                }
             }
         }
     }, [conversation.contacts, conversation.remoteStreams]);
@@ -41,7 +44,7 @@ const Conversation = function () {
                     return (
                         <div className="speaking-user-container" key={`${contact.id}_div`}>
                             <ContactAvatar  contact={contact} styles="speaking-user"  showContactInfo={true} />
-                            <div id={`audio-div_${contact.id}`} key={`audio-div_${contact.id}`}/>
+                            {process.env.REACT_APP_VOICE_PLATFORM === 'agora' ? <div id={`audio-div_${contact.id}`} key={`audio-div_${contact.id}`}/> : ''}
                         </div>
                     )
                 }else{

@@ -16,10 +16,7 @@ function randomString() {
 }
 
 /** Helpers **/
-export function startConversation() {
-    //Generate channel name.
-    //Todo: Check if you need to move this code somewhere else.
-    const channel = randomString();
+export function startConversation(channel) {
     return {
         type: Actions.START_CONVERSATION,
         channel
@@ -108,7 +105,7 @@ export const conversationReducer = function (state, action) {
         case Actions.REMOTE_STREAM_RECEIVED:
             const {receivedStream} = action;
             const updatedRemoteStreams = state.remoteStreams;
-            updatedRemoteStreams[receivedStream.getId()] = receivedStream;
+            updatedRemoteStreams[receivedStream.contactId] = receivedStream;
             newState = {
                 ...state,
                 remoteStreams: updatedRemoteStreams
@@ -117,7 +114,7 @@ export const conversationReducer = function (state, action) {
         case Actions.REMOTE_STREAM_REMOVED:
             let {contacts, remoteStreams} = state;
             const {removedStream} = action;
-            const contactId = removedStream.getId();
+            const contactId = removedStream.contactId;
             delete remoteStreams[contactId];
             const updatedContacts = contacts.filter( contact => {return contact.id !== contactId});
             newState = {
