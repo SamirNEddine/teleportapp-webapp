@@ -84,7 +84,7 @@ export const conversationReducer = function (state, action) {
                 channel: action.channel,
                 contacts: [],
                 remoteStreams: {},
-                muteAudio: true
+                muteAudio: false
             };
             break;
         case Actions.JOIN_CONVERSATION:
