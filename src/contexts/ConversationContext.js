@@ -100,16 +100,16 @@ export const ConversationContextProvider = function ({children}) {
             switch(openTokEvent){
                 case OpenTokEvents.REMOTE_STREAM_RECEIVED:
                     const {receivedStream} = openTokEventData;
-                    receivedStream.contactId = receivedStream.name;
+                    const contactId = parseInt(receivedStream.name);
+                    receivedStream.contactId = contactId;
                     //Update remote streams
                     dispatch(remoteStreamReceived(receivedStream));
                     //Fetch the contact info
-                    const contactId = receivedStream.name;
                     fetchContact(contactId);
                     break;
                 case OpenTokEvents.REMOTE_STREAM_REMOVED:
                     const {removedStream} = openTokEventData;
-                    removedStream.contactId = removedStream.name;
+                    removedStream.contactId = parseInt(removedStream.name);
                     //Update contacts and remote streams
                     dispatch(remoteStreamRemoved(removedStream));
                     break;
