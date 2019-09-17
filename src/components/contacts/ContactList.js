@@ -16,7 +16,7 @@ const ContactList = function ({contacts}) {
         if (selectedContactId && !conversation.channel){
             setTimeout( function () {
                 setSelectedContactId(null);
-            }, 100);
+            }, 200);
         }
     },[conversation.contacts, conversation.channel, selectedContactId]);
 
@@ -27,7 +27,8 @@ const ContactList = function ({contacts}) {
         setSelectedContactId(contact.id);
     };
 
-    const openingConversation = (conversation.channel && selectedContactId !== null);
+    const openingConversation = (conversation.channel && !conversation.contacts.length && selectedContactId !== null);
+    const inConversation = (conversation.contacts.length && selectedContactId !== null);
     const leavingConversation = (!conversation.channel && selectedContactId !== null);
 
     const displayList = _ => {
@@ -41,7 +42,7 @@ const ContactList = function ({contacts}) {
                 const contact = contacts[i];
                 const positionClassName = i === 0 ? "center" : DEGREE_PREFIX + String(STARTING_DEGREE + (i-1)*DEGREE_OFFSET);
                 const avatar = <ContactAvatar
-                    styles={`contact-list-avatar ${positionClassName} ${contact.id !== selectedContactId ? contact.status : 'available'} ${openingConversation || leavingConversation ? (selectedContactId === contact.id ? (openingConversation ? 'selected' : 'leaving') : 'pushed-back') : ''}`}
+                    styles={`contact-list-avatar ${positionClassName} ${contact.id !== selectedContactId ? contact.status : 'available'} ${openingConversation || leavingConversation || inConversation ? (selectedContactId === contact.id ? ('selected') : 'pushed-back') : ''} `}
                     contact={contact}
                     scaleOnHover={!openingConversation && contact.status === 'available'}
                     key={contact.id}

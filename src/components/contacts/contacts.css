@@ -2,7 +2,7 @@
     --avatar-translate: 106%;
     --scale-factor: 1.04;
     --pushback-scale-factor: 0.8;
-    --pushback-transition: 0.1s;
+    --pushback-transition: 1.1s;
     --pushback-avatar-translate: 82%;
     --selection-animation-time: 0.3s;
     --selection-animation-function: ease;
@@ -29,50 +29,50 @@
 }
 
 .available.center:hover { transform: scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.center.pushed-back {transform: scale(var( --pushback-scale-factor)); }
+.center.pushed-back {transform: scale(var(--pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .deg0 { transform: translate(var(--avatar-translate)); }
 .available.deg0:hover {transform: translate(var(--avatar-translate)) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg0.pushed-back {transform: translate(var(--pushback-avatar-translate)) scale(var(--pushback-scale-factor)); }
+.deg0.pushed-back {transform: translate(var(--pushback-avatar-translate)) scale(var(--pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .deg30 { transform: rotate(30deg) translate(var(--avatar-translate)) rotate(-30deg); }
 .available.deg30:hover { transform: rotate(30deg) translate(var(--avatar-translate)) rotate(-30deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg30.pushed-back { transform: rotate(30deg) translate(var(--pushback-avatar-translate)) rotate(-30deg) scale(var(--pushback-scale-factor)); }
+.deg30.pushed-back { transform: rotate(30deg) translate(var(--pushback-avatar-translate)) rotate(-30deg) scale(var(--pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .deg90 { transform: rotate(90deg) translate(var(--avatar-translate)) rotate(-90deg); }
 .available.deg90:hover { transform: rotate(90deg) translate(var(--avatar-translate)) rotate(-90deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg90.pushed-back { transform: rotate(90deg) translate(var(--pushback-avatar-translate)) rotate(-90deg) scale(var( --pushback-scale-factor)); }
+.deg90.pushed-back { transform: rotate(90deg) translate(var(--pushback-avatar-translate)) rotate(-90deg) scale(var( --pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .deg150 { transform: rotate(150deg) translate(var(--avatar-translate)) rotate(-150deg); }
 .available.deg150:hover { transform: rotate(150deg) translate(var(--avatar-translate)) rotate(-150deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg150.pushed-back { transform: rotate(150deg) translate(var(--pushback-avatar-translate)) rotate(-150deg) scale(var( --pushback-scale-factor)); }
+.deg150.pushed-back { transform: rotate(150deg) translate(var(--pushback-avatar-translate)) rotate(-150deg) scale(var( --pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .deg180 { transform: translate(calc(var(--avatar-translate) * -1)); }
 .available.deg180:hover { transform: translate(calc(var(--avatar-translate) * -1)) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg180.pushed-back { transform: translate(calc(var(--pushback-avatar-translate) * -1)) scale(var( --pushback-scale-factor)); }
+.deg180.pushed-back { transform: translate(calc(var(--pushback-avatar-translate) * -1)) scale(var( --pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .deg210 { transform: rotate(210deg) translate(var(--avatar-translate)) rotate(-210deg); }
 .available.deg270:hover { transform: rotate(270deg) translate(var(--avatar-translate)) rotate(-270deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg210.pushed-back { transform: rotate(210deg) translate(var(--pushback-avatar-translate)) rotate(-210deg) scale(var( --pushback-scale-factor)); }
+.deg210.pushed-back { transform: rotate(210deg) translate(var(--pushback-avatar-translate)) rotate(-210deg) scale(var( --pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .deg270 { transform: rotate(270deg) translate(var(--avatar-translate)) rotate(-270deg); }
 .available.deg270:hover { transform: rotate(270deg) translate(var(--avatar-translate)) rotate(-270deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg270.pushed-back { transform: rotate(270deg) translate(var(--pushback-avatar-translate)) rotate(-270deg) scale(var( --pushback-scale-factor)); }
+.deg270.pushed-back { transform: rotate(270deg) translate(var(--pushback-avatar-translate)) rotate(-270deg) scale(var( --pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .deg330 { transform: rotate(330deg) translate(var(--avatar-translate)) rotate(-330deg); }
 .available.deg330:hover { transform: rotate(330deg) translate(var(--avatar-translate)) rotate(-330deg) scale(var(--scale-factor)); border: 2px solid mediumseagreen; }
-.deg330.pushed-back { transform: rotate(330deg) translate(var(--pushback-avatar-translate)) rotate(-330deg) scale(var( --pushback-scale-factor)); }
+.deg330.pushed-back { transform: rotate(330deg) translate(var(--pushback-avatar-translate)) rotate(-330deg) scale(var( --pushback-scale-factor)); transition: all var(--pushback-transition); }
 
 .available.selected, .available.selected:hover {
     pointer-events: none;
     border: none;
     transform: scale(3.2);
     z-index: 4;
-    transition: all 0.4s;
+    transition: all var(--selection-animation-time);
     transition-timing-function: var(--selection-animation-function);
 }
 
-.available.leaving {
+.leaving {
     z-index: 4;
 }
 
@@ -90,11 +90,11 @@
     background: white;
     border-radius: 50%;
     cursor: pointer;
-    transition: transform .25s;
-    transition-timing-function: ease-in;
+    transition: transform 0.3s;
+    transition-timing-function: ease;
     overflow: hidden;
+    z-index: 2;
 }
-
 
 .contact-avatar img {
     width: 100%;
@@ -135,5 +135,5 @@
     left: 42%;
     color: white;
     font-family: sans-serif;
-    z-index: 4;
+    z-index: 5;
 }
