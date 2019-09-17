@@ -1,5 +1,6 @@
 :root {
     --circle-radius: 21em;
+    --screen-radius: 14.1em;
     --circle-radius-no-metric: 21;
     --message-on-screen-font-size: 20px;
     --time-on-screen-font-size: 80px;
@@ -7,12 +8,14 @@
 @media screen and (min-width: 320px) and (max-width: 499px) {
     :root{
         --circle-radius: 14em;
+        --screen-radius: 9.4em;
         --circle-radius-no-metric: 14;
     }
 }
 @media screen and (min-width: 500px) and (max-width: 735px) {
     :root{
         --circle-radius: 18em;
+        --screen-radius: 12.1em;
         --circle-radius-no-metric: 18;
     }
 }
@@ -31,6 +34,16 @@
     overflow: hidden;
 }
 
+.device-screen {
+    position: absolute;
+    width: calc(var(--screen-radius)*2);
+    height: calc(var(--screen-radius)*2);
+    top: 17.2%;
+    left: 16.4%;
+    border-radius: 50%;
+
+}
+
 .hardware-button {
     /*background-color: rgba(0,0,0, 0.6);*/
     width: 65px;
@@ -42,10 +55,8 @@
 
 .unavailable-container{
     position: absolute;
-    top: 16%;
-    left: 15%;
-    height: 70%;
-    width: 70%;
+    height: 100%;
+    width: 100%;
     background-color: rgba(0, 0, 0, 0.4);
     border-radius: 50%;
     font-family: sans-serif;
