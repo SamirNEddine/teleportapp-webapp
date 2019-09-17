@@ -129,10 +129,11 @@
 }
 
 .loading {
-    display: block;
     position: absolute;
     top: 50%;
-    left: 42%;
+    width: 100%;
+    height: auto;
+    text-align: center;
     color: white;
     font-family: sans-serif;
     z-index: 5;
