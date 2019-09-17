@@ -55,10 +55,8 @@
 
 .unavailable-container{
     position: absolute;
-    top: 16%;
-    left: 15%;
-    height: 70%;
-    width: 70%;
+    height: 100%;
+    width: 100%;
     background-color: rgba(0, 0, 0, 0.4);
     border-radius: 50%;
     font-family: sans-serif;
