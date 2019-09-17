@@ -2,7 +2,7 @@
     --avatar-translate: 106%;
     --scale-factor: 1.04;
     --pushback-scale-factor: 0.8;
-    --pushback-transition: 1.1s;
+    --pushback-transition: 0.4s;
     --pushback-avatar-translate: 82%;
     --selection-animation-time: 0.3s;
     --selection-animation-function: ease;
@@ -72,10 +72,6 @@
     transition-timing-function: var(--selection-animation-function);
 }
 
-.leaving {
-    z-index: 4;
-}
-
 .unavailable {
     border: 6px solid gray;
     pointer-events: none;
@@ -91,9 +87,12 @@
     border-radius: 50%;
     cursor: pointer;
     transition: transform 0.3s;
-    transition-timing-function: ease;
+    transition-timing-function: ease-out;
     overflow: hidden;
     z-index: 2;
+}
+.contact-avatar.leaving {
+    z-index: 4;
 }
 
 .contact-avatar img {
@@ -129,10 +128,11 @@
 }
 
 .loading {
-    display: block;
     position: absolute;
     top: 50%;
-    left: 42%;
+    width: 100%;
+    height: auto;
+    text-align: center;
     color: white;
     font-family: sans-serif;
     z-index: 5;
