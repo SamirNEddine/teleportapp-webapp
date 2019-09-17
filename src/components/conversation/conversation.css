@@ -4,22 +4,18 @@
 }
 .speaking-user {
     position: absolute;
-    top: 16.1%;
-    left: 15.4%;
-    width: 69.3%;
-    height: 69.3%;
+    width: 100%;
+    height: 100%;
     z-index: 4;
 }
 .mute-container {
     position: absolute;
-    top: 16.1%;
-    left: 15.4%;
-    width: 69.3%;
-    height: 69.3%;
+    width: 100.1%;
+    height: 100.1%;
     background-color: rgba(178,34,34, 0.1);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(6px);
-    border-radius: 100%;
+    border-radius: 50%;
     z-index: 5;
 }
 .mute-indicator {

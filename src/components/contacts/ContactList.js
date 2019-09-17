@@ -50,7 +50,7 @@ const ContactList = function ({contacts}) {
     };
 
     return (
-        <div>
+        <div className="contact-list-container">
             {selectedContactId ? <div className="loading">Contacting...</div> : ''}
             {displayList()}
         </div>

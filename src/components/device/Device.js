@@ -58,9 +58,11 @@ const Device = function () {
     return (
         <div className="device-container">
             <div className="hardware-button" onClick={onButtonClick}/>
-            <ContactList contacts={contacts}/>
-            {conversation.contacts.length ? <Conversation/> : ''}
-            {status === 'unavailable' ? <Unavailable/> : ''}
+            <div className="device-screen">
+                <ContactList contacts={contacts}/>
+                {conversation.contacts.length ? <Conversation/> : ''}
+                {status === 'unavailable' ? <Unavailable/> : ''}
+            </div>
         </div>
     );
 };
