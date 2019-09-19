@@ -14,3 +14,9 @@ body{
   font-size: x-large;
   text-align: center;
 }
+
+.ui.message {
+  width: 98%;
+  margin: 1% auto;
+  z-index: 100;
+}

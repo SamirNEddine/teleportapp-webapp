@@ -51,3 +51,7 @@ export const graphQLClient = new ApolloClient({
     link:link,
     cache: new InMemoryCache()
 });
+
+export const getErrorMessageFromGraphqlErrorMessage = function(errorMessage){
+    return errorMessage.replace('GraphQL error:', ' ').trim();
+};
