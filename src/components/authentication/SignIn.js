@@ -4,6 +4,8 @@ import { LOGIN_USER } from "../../graphql/queries";
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { updateLocalUser } from "../../helpers/localStorage";
 import { signInSuccess } from '../../actions/authenticationActions'
+import { Message } from 'semantic-ui-react'
+import { getErrorMessageFromGraphqlErrorMessage } from '../../helpers/graphql';
 
 import './authentication.css'
 
@@ -11,7 +13,7 @@ const SignIn = function ({history}) {
     const { authState, dispatch } = useContext(AuthenticationContext);
     const [email, setEmail] = useState(null);
     const [password, setPassword] = useState(null);
-    const [signIn] = useMutation(LOGIN_USER);
+    const [signIn, {error}] = useMutation(LOGIN_USER);
     useEffect( _ => {
         if (authState.user){
             history.push('/');
@@ -28,7 +30,7 @@ const SignIn = function ({history}) {
         }
     };
     return (
-        <div>
+        <div className='auth-container'>
             <div className="signin-container">
                 <img src="https://storage.googleapis.com/teleport_public/logo/white.svg" className="teleport-logo" alt="Logo"/>
                 <form className="signin-form" onSubmit={handleSubmit}>
@@ -37,6 +39,13 @@ const SignIn = function ({history}) {
                     <button>login</button>
                 </form>
             </div>
+            {error || authState.error ? (
+                <Message negative>
+                    <Message.Header>Authentication error</Message.Header>
+                    <p>{ error ? getErrorMessageFromGraphqlErrorMessage(error.message) : authState.error}</p>
+                </Message>
+            ) : ('')
+            }
         </div>
     );
 };

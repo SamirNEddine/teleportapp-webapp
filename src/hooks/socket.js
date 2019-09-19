@@ -30,6 +30,8 @@ export function useSocket(authState, nameSpace) {
     const [error] = useState(null);
     useEffect( () => {
         if (authState.user && !socket){
+            console.debug('Socket URL:', process.env.REACT_APP_SOCKET_URL);
+            console.debug('Start socket for', nameSpace);
             setSocket(openSocket(`${process.env.REACT_APP_SOCKET_URL}/${nameSpace}`, {
                 query: {
                     token: `Bearer ${getAuthenticationToken()}`

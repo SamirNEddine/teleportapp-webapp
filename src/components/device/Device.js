@@ -16,15 +16,18 @@ import {useQuery} from "@apollo/react-hooks";
 import { GET_USERS } from "../../graphql/queries";
 
 const Device = function () {
+    const {authState} = useContext(AuthenticationContext);
+
     const [contacts, setContacts] = useState([]);
-    const {error, loading, data, refetch} = useQuery(GET_USERS);
+    const {error, loading, data, refetch} = useQuery(GET_USERS, {
+        skip: authState.error
+    });
     useEffect( () => {
         if (!error && !loading){
             setContacts(data.users);
         }
-    }, [error, loading, data, contacts]);
+    }, [error, loading, data, contacts, authState]);
 
-    const {authState} = useContext(AuthenticationContext);
     const [socketError, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
     useEffect( () => {
         if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE){
