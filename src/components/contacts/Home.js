@@ -38,12 +38,13 @@ const Home = function ({contacts}) {
                 styles={`${contact.id !== selectedContactId ? contact.status : ''} `}
                 contact={contact}
                 scaleOnHover={!openingConversation && contact.status === 'available'}
-                key={contact.id}
                 onContactClick={(!openingConversation && contact.status === 'available') ? onContactClick : _=>{}}/>
         );
+        const key = contact.id;
         const avatar = {
             additionalClasses,
-            component
+            component,
+            key,
         };
         avatars.push(avatar);
     }
