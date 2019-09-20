@@ -65,6 +65,7 @@
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: 6;
+    animation: fadein 0.4s;
 }
 
 .unavailable-message{
