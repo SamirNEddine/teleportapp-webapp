@@ -16,6 +16,8 @@ const Home = function ({contacts}) {
             setTimeout( function () {
                 setSelectedContactId(null);
             }, 300);
+        } else if (!selectedContactId && conversation.contacts.length){
+            setSelectedContactId(conversation.contacts[0].id);
         }
     },[conversation.contacts, conversation.channel, selectedContactId]);
 
