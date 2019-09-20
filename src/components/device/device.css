@@ -38,10 +38,9 @@
     position: absolute;
     width: calc(var(--screen-radius)*2);
     height: calc(var(--screen-radius)*2);
-    top: 17.2%;
-    left: 16.4%;
+    top: 17.4%;
+    left: 16.25%;
     border-radius: 50%;
-
 }
 
 .hardware-button {
@@ -55,9 +54,9 @@
 
 .unavailable-container{
     position: absolute;
-    height: 100.1%;
-    width: 100.1%;
-    left: -0.1%;
+    height: 100%;
+    width: 100%;
+    top: -1px;
     background-color: rgba(0, 0, 0, 0.4);
     border-radius: 50%;
     font-family: sans-serif;

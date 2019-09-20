@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import ContactList from "../contacts/ContactList";
+import Home from "../contacts/Home";
 import Conversation from "../conversation/Conversation";
 import Unavailable from './Unavailable';
 import './device.css';
@@ -62,7 +62,9 @@ const Device = function () {
         <div className="device-container">
             <div className="hardware-button" onClick={onButtonClick}/>
             <div className="device-screen">
-                <ContactList contacts={contacts}/>
+                <div style={{visibility: `${conversation.contacts.length ? 'hidden': 'visible'}`}}>
+                    <Home contacts={contacts}/>
+                </div>
                 {conversation.contacts.length ? <Conversation/> : ''}
                 {status === 'unavailable' ? <Unavailable/> : ''}
             </div>
