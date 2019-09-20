@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ContactAvatar from './ContactAvatar';
 import { ConversationContext } from "../../contexts/ConversationContext";
-import './contacts.css';
 import {addContact, startConversation} from "../../reducers/conversationReducer";
+import AvatarsCollection from "../layout/AvatarsCollection";
 
-const DEGREE_OFFSET = 60;
-const DEGREE_PREFIX = "deg";
-const STARTING_DEGREE = 30;
+import './contacts.css';
+
 const NUMBER_OF_AVATARS = 7;
 
 const Home = function ({contacts}) {
@@ -30,33 +29,34 @@ const Home = function ({contacts}) {
     const openingConversation = (conversation.channel && !conversation.contacts.length && selectedContactId !== null);
     const inConversation = (conversation.contacts.length && selectedContactId !== null);
     const leavingConversation = (!conversation.channel && selectedContactId !== null);
-
-    const displayList = _ => {
-        if (!contacts.length){
-            return <div className="loading">Loading contacts...</div>
-        }else if (!contacts || contacts.length === 0){
-            return <div>No contacts.</div>
-        }else{
-            const avatars = [];
-            for(let i=0; i< NUMBER_OF_AVATARS && i< contacts.length; i++){
-                const contact = contacts[i];
-                const positionClassName = i === 0 ? "center" : DEGREE_PREFIX + String(STARTING_DEGREE + (i-1)*DEGREE_OFFSET);
-                const avatar = <ContactAvatar
-                    styles={`contact-list-avatar ${positionClassName} ${contact.id !== selectedContactId ? contact.status : 'available'} ${openingConversation || inConversation ? (selectedContactId === contact.id ? 'selected' : 'pushed-back') : ''} ${leavingConversation ? (selectedContactId === contact.id ? 'leaving' : '') : ''} `}
-                    contact={contact}
-                    scaleOnHover={!openingConversation && contact.status === 'available'}
-                    key={contact.id}
-                    onContactClick={(!openingConversation && contact.status === 'available') ? onContactClick : _=>{}}/>;
-                avatars.push(avatar);
-            }
-            return avatars;
-        }
-    };
+    const avatars = [];
+    for(let i=0; i< NUMBER_OF_AVATARS && i< contacts.length; i++){
+        const contact = contacts[i];
+        const additionalClasses = `animatedAvatar ${openingConversation || inConversation ? (selectedContactId === contact.id ? 'selected' : 'pushed-back') : ''} ${leavingConversation ? (selectedContactId === contact.id ? 'leaving' : '') : ''} `
+        const component = (
+            <ContactAvatar
+                styles={`${contact.id !== selectedContactId ? contact.status : ''} `}
+                contact={contact}
+                scaleOnHover={!openingConversation && contact.status === 'available'}
+                key={contact.id}
+                onContactClick={(!openingConversation && contact.status === 'available') ? onContactClick : _=>{}}/>
+        );
+        const avatar = {
+            additionalClasses,
+            component
+        };
+        avatars.push(avatar);
+    }
 
     return (
         <div className="contact-list-container">
             {openingConversation ? <div className="loading">Contacting...</div> : ''}
-            {displayList()}
+            {!contacts || !contacts.length ? (
+                <div className="loading">Loading contacts...</div>
+            ) : (
+                <AvatarsCollection avatars={avatars}/>
+                )
+            }
         </div>
     );
 };
