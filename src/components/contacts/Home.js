@@ -9,7 +9,7 @@ const DEGREE_PREFIX = "deg";
 const STARTING_DEGREE = 30;
 const NUMBER_OF_AVATARS = 7;
 
-const ContactList = function ({contacts}) {
+const Home = function ({contacts}) {
     const {conversation, dispatch, generateNewConversationChannel} = useContext(ConversationContext);
     const [selectedContactId, setSelectedContactId] = useState(null);
     useEffect( () => {
@@ -61,4 +61,4 @@ const ContactList = function ({contacts}) {
     );
 };
 
-export default ContactList;
+export default Home;
