@@ -4,7 +4,7 @@
     --pushback-scale-factor: 0.8;
     --pushback-transition: 0.4s;
     --pushback-avatar-translate: 82%;
-    --selection-animation-time: 0.45s;
+    --selection-animation-time: 0.35s;
     --selection-animation-function: ease;
 }
 
