@@ -12,7 +12,6 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    overflow: hidden;
 }
 
 .available {
@@ -57,7 +56,7 @@
 .selected, .selected:hover {
     pointer-events: none !important;
     border: none !important;
-    transform: scale(3.2) !important;
+    transform: scale(3.22) !important;
     z-index: 4 !important;
     transition: transform var(--selection-animation-time) !important;
     transition-timing-function: var(--selection-animation-function) !important;
@@ -117,7 +116,7 @@
 }
 
 .contact-info-text {
-    position: absolute;
+    position: relative;
     top: 10%;
     width: 100%;
     font-family: ".SF NS Display";

@@ -62,7 +62,9 @@ const Device = function () {
         <div className="device-container">
             <div className="hardware-button" onClick={onButtonClick}/>
             <div className="device-screen">
-                <Home contacts={contacts}/>
+                <div style={{visibility: `${conversation.contacts.length ? 'hidden': 'visible'}`}}>
+                    <Home contacts={contacts}/>
+                </div>
                 {conversation.contacts.length ? <Conversation/> : ''}
                 {status === 'unavailable' ? <Unavailable/> : ''}
             </div>

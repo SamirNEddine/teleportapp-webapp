@@ -38,10 +38,9 @@
     position: absolute;
     width: calc(var(--screen-radius)*2);
     height: calc(var(--screen-radius)*2);
-    top: 17.2%;
-    left: 16.4%;
+    top: 17.4%;
+    left: 16.25%;
     border-radius: 50%;
-
 }
 
 .hardware-button {
