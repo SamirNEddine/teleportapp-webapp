@@ -28,7 +28,7 @@ const Device = function () {
         }
     }, [error, loading, data]);
 
-    const [socketError, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
+    const [, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
     useEffect( () => {
         if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE){
             //To do: Update locally instead of refetching.

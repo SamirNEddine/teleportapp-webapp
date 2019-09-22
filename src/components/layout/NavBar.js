@@ -32,12 +32,12 @@ const NavBar = () => {
                 <div className="collapse navbar-collapse" id="navbarSupportedContent-555">
                     <ul className="navbar-nav ml-auto nav-flex-icons">
                         <li className="nav-item avatar dropdown">
-                            <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-55"
+                            <button className="nav-link dropdown-toggle btn bg-transparent" id="navbarDropdownMenuLink-55"
                                data-toggle="dropdown"
                                aria-haspopup="true" aria-expanded="false">
                                 {(user && user.profilePicture )? <img src={user.profilePicture} className="rounded-circle z-depth-0"
                                                                     alt="avatar image" /> : <div/>}
-                            </a>
+                            </button>
                             <div className="dropdown-menu   dropdown-secondary"
                                  aria-labelledby="navbarDropdownMenuLink-55">
                                 <div className="dropdown-item" onClick={handleLogout}>Logout</div>
