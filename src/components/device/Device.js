@@ -28,19 +28,19 @@ const Device = function () {
         }
     }, [error, loading, data]);
 
-    const [socketError, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
+    const [, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
     useEffect( () => {
         if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE){
             //To do: Update locally instead of refetching.
             refetch()
         }
-    }, [message, socketData]);
+    }, [message, socketData, refetch]);
 
     const {conversation, dispatch} = useContext(ConversationContext);
     const [status, setStatus] = useState('available');
     useEffect( () => {
         sendMessage(STATUS_SOCKET_OUTGOING_MESSAGES.UPDATE_STATUS, {status});
-    }, [status]);
+    }, [status, sendMessage]);
     useEffect( () => {
         if(conversation.channel){
             setStatus('busy');

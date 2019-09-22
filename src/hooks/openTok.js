@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import OT from '@opentok/client'
 import { useApolloClient } from "@apollo/react-hooks";
-import {GET_OPENTOK_TOKEN, GET_USER} from "../graphql/queries";
+import {GET_OPENTOK_TOKEN} from "../graphql/queries";
 
 export const OpenTokEvents = {
     INIT_PUBLISHER: 'INIT_PUBLISHER',
@@ -74,7 +74,7 @@ export function useOpenTok(authState, sessionId) {
             console.debug(`Get token to join session ${sessionId}`);
             getOpenTokToken(sessionId);
         }
-    },[session, publisher, sessionId]);
+    },[session, publisher, sessionId, apolloClient]);
 
     useEffect( () => {
         if(sessionId && !openTokError && publisher && !session){
@@ -114,7 +114,7 @@ export function useOpenTok(authState, sessionId) {
         }
     }, [sessionId, session, openTokError, publisher]);
 
-    const performAction = (action, actionData) => {
+    const performAction = useCallback((action, actionData) => {
         if(publisher){
             console.log(`Performing action: ${action} with data: ${actionData}`);
             switch (action) {
@@ -124,9 +124,11 @@ export function useOpenTok(authState, sessionId) {
                 case OpenTokActions.UNMUTE_AUDIO:
                     publisher.publishAudio(true);
                     break;
+                default:
+                    break;
             }
         }
-    };
+    }, [publisher]);
 
     return [openTokError, event, eventData, performAction];
 }

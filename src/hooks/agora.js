@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AgoraRTC from "agora-rtc-sdk";
 import { useQuery } from "@apollo/react-hooks";
 import {GET_AGORA_TOKEN} from "../graphql/queries";
@@ -137,9 +137,9 @@ export function useAgora(authState, channel) {
             setChannelJoined(false);
             setEvent(null);
         }
-    }, [channel, channelJoined, loading, error, data, refetch]);
+    }, [channel, channelJoined, loading, error, data, refetch, authState.user, client, localStream]);
 
-    const performAction = (action, actionData) => {
+    const performAction = useCallback((action, actionData) => {
         if(configured){
             switch (action) {
                 case AgoraActions.MUTE_AUDIO:
@@ -148,9 +148,11 @@ export function useAgora(authState, channel) {
                 case AgoraActions.UNMUTE_AUDIO:
                     localStream.unmuteAudio();
                     break;
+                default:
+                    break;
             }
         }
-    };
+    }, [localStream, configured]);
 
     return [agoraError, event, eventData, performAction];
 }

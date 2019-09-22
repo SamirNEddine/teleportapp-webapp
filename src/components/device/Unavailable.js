@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Unavailable = function () {
     const formatTime = function(i) {
@@ -13,10 +13,18 @@ const Unavailable = function () {
     };
 
     const [time, setTime] = useState(formattedCurrentTime());
-    const timer = function () {
-        setTime(formattedCurrentTime);
-        setTimeout(timer, 60000);
-    };
+
+    useEffect( () => {
+        let timer = function () {
+            setTime(formattedCurrentTime);
+            setTimeout(timer, 60000 - Date.now().getSeconds*1000);
+        };
+        timer();
+        return _ => {
+            timer = null;
+        }
+    });
+
 
     return (
         <div className="unavailable-container">
