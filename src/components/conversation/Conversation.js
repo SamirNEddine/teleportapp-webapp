@@ -40,7 +40,6 @@ const Conversation = function () {
         <div className="conversation-container">
             {contacts.map(contact => {
                 if (contact.id === speakingUser.id){
-                    const backgroundImageStyle = {backgroundImage: `url('${contact.profilePicture}')`};
                     return (
                         <div className="speaking-user-container" key={`${contact.id}_div`}>
                             <ContactAvatar  contact={contact} styles="speaking-user"  showContactInfo={true} />

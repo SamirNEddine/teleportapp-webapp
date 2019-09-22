@@ -36,7 +36,7 @@ const NavBar = () => {
                                data-toggle="dropdown"
                                aria-haspopup="true" aria-expanded="false">
                                 {(user && user.profilePicture )? <img src={user.profilePicture} className="rounded-circle z-depth-0"
-                                                                    alt="avatar image" /> : <div/>}
+                                                                    alt="avatar" /> : <div/>}
                             </button>
                             <div className="dropdown-menu   dropdown-secondary"
                                  aria-labelledby="navbarDropdownMenuLink-55">
