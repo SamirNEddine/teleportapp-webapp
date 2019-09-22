@@ -8,7 +8,8 @@ const Actions = {
     CONTACT_ADDED:'CONTACT_ADDED',
     CONTACT_FETCHED: 'CONTACT_FETCHED',
     MUTE_AUDIO: 'MUTE_AUDIO',
-    UNMUTE_AUDIO: 'UNMUTE_AUDIO'
+    UNMUTE_AUDIO: 'UNMUTE_AUDIO',
+    ANALYTICS_SENT: 'ANALYTICS_SENT'
 };
 
 /** Helpers **/
@@ -69,9 +70,14 @@ export function unmuteAudio() {
         type: Actions.UNMUTE_AUDIO
     }
 }
+export function analyticsSent() {
+    return {
+        type: Actions.ANALYTICS_SENT
+    }
+}
 
 export const conversationReducer = function (state, action) {
-    console.debug('Conversation Reducer:\nAction: ', action, '\nSTATE ', state);
+    console.debug('Conversation Reducer:\nAction: ', action);
     let newState = state;
     const {type} = action;
     switch (type) {
@@ -99,7 +105,8 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 channel: null,
                 conversationAnswered: false,
-                contacts: []
+                contacts: [],
+                analytics: {event: 'LEAVE_CONVERSATION', properties: {leftManually: true, conversationId: state.channel}}
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
@@ -121,9 +128,9 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 channel: updatedContacts.length ? state.channel : null,
                 remoteStreams,
-                contacts: updatedContacts
+                contacts: updatedContacts,
+                analytics: updatedContacts.length ? null : {event: 'LEAVE_CONVERSATION', properties: {leftManually: false, conversationId: state.channel}}
             };
-            console.log(newState);
             break;
         case Actions.ADD_CONTACT:
             newState = {
@@ -155,6 +162,12 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 conversationAnswered: !state.isCreator,
                 muteAudio: false
+            };
+            break;
+        case Actions.ANALYTICS_SENT:
+            newState = {
+                ...state,
+                analytics: null
             };
             break;
         default:

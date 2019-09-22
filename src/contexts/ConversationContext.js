@@ -35,7 +35,8 @@ export const ConversationContextProvider = function ({children}) {
         remoteStreams: {},
         contactIdToAdd:null,
         muteAudio: true,
-        conversationAnswered: false
+        conversationAnswered: false,
+        analytics:null
     });
 
     const [, message, socketData, sendMessage] = useSocket(authState, CONVERSATION_SOCKET);
@@ -141,6 +142,12 @@ export const ConversationContextProvider = function ({children}) {
             sendMessage(CONVERSATION_SOCKET_OUTGOING_MESSAGES.ANSWERED_CONVERSATION_REQUEST, {channel: state.channel});
         }
     }, [state.conversationAnswered, sendMessage, state.channel]);
+
+    useEffect( () => {
+        if(state.analytics){
+            sendMessage('analytics', state.analytics);
+        }
+    }, [state.analytics, sendMessage]);
 
     const generateNewConversationChannel = async function () {
         let channel = null;
