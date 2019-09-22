@@ -78,6 +78,7 @@ export const conversationReducer = function (state, action) {
         case Actions.START_CONVERSATION:
             newState = {
                 channel: action.channel,
+                isCreator: true,
                 contacts: [],
                 remoteStreams: {},
                 muteAudio: false
@@ -86,15 +87,18 @@ export const conversationReducer = function (state, action) {
         case Actions.JOIN_CONVERSATION:
             newState = {
                 channel: action.channel,
+                isCreator: false,
                 contacts: [],
                 remoteStreams: {},
-                muteAudio: true
+                muteAudio: true,
+                conversationAnswered: false
             };
              break;
         case Actions.LEAVE_CONVERSATION:
             newState = {
                 ...state,
                 channel: null,
+                conversationAnswered: false,
                 contacts: []
             };
             break;
@@ -123,20 +127,20 @@ export const conversationReducer = function (state, action) {
             break;
         case Actions.ADD_CONTACT:
             newState = {
-                ...newState,
+                ...state,
                 contactIdToAdd: action.contactId
             };
             break;
         case Actions.CONTACT_ADDED:
             newState = {
-                ...newState,
+                ...state,
                 contactIdToAdd: null
             };
             break;
         case Actions.CONTACT_FETCHED:
             const {contact} = action;
             newState = {
-                ...newState,
+                ...state,
                 contacts: [...state.contacts, contact]
             };
             break;
@@ -149,6 +153,7 @@ export const conversationReducer = function (state, action) {
         case Actions.UNMUTE_AUDIO:
             newState = {
                 ...state,
+                conversationAnswered: !state.isCreator,
                 muteAudio: false
             };
             break;

@@ -31,9 +31,11 @@ export const ConversationContextProvider = function ({children}) {
     const [state, dispatch] = useReducer(conversationReducer, {
         channel: null,
         contacts: [],
+        isCreator: false,
         remoteStreams: {},
         contactIdToAdd:null,
-        muteAudio: true
+        muteAudio: true,
+        conversationAnswered: false
     });
 
     const [, message, socketData, sendMessage] = useSocket(authState, CONVERSATION_SOCKET);
@@ -133,6 +135,12 @@ export const ConversationContextProvider = function ({children}) {
                 throw(new Error('Unsupported platform'))
         }
     }, [state.muteAudio, performAgoraAction, performOpenTokAction]);
+
+    useEffect( () => {
+        if(state.conversationAnswered){
+            sendMessage(CONVERSATION_SOCKET_OUTGOING_MESSAGES.ANSWERED_CONVERSATION_REQUEST, {channel: state.channel});
+        }
+    }, [state.conversationAnswered, sendMessage, state.channel]);
 
     const generateNewConversationChannel = async function () {
         let channel = null;
