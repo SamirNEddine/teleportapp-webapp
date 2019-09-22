@@ -11,10 +11,6 @@ const Actions = {
     UNMUTE_AUDIO: 'UNMUTE_AUDIO'
 };
 
-function randomString() {
-    return  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
-
 /** Helpers **/
 export function startConversation(channel) {
     return {
