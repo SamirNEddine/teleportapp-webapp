@@ -20,13 +20,13 @@ const Device = function () {
 
     const [contacts, setContacts] = useState([]);
     const {error, loading, data, refetch} = useQuery(GET_USERS, {
-        skip: authState.error
+        skip: (!authState.user || authState.error)
     });
     useEffect( () => {
-        if (!error && !loading){
+        if (!error && !loading && data){
             setContacts(data.users);
         }
-    }, [error, loading, data, contacts, authState]);
+    }, [error, loading, data]);
 
     const [socketError, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
     useEffect( () => {
