@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import OT from '@opentok/client'
 import { useApolloClient } from "@apollo/react-hooks";
 import {GET_OPENTOK_TOKEN} from "../graphql/queries";
@@ -114,7 +114,7 @@ export function useOpenTok(authState, sessionId) {
         }
     }, [sessionId, session, openTokError, publisher]);
 
-    const performAction = (action, actionData) => {
+    const performAction = useCallback((action, actionData) => {
         if(publisher){
             console.log(`Performing action: ${action} with data: ${actionData}`);
             switch (action) {
@@ -128,7 +128,7 @@ export function useOpenTok(authState, sessionId) {
                     break;
             }
         }
-    };
+    }, [publisher]);
 
     return [openTokError, event, eventData, performAction];
 }
