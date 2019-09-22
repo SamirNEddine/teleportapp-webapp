@@ -16,8 +16,8 @@ export const CONVERSATION_SOCKET_INCOMING_MESSAGES = {
 };
 export const CONVERSATION_SOCKET_OUTGOING_MESSAGES = {
     ADD_CONTACT: 'add-contact',
-    ANSWERED_CONVERSATION_REQUEST: 'answered-conversation-request',
-    LEAVE_CONVERSATION: 'leave-conversation'
+    LEAVE_CONVERSATION: 'leave-conversation',
+    ANALYTICS: 'analytics'
 };
 
 const socketIncomingMessagesMap = {

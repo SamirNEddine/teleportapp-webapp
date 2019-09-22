@@ -2,7 +2,7 @@ import React, {useState, useContext, useEffect} from 'react';
 import { ConversationContext } from "../../contexts/ConversationContext";
 import './conversation.css'
 import ContactAvatar from "../contacts/ContactAvatar";
-import {unmuteAudio} from "../../reducers/conversationReducer";
+import {answerConversation, unmuteAudio} from "../../reducers/conversationReducer";
 
 const Conversation = function () {
     const {conversation, dispatch} = useContext(ConversationContext);
@@ -30,8 +30,14 @@ const Conversation = function () {
 
     const [speakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
 
+    const [answeredConversation, setAnsweredConversation] = useState(false);
     const unmute = function () {
-        dispatch(unmuteAudio());
+        if(!answeredConversation){
+            dispatch(answerConversation());
+            setAnsweredConversation(true);
+        }else{
+            dispatch(unmuteAudio());
+        }
     };
 
     const {contacts} = conversation;

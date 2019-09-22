@@ -9,7 +9,13 @@ const Actions = {
     CONTACT_FETCHED: 'CONTACT_FETCHED',
     MUTE_AUDIO: 'MUTE_AUDIO',
     UNMUTE_AUDIO: 'UNMUTE_AUDIO',
+    ANSWER_CONVERSATION: 'ANSWER_CONVERSATION',
     ANALYTICS_SENT: 'ANALYTICS_SENT'
+};
+
+const AnalyticsEvents = {
+    ANSWER_CONVERSATION_REQUEST: 'ANSWER_CONVERSATION_REQUEST',
+    LEAVE_CONVERSATION: 'LEAVE_CONVERSATION'
 };
 
 /** Helpers **/
@@ -70,6 +76,11 @@ export function unmuteAudio() {
         type: Actions.UNMUTE_AUDIO
     }
 }
+export function answerConversation() {
+    return {
+        type: Actions.ANSWER_CONVERSATION
+    }
+}
 export function analyticsSent() {
     return {
         type: Actions.ANALYTICS_SENT
@@ -96,17 +107,15 @@ export const conversationReducer = function (state, action) {
                 isCreator: false,
                 contacts: [],
                 remoteStreams: {},
-                muteAudio: true,
-                conversationAnswered: false
+                muteAudio: true
             };
              break;
         case Actions.LEAVE_CONVERSATION:
             newState = {
                 ...state,
                 channel: null,
-                conversationAnswered: false,
                 contacts: [],
-                analytics: {event: 'LEAVE_CONVERSATION', properties: {leftManually: true, conversationId: state.channel}}
+                analytics: {event: AnalyticsEvents.LEAVE_CONVERSATION, properties: {leftManually: true, conversationId: state.channel}}
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
@@ -129,7 +138,7 @@ export const conversationReducer = function (state, action) {
                 channel: updatedContacts.length ? state.channel : null,
                 remoteStreams,
                 contacts: updatedContacts,
-                analytics: updatedContacts.length ? null : {event: 'LEAVE_CONVERSATION', properties: {leftManually: false, conversationId: state.channel}}
+                analytics: updatedContacts.length ? null : {event: AnalyticsEvents.LEAVE_CONVERSATION, properties: {leftManually: false, conversationId: state.channel}}
             };
             break;
         case Actions.ADD_CONTACT:
@@ -160,8 +169,14 @@ export const conversationReducer = function (state, action) {
         case Actions.UNMUTE_AUDIO:
             newState = {
                 ...state,
-                conversationAnswered: !state.isCreator,
                 muteAudio: false
+            };
+            break;
+        case Actions.ANSWER_CONVERSATION:
+            newState = {
+                ...state,
+                muteAudio: false,
+                analytics: {event: AnalyticsEvents.ANSWER_CONVERSATION_REQUEST, properties: {conversationId: state.channel}}
             };
             break;
         case Actions.ANALYTICS_SENT:

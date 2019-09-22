@@ -11,6 +11,7 @@ import {
     useSocket
 } from "../hooks/socket";
 import {
+    analyticsSent,
     contactAdded,
     contactFetched,
     conversationReducer, joinConversation,
@@ -35,7 +36,6 @@ export const ConversationContextProvider = function ({children}) {
         remoteStreams: {},
         contactIdToAdd:null,
         muteAudio: true,
-        conversationAnswered: false,
         analytics:null
     });
 
@@ -138,14 +138,9 @@ export const ConversationContextProvider = function ({children}) {
     }, [state.muteAudio, performAgoraAction, performOpenTokAction]);
 
     useEffect( () => {
-        if(state.conversationAnswered){
-            sendMessage(CONVERSATION_SOCKET_OUTGOING_MESSAGES.ANSWERED_CONVERSATION_REQUEST, {channel: state.channel});
-        }
-    }, [state.conversationAnswered, sendMessage, state.channel]);
-
-    useEffect( () => {
         if(state.analytics){
-            sendMessage('analytics', state.analytics);
+            sendMessage(CONVERSATION_SOCKET_OUTGOING_MESSAGES.ANALYTICS, state.analytics);
+            dispatch(analyticsSent());
         }
     }, [state.analytics, sendMessage]);
 
