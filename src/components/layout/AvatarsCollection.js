@@ -3,9 +3,9 @@ import React from 'react';
 import './avatarsCollection.css'
 
 const MAX_NUMBER_OF_AVATARS = 7;
-const DEGREE_OFFSET = 60;
-const DEGREE_PREFIX = "deg";
-const STARTING_DEGREE = 30;
+// const DEGREE_OFFSET = 60;
+// const DEGREE_PREFIX = "deg";
+// const STARTING_DEGREE = 30;
 
 const positionsConfig = {
     1: ['center'],
