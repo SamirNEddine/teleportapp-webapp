@@ -137,7 +137,7 @@ export function useAgora(authState, channel) {
             setChannelJoined(false);
             setEvent(null);
         }
-    }, [channel, channelJoined, loading, error, data, refetch]);
+    }, [channel, channelJoined, loading, error, data, refetch, authState.user, client, localStream]);
 
     const performAction = (action, actionData) => {
         if(configured){
@@ -147,6 +147,8 @@ export function useAgora(authState, channel) {
                     break;
                 case AgoraActions.UNMUTE_AUDIO:
                     localStream.unmuteAudio();
+                    break;
+                default:
                     break;
             }
         }

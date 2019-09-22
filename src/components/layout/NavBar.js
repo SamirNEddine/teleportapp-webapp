@@ -8,7 +8,7 @@ import {logout} from "../../actions/authenticationActions";
 
 const NavBar = () => {
     const { authState, dispatch } = useContext(AuthenticationContext);
-    const {loading, error, data, refetch} = useQuery(GET_ME, {
+    const {data, refetch} = useQuery(GET_ME, {
         skip: !authState.user
     });
 
