@@ -11,6 +11,7 @@ import {
     useSocket
 } from "../hooks/socket";
 import {
+    analyticsSent,
     contactAdded,
     contactFetched,
     conversationReducer, joinConversation,
@@ -31,9 +32,11 @@ export const ConversationContextProvider = function ({children}) {
     const [state, dispatch] = useReducer(conversationReducer, {
         channel: null,
         contacts: [],
+        isCreator: false,
         remoteStreams: {},
         contactIdToAdd:null,
-        muteAudio: true
+        muteAudio: true,
+        analytics:null
     });
 
     const [, message, socketData, sendMessage] = useSocket(authState, CONVERSATION_SOCKET);
@@ -133,6 +136,13 @@ export const ConversationContextProvider = function ({children}) {
                 throw(new Error('Unsupported platform'))
         }
     }, [state.muteAudio, performAgoraAction, performOpenTokAction]);
+
+    useEffect( () => {
+        if(state.analytics){
+            sendMessage(CONVERSATION_SOCKET_OUTGOING_MESSAGES.ANALYTICS, state.analytics);
+            dispatch(analyticsSent());
+        }
+    }, [state.analytics, sendMessage]);
 
     const generateNewConversationChannel = async function () {
         let channel = null;

@@ -15,7 +15,9 @@ export const CONVERSATION_SOCKET_INCOMING_MESSAGES = {
     JOIN_CONVERSATION: 'join-conversation'
 };
 export const CONVERSATION_SOCKET_OUTGOING_MESSAGES = {
-    ADD_CONTACT: 'add-contact'
+    ADD_CONTACT: 'add-contact',
+    LEAVE_CONVERSATION: 'leave-conversation',
+    ANALYTICS: 'analytics'
 };
 
 const socketIncomingMessagesMap = {
