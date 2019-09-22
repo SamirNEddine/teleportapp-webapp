@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import openSocket from "socket.io-client";
 import {getAuthenticationToken} from "../helpers/localStorage";
 
@@ -69,11 +69,11 @@ export function useSocket(authState, nameSpace) {
 
     }, [authState.user, nameSpace, socket, message, data, error]);
 
-    const sendMessage = (message, data) => {
+    const sendMessage = useCallback((message, data) => {
         if(socket){
             socket.emit(message, data);
         }
-    };
+    }, [socket]);
 
     return [error, message, data, sendMessage];
 }

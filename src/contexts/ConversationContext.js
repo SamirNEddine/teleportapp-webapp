@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext, useEffect } from 'react';
+import React, { createContext, useReducer, useContext, useEffect, useCallback } from 'react';
 import { AuthenticationContext } from "./AuthenticationContext";
 import { useAgora, AgoraEvents, AgoraActions } from "../hooks/agora";
 import {useOpenTok, OpenTokEvents, OpenTokActions} from "../hooks/openTok";
@@ -53,12 +53,12 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [state.contactIdToAdd, state.channel, sendMessage]);
 
-    const fetchContact = async function (contactId) {
+    const fetchContact = useCallback(async function (contactId) {
         console.debug(`Fetching contact ${contactId}`);
         const {error, data} = await apolloClient.query({query: GET_USER, variables:{id: contactId}});
         if(error) throw(new Error('Failed to fetch contact info'));
         dispatch(contactFetched(data.user));
-    };
+    }, [apolloClient]);
 
     const [agoraError, agoraEvent, agoraEventData, performAgoraAction] = useAgora (
         voicePlatform === 'agora' ? authState : {},
@@ -88,7 +88,7 @@ export const ConversationContextProvider = function ({children}) {
         }else{
             //Todo: Error handling strategy
         }
-    }, [agoraError, agoraEvent, agoraEventData]);
+    }, [agoraError, agoraEvent, agoraEventData, fetchContact]);
 
     const [openTokError, openTokEvent, openTokEventData, performOpenTokAction] = useOpenTok(
         voicePlatform === 'tokbox' ? authState : {},
@@ -119,7 +119,7 @@ export const ConversationContextProvider = function ({children}) {
         }else{
             //Todo: Error handling strategy
         }
-    }, [openTokError, openTokEvent, openTokEventData]);
+    }, [openTokError, openTokEvent, openTokEventData, fetchContact]);
 
     useEffect( () => {
         switch (voicePlatform) {
@@ -132,7 +132,7 @@ export const ConversationContextProvider = function ({children}) {
             default:
                 throw(new Error('Unsupported platform'))
         }
-    }, [state.muteAudio]);
+    }, [state.muteAudio, performAgoraAction, performOpenTokAction]);
 
     const generateNewConversationChannel = async function () {
         let channel = null;

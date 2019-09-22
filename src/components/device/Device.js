@@ -40,7 +40,7 @@ const Device = function () {
     const [status, setStatus] = useState('available');
     useEffect( () => {
         sendMessage(STATUS_SOCKET_OUTGOING_MESSAGES.UPDATE_STATUS, {status});
-    }, [status]);
+    }, [status, sendMessage]);
     useEffect( () => {
         if(conversation.channel){
             setStatus('busy');
