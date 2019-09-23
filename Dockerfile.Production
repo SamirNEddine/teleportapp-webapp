@@ -5,8 +5,8 @@ WORKDIR /usr/src/app
 
 COPY . ./
 
-RUN yarn
-RUN yarn build
+RUN npm install --production
+RUN npm run build
 
 
 # Stage 2 - Add NGNIX on the top of it
