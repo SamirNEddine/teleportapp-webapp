@@ -24,8 +24,10 @@ export function useOpenTok(authState, sessionId) {
 
     const [openTokError, setOpenTokError] = useState(null);
     const [publisher, setPublisher] = useState(null);
+    const [session, setSession] = useState(null);
+
     useEffect( () => {
-        if(authState.user && !publisher){
+        if(authState.user && sessionId && !publisher){
             const options = {videoSource: null, name: authState.user.id, publishAudio:false, insertDefaultUI:false};
             const newPublisher = OT.initPublisher(null, options, function (err) {
                if(err){
@@ -38,46 +40,10 @@ export function useOpenTok(authState, sessionId) {
            setPublisher(newPublisher);
            setEvent(OpenTokEvents.INIT_PUBLISHER);
         }
-    }, [authState, publisher]);
-
-    const [session, setSession] = useState(null);
-    useEffect( () => {
-        const getOpenTokToken = async function(sessionID) {
-            const {error, data} = await apolloClient.query({query: GET_OPENTOK_TOKEN, variables:{sessionId: sessionID}, fetchPolicy: 'no-cache'});
-            if(!error){
-                const {userOpenTalkToken} = data;
-                console.debug(`Joining session ${sessionId} using token ${userOpenTalkToken}`);
-                session.connect(userOpenTalkToken, function(err) {
-                    setEvent(OpenTokEvents.SESSION_JOINED);
-                    if(err){
-                        console.debug(`Failed to join session ${sessionId} using ${userOpenTalkToken}`);
-                    }else{
-                        console.debug(`Session ${sessionId} joined. Publishing.`);
-                        session.publish(publisher, function(err){
-                            if(err){
-                                console.debug(`Failed to join session ${sessionId} using token ${userOpenTalkToken}. Error: ${err}`)
-                            }else{
-                                console.debug('Published successfully');
-                            }
-                        }).on("streamDestroyed", function(event) {
-                            event.preventDefault();
-                            console.log("Publisher stopped streaming.");
-                        });
-                    }
-                });
-            }else{
-                setOpenTokError(error);
-            }
-
-        };
-        if (sessionId && session) {
-            console.debug(`Get token to join session ${sessionId}`);
-            getOpenTokToken(sessionId);
-        }
-    },[session, publisher, sessionId, apolloClient]);
+    }, [authState, sessionId, session, publisher]);
 
     useEffect( () => {
-        if(sessionId && !openTokError && publisher && !session){
+        if(!openTokError && publisher && !session){
             console.debug(`Creating new session ${sessionId}`);
             const newSession = OT.initSession(process.env.REACT_APP_OPENTOK_API_KEY, sessionId);
             //Setup listeners
@@ -107,6 +73,7 @@ export function useOpenTok(authState, sessionId) {
             console.debug(`Leaving current session`);
             session.unpublish(publisher);
             session.disconnect();
+            setPublisher(null);
             setSession(null);
             setEvent(null);
             setEventData(null);
@@ -114,8 +81,42 @@ export function useOpenTok(authState, sessionId) {
         }
     }, [sessionId, session, openTokError, publisher]);
 
+    useEffect( () => {
+        const getOpenTokToken = async function(sessionID) {
+            const {error, data} = await apolloClient.query({query: GET_OPENTOK_TOKEN, variables:{sessionId: sessionID}, fetchPolicy: 'no-cache'});
+            if(!error){
+                const {userOpenTalkToken} = data;
+                console.debug(`Joining session ${sessionId} using token ${userOpenTalkToken}`);
+                session.connect(userOpenTalkToken, function(err) {
+                    setEvent(OpenTokEvents.SESSION_JOINED);
+                    if(err){
+                        console.debug(`Failed to join session ${sessionId} using ${userOpenTalkToken}`);
+                    }else{
+                        console.debug(`Session ${sessionId} joined. Publishing.`);
+                        session.publish(publisher, function(err){
+                            if(err){
+                                console.debug(`Failed to join session ${sessionId} using token ${userOpenTalkToken}. Error: ${err}`)
+                            }else{
+                                console.debug('Published successfully');
+                            }
+                        }).on("streamDestroyed", function(event) {
+                            console.log("Publisher stopped streaming.");
+                        });
+                    }
+                });
+            }else{
+                setOpenTokError(error);
+            }
+
+        };
+        if (sessionId && publisher && session) {
+            console.debug(`Get token to join session ${sessionId}`);
+            getOpenTokToken(sessionId);
+        }
+    },[sessionId, session, publisher, apolloClient]);
+
     const performAction = useCallback((action, actionData) => {
-        if(publisher){
+        if(publisher && sessionId){
             console.log(`Performing action: ${action} with data: ${actionData}`);
             switch (action) {
                 case OpenTokActions.MUTE_AUDIO:
@@ -128,7 +129,7 @@ export function useOpenTok(authState, sessionId) {
                     break;
             }
         }
-    }, [publisher]);
+    }, [publisher, sessionId]);
 
     return [openTokError, event, eventData, performAction];
 }
