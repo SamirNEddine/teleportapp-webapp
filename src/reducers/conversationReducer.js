@@ -18,6 +18,9 @@ const AnalyticsEvents = {
     LEAVE_CONVERSATION: 'LEAVE_CONVERSATION'
 };
 
+export const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
+if(!voicePlatform) throw(new Error('Voice platform missing.'));
+
 /** Helpers **/
 export function startConversation(channel) {
     return {
