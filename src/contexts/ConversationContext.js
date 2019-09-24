@@ -1,7 +1,8 @@
 import React, { createContext, useReducer, useContext, useEffect, useCallback } from 'react';
 import { AuthenticationContext } from "./AuthenticationContext";
 import { useAgora, AgoraEvents, AgoraActions } from "../hooks/agora";
-import {useOpenTok, OpenTokEvents, OpenTokActions} from "../hooks/openTok";
+import { useOpenTok, OpenTokEvents, OpenTokActions } from '../hooks/openTok';
+import { useVoxeet, VoxeetEvents, VoxeetActions } from '../hooks/voxeet';
 import { useApolloClient } from "@apollo/react-hooks";
 import {GET_OPENTOK_SESSION, GET_USER} from "../graphql/queries";
 import {
@@ -11,19 +12,17 @@ import {
     useSocket
 } from "../hooks/socket";
 import {
+    voicePlatform,
     analyticsSent,
     contactAdded,
     contactFetched,
     conversationReducer, joinConversation,
     remoteStreamReceived,
-    remoteStreamRemoved
+    remoteStreamRemoved, unmuteAudio
 } from "../reducers/conversationReducer";
 import {randomString} from "../utils/utils";
 
 export const ConversationContext = createContext();
-
-const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
-if(!voicePlatform) throw(new Error('Voice platform missing.'));
 
 export const ConversationContextProvider = function ({children}) {
     const apolloClient = useApolloClient();
@@ -36,7 +35,7 @@ export const ConversationContextProvider = function ({children}) {
         remoteStreams: {},
         contactIdToAdd:null,
         muteAudio: true,
-        analytics:null
+        analytics:[]
     });
 
     const [, message, socketData, sendMessage] = useSocket(authState, CONVERSATION_SOCKET);
@@ -124,6 +123,38 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [openTokError, openTokEvent, openTokEventData, fetchContact]);
 
+    const [voxeetError, voxeetEvent, performVoxeetAction] = useVoxeet(
+        voicePlatform === 'voxeet' ? authState : {},
+        voicePlatform === 'voxeet' ? state.channel : null
+    );
+    useEffect( () => {
+        if (!voxeetError && voxeetEvent) {
+            const {event, eventData} = voxeetEvent;
+            console.debug('Voxeet event:', event, eventData ? eventData : '');
+            switch (event) {
+                case VoxeetEvents.CONFERENCE_JOINED:
+                    if(state.isCreator){
+                        dispatch(unmuteAudio());
+                    }
+                    break;
+                case VoxeetEvents.CONTACT_JOINED:
+                    const {stream} = eventData;
+                    //Update remote streams
+                    dispatch(remoteStreamReceived(stream));
+                    //Fetch the contact info
+                    fetchContact(stream.contactId);
+                    break;
+                case VoxeetEvents.CONTACT_LEFT:
+                    dispatch(remoteStreamRemoved(eventData.stream));
+                    break;
+                default:
+                    break;
+            }
+        }else{
+                //Todo: Error handling strategy
+        }
+    },[voxeetError, voxeetEvent, fetchContact, dispatch, state.isCreator]);
+
     useEffect( () => {
         switch (voicePlatform) {
             case 'agora':
@@ -132,15 +163,19 @@ export const ConversationContextProvider = function ({children}) {
             case 'tokbox':
                 performOpenTokAction(state.muteAudio ? OpenTokActions.MUTE_AUDIO : OpenTokActions.UNMUTE_AUDIO);
                 break;
+            case 'voxeet':
+                performVoxeetAction(state.muteAudio ? VoxeetActions.MUTE_AUDIO : VoxeetActions.UNMUTE_AUDIO);
+                break;
             default:
                 throw(new Error('Unsupported platform'))
         }
-    }, [state.muteAudio, performAgoraAction, performOpenTokAction]);
+    }, [state.muteAudio, performAgoraAction, performOpenTokAction, performVoxeetAction]);
 
     useEffect( () => {
-        if(state.analytics){
+        if(state.analytics.length){
+            console.debug('Sending Analytics:', state.analytics);
             sendMessage(CONVERSATION_SOCKET_OUTGOING_MESSAGES.ANALYTICS, state.analytics);
-            dispatch(analyticsSent());
+            dispatch(analyticsSent(state.analytics));
         }
     }, [state.analytics, sendMessage]);
 
@@ -148,6 +183,7 @@ export const ConversationContextProvider = function ({children}) {
         let channel = null;
         switch(voicePlatform) {
             case 'agora':
+            case 'voxeet':
                 channel = randomString();
                 break;
             case 'tokbox':

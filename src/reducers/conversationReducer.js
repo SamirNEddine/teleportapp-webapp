@@ -14,9 +14,19 @@ const Actions = {
 };
 
 const AnalyticsEvents = {
+    START_CONVERSATION: 'START_CONVERSATION',
+    ADD_CONTACT: 'ADD_CONTACT',
     ANSWER_CONVERSATION_REQUEST: 'ANSWER_CONVERSATION_REQUEST',
-    LEAVE_CONVERSATION: 'LEAVE_CONVERSATION'
+    LEAVE_CONVERSATION: 'LEAVE_CONVERSATION',
+    ADDED_TO_CONVERSATION: 'ADDED_TO_CONVERSATION',
+    CONTACT_JOINED: 'CONTACT_JOINED',
+    CONTACT_LEFT: 'CONTACT_LEFT',
+    CONVERSATION_CLOSED: 'CONVERSATION_CLOSED'
 };
+
+export const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
+if(!voicePlatform) throw(new Error('Voice platform missing.'));
+console.debug(`Voice platform: ${voicePlatform}`);
 
 /** Helpers **/
 export function startConversation(channel) {
@@ -81,14 +91,15 @@ export function answerConversation() {
         type: Actions.ANSWER_CONVERSATION
     }
 }
-export function analyticsSent() {
+export function analyticsSent(sentAnalytics) {
     return {
-        type: Actions.ANALYTICS_SENT
+        type: Actions.ANALYTICS_SENT,
+        sentAnalytics
     }
 }
 
 export const conversationReducer = function (state, action) {
-    console.debug('Conversation Reducer:\nAction: ', action);
+    console.debug('Conversation Reducer:\nAction: ', action, '\nState:', state);
     let newState = state;
     const {type} = action;
     switch (type) {
@@ -98,7 +109,8 @@ export const conversationReducer = function (state, action) {
                 isCreator: true,
                 contacts: [],
                 remoteStreams: {},
-                muteAudio: false
+                muteAudio: (voicePlatform === 'voxeet'),
+                analytics:  [...state.analytics, {eventName: AnalyticsEvents.START_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
         case Actions.JOIN_CONVERSATION:
@@ -107,7 +119,8 @@ export const conversationReducer = function (state, action) {
                 isCreator: false,
                 contacts: [],
                 remoteStreams: {},
-                muteAudio: true
+                muteAudio: true,
+                analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADDED_TO_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
              break;
         case Actions.LEAVE_CONVERSATION:
@@ -115,7 +128,8 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 channel: null,
                 contacts: [],
-                analytics: {event: AnalyticsEvents.LEAVE_CONVERSATION, properties: {leftManually: true, conversationId: state.channel}}
+                analytics: [...state.analytics, {eventName: AnalyticsEvents.LEAVE_CONVERSATION, eventProperties: {conversationId: state.channel}}],
+                muteAudio: true,
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
@@ -124,7 +138,10 @@ export const conversationReducer = function (state, action) {
             updatedRemoteStreams[receivedStream.contactId] = receivedStream;
             newState = {
                 ...state,
-                remoteStreams: updatedRemoteStreams
+                remoteStreams: updatedRemoteStreams,
+                analytics: (!state.isCreator && state.contacts.length === 0) ? (
+                    state.analytics.concat({eventName: AnalyticsEvents.CONTACT_JOINED, eventProperties: {contactId: receivedStream.contactId, conversationId: state.channel}})
+                    ) : (state.analytics)
             };
             break;
         case Actions.REMOTE_STREAM_REMOVED:
@@ -138,13 +155,17 @@ export const conversationReducer = function (state, action) {
                 channel: updatedContacts.length ? state.channel : null,
                 remoteStreams,
                 contacts: updatedContacts,
-                analytics: updatedContacts.length ? null : {event: AnalyticsEvents.LEAVE_CONVERSATION, properties: {leftManually: false, conversationId: state.channel}}
+                analytics: [...state.analytics,
+                    {eventName: AnalyticsEvents.CONTACT_LEFT, eventProperties: {contactId, conversationId: state.channel}},
+                    updatedContacts.length ? null : {eventName: AnalyticsEvents.CONVERSATION_CLOSED, eventProperties: {conversationId: state.channel}}
+                    ]
             };
             break;
         case Actions.ADD_CONTACT:
             newState = {
                 ...state,
-                contactIdToAdd: action.contactId
+                contactIdToAdd: action.contactId,
+                analytics: [...state.analytics, {eventName: AnalyticsEvents.ADD_CONTACT, eventProperties: {contactId: action.contactId, conversationId: state.channel}}]
             };
             break;
         case Actions.CONTACT_ADDED:
@@ -176,13 +197,17 @@ export const conversationReducer = function (state, action) {
             newState = {
                 ...state,
                 muteAudio: false,
-                analytics: {event: AnalyticsEvents.ANSWER_CONVERSATION_REQUEST, properties: {conversationId: state.channel}}
+                analytics: [...state.analytics, {eventName: AnalyticsEvents.ANSWER_CONVERSATION_REQUEST, eventProperties: {conversationId: state.channel}}]
             };
             break;
         case Actions.ANALYTICS_SENT:
+            const {sentAnalytics} = action;
+            const pendingAnalytics = state.analytics.filter(function(item) {
+                return sentAnalytics.indexOf(item) < 0;
+            });
             newState = {
                 ...state,
-                analytics: null
+                analytics: pendingAnalytics
             };
             break;
         default:
