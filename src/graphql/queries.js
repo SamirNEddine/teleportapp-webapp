@@ -63,3 +63,24 @@ export const GET_OPENTOK_TOKEN = gql`
         userOpenTalkToken(sessionId: $sessionId)
     }
 `;
+
+export const GET_VOXEET_TOKEN = gql`
+    query{
+        userVoxeetAccessToken{
+            aceessToken,
+            refreshToken
+        }
+    }
+`;
+
+export const REFRESH_VOXEET_TOKEN = gql`
+    query($refreshToken: String!){
+        refreshUserVoxeetAccessToken(refreshToken: $refreshToken)
+    }
+`;
+
+export const INVALIDATE_VOXEET_TOKEN = gql`
+    query($accessToken: String!){
+        invalidateUserVoxeetAccessToken(accessToken: $accessToken)
+    }
+`;
