@@ -18,7 +18,7 @@ import {
     contactFetched,
     conversationReducer, joinConversation,
     remoteStreamReceived,
-    remoteStreamRemoved
+    remoteStreamRemoved, unmuteAudio
 } from "../reducers/conversationReducer";
 import {randomString} from "../utils/utils";
 
@@ -123,13 +123,34 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [openTokError, openTokEvent, openTokEventData, fetchContact]);
 
-    const [voxeetError, voxeetEvent, voxeetEventData, performVoxeetAction] = useVoxeet(
+    const [voxeetError, voxeetEvent, performVoxeetAction] = useVoxeet(
         voicePlatform === 'voxeet' ? authState : {},
         voicePlatform === 'voxeet' ? state.channel : null
     );
     useEffect( () => {
-
-    },[voxeetError, voxeetEvent, voxeetEventData, fetchContact]);
+        if (!voxeetError && voxeetEvent) {
+            const {event, eventData} = voxeetEvent;
+            console.debug('Voxeet event:', event, eventData ? eventData : '');
+            switch (event) {
+                case VoxeetEvents.CONFERENCE_JOINED:
+                    if(state.isCreator){
+                        dispatch(unmuteAudio());
+                    }
+                    break;
+                case VoxeetEvents.CONTACT_JOINED:
+                    const {stream} = eventData;
+                    //Update remote streams
+                    dispatch(remoteStreamReceived(stream));
+                    //Fetch the contact info
+                    fetchContact(Number(stream.contactId));
+                    break;
+                default:
+                    break;
+            }
+        }else{
+                //Todo: Error handling strategy
+        }
+    },[voxeetError, voxeetEvent, fetchContact, dispatch, state.isCreator]);
 
     useEffect( () => {
         switch (voicePlatform) {

@@ -2,14 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApolloClient } from '@apollo/react-hooks';
 import Voxeet from '@voxeet/voxeet-web-sdk';
 import { GET_VOXEET_TOKEN, REFRESH_VOXEET_TOKEN } from '../graphql/queries';
+import {OpenTokActions} from "./openTok";
 
 export const VoxeetEvents = {
     INIT_VOXEET: 'INIT_VOXEET',
-    SESSION_INITIALIZED: 'SESSION_INITIALIZED',
-    SESSION_JOINED: 'SESSION_JOINED',
-    REMOTE_STREAM_RECEIVED: 'REMOTE_STREAM_RECEIVED',
-    REMOTE_STREAM_SUBSCRIBED: 'REMOTE_STREAM_SUBSCRIBED',
-    REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED'
+    CONFERENCE_JOINED: 'CONFERENCE_JOINED',
+    CONTACT_JOINED: 'CONTACT_JOINED'
 };
 
 export const VoxeetActions = {
@@ -20,18 +18,38 @@ export const VoxeetActions = {
 export function useVoxeet(authState, conferenceAlias) {
     const apolloClient = useApolloClient();
     const [event, setEvent] = useState(null);
-    const [eventData, setEventData] = useState(null);
 
     const [voxeetError, setVoxeetError] = useState(null);
     const [voxeet, setVoxeet] = useState(null);
+    const [userIdsMap, setUserIdMap] = useState({});
+    const [listenersAdded, setListenersAdded] = useState(false);
     useEffect( () => {
         //Events setup
-        if(voxeet){
+        if(voxeet && !listenersAdded){
             voxeet.on('conferenceJoined', (info) => {
-                console.debug(`Successfully joined conference ${conferenceAlias}.`);
-            })
+                console.debug(`Successfully joined conference.`);
+            });
+            voxeet.on('participantAdded', (voxeetUserId, userInfo) => {
+                console.debug('Participant added:', voxeetUserId);
+                const idsMap = userIdsMap;
+                idsMap[voxeetUserId] = userInfo.externalId;
+                setUserIdMap(idsMap);
+            });
+            voxeet.on('participantJoined', (voxeetUserId, stream) => {
+                if(voxeetUserId === voxeet.userId) {
+                    //Me joining the conference
+                    const idsMap = userIdsMap;
+                    idsMap[voxeetUserId] = authState.user.id;
+                    setUserIdMap(idsMap);
+                }else{
+                    console.debug(`Participant joined: ${userIdsMap[voxeetUserId]}`);
+                    stream.contactId = userIdsMap[voxeetUserId];
+                    setEvent({event: VoxeetEvents.CONTACT_JOINED, eventData: {stream}});
+                }
+            });
+            setListenersAdded(true);
         }
-    }, [voxeet]);
+    }, [voxeet, listenersAdded, userIdsMap, authState.user]);
 
     useEffect( () => {
         async function initVoxeet() {
@@ -56,8 +74,7 @@ export function useVoxeet(authState, conferenceAlias) {
                     });
                     console.debug('VOXEET Initialized.');
                     setVoxeet(voxeetSDK);
-                    setEvent(Voxeet.INIT_LOCAL_STREAM);
-                    setEventData({accessToken, refreshToken});
+                    setEvent({event: Voxeet.INIT_LOCAL_STREAM});
                 }catch (e) {
                     console.error(`VOXEET ERROR: ${e}`);
                     setVoxeetError(e);
@@ -80,7 +97,9 @@ export function useVoxeet(authState, conferenceAlias) {
                 console.debug(`Joining conference ${conferenceId}.`);
                 const constraints = {audio: true, video: false};
                 const info = await voxeet.joinConference(conferenceId, {constraints});
+                voxeet.muteUser(voxeet.userId, true);
                 setConferenceInfo(info);
+                setEvent({event: VoxeetEvents.CONFERENCE_JOINED});
             }catch(e){
                 console.error(`VOXEET ERROR: ${e}`);
                 setVoxeetError(e);
@@ -99,12 +118,26 @@ export function useVoxeet(authState, conferenceAlias) {
             joinConference(conferenceAlias);
         }else if(!conferenceAlias && conferenceInfo){
             leaveCurrentConference();
+            setUserIdMap({});
         }
     }, [conferenceAlias, conferenceInfo, voxeet]);
 
 
     const performAction = useCallback((action, actionData) => {
-    }, []);
+        if(voxeet){
+            console.log(`Performing action: ${action} with data: ${actionData}`);
+            switch (action) {
+                case VoxeetActions.MUTE_AUDIO:
+                    voxeet.muteUser(voxeet.userId, true);
+                    break;
+                case OpenTokActions.UNMUTE_AUDIO:
+                    voxeet.muteUser(voxeet.userId, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }, [voxeet]);
 
-    return [voxeetError, event, eventData, performAction];
+    return [voxeetError, event, performAction];
 }

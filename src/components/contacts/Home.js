@@ -24,8 +24,8 @@ const Home = function ({contacts}) {
     const onContactClick = async contact => {
         const channel = await generateNewConversationChannel();
         dispatch(startConversation(channel));
-        // dispatch(addContact(contact.id));
-        // setSelectedContactId(contact.id);
+        dispatch(addContact(contact.id));
+        setSelectedContactId(contact.id);
     };
 
     const openingConversation = (conversation.channel && !conversation.contacts.length && selectedContactId !== null);

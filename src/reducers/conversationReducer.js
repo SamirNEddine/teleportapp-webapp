@@ -109,7 +109,7 @@ export const conversationReducer = function (state, action) {
                 isCreator: true,
                 contacts: [],
                 remoteStreams: {},
-                muteAudio: false,
+                muteAudio: (voicePlatform === 'voxeet'),
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.START_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -128,7 +128,8 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 channel: null,
                 contacts: [],
-                analytics: [...state.analytics, {eventName: AnalyticsEvents.LEAVE_CONVERSATION, eventProperties: {conversationId: state.channel}}]
+                analytics: [...state.analytics, {eventName: AnalyticsEvents.LEAVE_CONVERSATION, eventProperties: {conversationId: state.channel}}],
+                muteAudio: true,
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
