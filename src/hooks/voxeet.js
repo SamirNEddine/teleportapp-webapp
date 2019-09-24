@@ -27,8 +27,8 @@ export function useVoxeet(authState, conferenceAlias) {
     useEffect( () => {
         //Events setup
         if(voxeet){
-            voxeet.on('conferenceJoined', (conferenceInfo) => {
-                console.debug(`Successfully joined conference ${conferenceInfo.conferenceAlias}.`);
+            voxeet.on('conferenceJoined', (info) => {
+                console.debug(`Successfully joined conference ${conferenceAlias}.`);
             })
         }
     }, [voxeet]);
@@ -38,7 +38,7 @@ export function useVoxeet(authState, conferenceAlias) {
             const {error, data} = await apolloClient.query({query: GET_VOXEET_TOKEN, fetchPolicy: 'no-cache'});
             if(!error){
                 try{
-                    const {accessToken, refreshToken} = data;
+                    const {accessToken, refreshToken} = data.userVoxeetAccessToken;
                     const voxeetSDK = new Voxeet();
                     //Initialize
                     console.debug('Initializing VOXEET');
@@ -77,9 +77,9 @@ export function useVoxeet(authState, conferenceAlias) {
         async function joinConference(conferenceId) {
             //Create and join a conference
             try{
-                console.debug(`Joining conference ${conferenceAlias}.`);
+                console.debug(`Joining conference ${conferenceId}.`);
                 const constraints = {audio: true, video: false};
-                const info = await voxeet.joinConference(conferenceAlias, {constraints});
+                const info = await voxeet.joinConference(conferenceId, {constraints});
                 setConferenceInfo(info);
             }catch(e){
                 console.error(`VOXEET ERROR: ${e}`);
@@ -95,7 +95,7 @@ export function useVoxeet(authState, conferenceAlias) {
                 setVoxeetError(e);
             }
         }
-        if(conferenceAlias && voxeet){
+        if(conferenceAlias && !conferenceInfo && voxeet){
             joinConference(conferenceAlias);
         }else if(!conferenceAlias && conferenceInfo){
             leaveCurrentConference();

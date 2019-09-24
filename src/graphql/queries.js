@@ -67,7 +67,7 @@ export const GET_OPENTOK_TOKEN = gql`
 export const GET_VOXEET_TOKEN = gql`
     query{
         userVoxeetAccessToken{
-            aceessToken,
+            accessToken,
             refreshToken
         }
     }

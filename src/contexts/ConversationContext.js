@@ -159,6 +159,7 @@ export const ConversationContextProvider = function ({children}) {
         let channel = null;
         switch(voicePlatform) {
             case 'agora':
+            case 'voxeet':
                 channel = randomString();
                 break;
             case 'tokbox':

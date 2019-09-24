@@ -26,6 +26,7 @@ const AnalyticsEvents = {
 
 export const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
 if(!voicePlatform) throw(new Error('Voice platform missing.'));
+console.debug(`Voice platform: ${voicePlatform}`);
 
 /** Helpers **/
 export function startConversation(channel) {
