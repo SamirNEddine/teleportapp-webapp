@@ -142,7 +142,10 @@ export const ConversationContextProvider = function ({children}) {
                     //Update remote streams
                     dispatch(remoteStreamReceived(stream));
                     //Fetch the contact info
-                    fetchContact(Number(stream.contactId));
+                    fetchContact(stream.contactId);
+                    break;
+                case VoxeetEvents.CONTACT_LEFT:
+                    dispatch(remoteStreamRemoved(eventData.stream));
                     break;
                 default:
                     break;

@@ -6,8 +6,11 @@ import {OpenTokActions} from "./openTok";
 
 export const VoxeetEvents = {
     INIT_VOXEET: 'INIT_VOXEET',
+    JOINING_CONVERSATION: 'JOINING_CONVERSATION',
     CONFERENCE_JOINED: 'CONFERENCE_JOINED',
-    CONTACT_JOINED: 'CONTACT_JOINED'
+    CONTACT_JOINED: 'CONTACT_JOINED',
+    CONTACT_LEFT: 'CONTACT_LEFT',
+    CONVERSATION_LEFT: 'CONVERSATION_LEFT'
 };
 
 export const VoxeetActions = {
@@ -25,14 +28,14 @@ export function useVoxeet(authState, conferenceAlias) {
     const [listenersAdded, setListenersAdded] = useState(false);
     useEffect( () => {
         //Events setup
-        if(voxeet && !listenersAdded){
+        if(voxeet && conferenceAlias && !listenersAdded){
             voxeet.on('conferenceJoined', (info) => {
                 console.debug(`Successfully joined conference.`);
             });
             voxeet.on('participantAdded', (voxeetUserId, userInfo) => {
                 console.debug('Participant added:', voxeetUserId);
                 const idsMap = userIdsMap;
-                idsMap[voxeetUserId] = userInfo.externalId;
+                idsMap[voxeetUserId] = Number(userInfo.externalId);
                 setUserIdMap(idsMap);
             });
             voxeet.on('participantJoined', (voxeetUserId, stream) => {
@@ -47,9 +50,16 @@ export function useVoxeet(authState, conferenceAlias) {
                     setEvent({event: VoxeetEvents.CONTACT_JOINED, eventData: {stream}});
                 }
             });
+            voxeet.on('participantLeft', (voxeetUserId) => {
+                if(voxeetUserId !== voxeet.userId) {
+                    console.debug(`Participant left: ${userIdsMap[voxeetUserId]}`);
+                    const stream = {contactId: userIdsMap[voxeetUserId]};
+                    setEvent({event: VoxeetEvents.CONTACT_LEFT, eventData: {stream}});
+                }
+            });
             setListenersAdded(true);
         }
-    }, [voxeet, listenersAdded, userIdsMap, authState.user]);
+    }, [voxeet, listenersAdded, userIdsMap, authState.user, conferenceAlias]);
 
     useEffect( () => {
         async function initVoxeet() {
@@ -95,6 +105,7 @@ export function useVoxeet(authState, conferenceAlias) {
             //Create and join a conference
             try{
                 console.debug(`Joining conference ${conferenceId}.`);
+                setEvent({event: VoxeetEvents.JOINING_CONVERSATION});
                 const constraints = {audio: true, video: false};
                 const info = await voxeet.joinConference(conferenceId, {constraints});
                 voxeet.muteUser(voxeet.userId, true);
@@ -108,6 +119,7 @@ export function useVoxeet(authState, conferenceAlias) {
         async function leaveCurrentConference() {
             //Leave current conference
             try{
+                console.debug(`Leaving current conference`);
                 await voxeet.leaveConference();
             }catch(e){
                 console.error(`VOXEET ERROR: ${e}`);
@@ -118,7 +130,11 @@ export function useVoxeet(authState, conferenceAlias) {
             joinConference(conferenceAlias);
         }else if(!conferenceAlias && conferenceInfo){
             leaveCurrentConference();
+            voxeet.removeAllListeners();
+            setListenersAdded(false);
             setUserIdMap({});
+            setConferenceInfo(null);
+            setEvent({event: VoxeetEvents.CONVERSATION_LEFT})
         }
     }, [conferenceAlias, conferenceInfo, voxeet]);
 
