@@ -25,7 +25,7 @@ const Home = function ({contacts, displayInformationalText}) {
         if(conversation.isCreator && conversation.aborted){
             displayInformationalText('Failed to connect. Please try again.', 'negative');
         }
-    }, [conversation.aborted, displayInformationalText]);
+    }, [conversation.isCreator, conversation.aborted, displayInformationalText]);
     const onContactClick = async contact => {
         const channel = await generateNewConversationChannel();
         dispatch(startConversation(channel));
