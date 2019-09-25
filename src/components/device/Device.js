@@ -70,9 +70,9 @@ const Device = function () {
     const [microphoneAccess, setMicrophoneAccess] = useState(null);
     useEffect( () => {
         if(!microphoneAccess && authState.user){
-            setStatus('unavailable');
             const askStateTimeout =  setTimeout(function () {
                 setMicrophoneAccess('asking');
+                setStatus('unavailable');
             }, 500);
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(function() {
