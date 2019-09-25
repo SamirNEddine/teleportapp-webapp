@@ -4,7 +4,6 @@ import { useApolloClient } from "@apollo/react-hooks";
 import {GET_OPENTOK_TOKEN} from "../graphql/queries";
 
 export const OpenTokEvents = {
-    MICROPHONE_ACCESS: 'MICROPHONE_ACCESS',
     INIT_PUBLISHER: 'INIT_PUBLISHER',
     SESSION_INITIALIZED: 'SESSION_INITIALIZED',
     SESSION_JOINED: 'SESSION_JOINED',
@@ -27,51 +26,19 @@ export function useOpenTok(authState, sessionId) {
     const [publisher, setPublisher] = useState(null);
     const [session, setSession] = useState(null);
 
-    const [microphoneAllowed, setMicrophoneAllowed] = useState(false);
-    useEffect( () => {
-        if(authState.user && !microphoneAllowed){
-            const options = {publishAudio:false, insertDefaultUI:false};
-            const accessPublisher = OT.initPublisher(null, options, function (err) {
-                if(err){
-                    console.error('Unable to setup voice plateform:', err);
-                }else{
-                    console.debug('Voice platform ready');
-                }
-            });
-            accessPublisher.on('accessDialogOpened', function () {
-                console.debug('Requesting access to microphone');
-            });
-            accessPublisher.on('accessAllowed', function () {
-                console.debug('Access to microphone allowed');
-                setMicrophoneAllowed(true);
-                setEvent(OpenTokEvents.MICROPHONE_ACCESS);
-                setEventData({access:'allowed'});
-                setTimeout( function () {
-                    accessPublisher.destroy();
-                }, 50);
-            });
-            accessPublisher.on('accessDenied', function () {
-                console.debug('Access to microphone denied');
-                setEvent(OpenTokEvents.MICROPHONE_ACCESS);
-                setEventData({access:'denied'});
-                accessPublisher.destroy();
-            });
-        }
-    }, [authState, microphoneAllowed]);
-
     useEffect( () => {
         if(authState.user && sessionId && !publisher){
             const options = {videoSource: null, name: authState.user.id, publishAudio:false, insertDefaultUI:false};
             const newPublisher = OT.initPublisher(null, options, function (err) {
-               if(err){
-                   setOpenTokError(err);
-                   setPublisher(null);
-               }else{
-                   console.debug('Publisher initialized.');
-               }
-           });
-           setPublisher(newPublisher);
-           setEvent(OpenTokEvents.INIT_PUBLISHER);
+                if(err){
+                    setOpenTokError(err);
+                    setPublisher(null);
+                }else{
+                    console.debug('Publisher initialized.');
+                }
+            });
+            setPublisher(newPublisher);
+            setEvent(OpenTokEvents.INIT_PUBLISHER);
         }
     }, [authState, sessionId, session, publisher]);
 
