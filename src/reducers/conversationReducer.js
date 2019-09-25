@@ -10,6 +10,7 @@ const Actions = {
     MUTE_AUDIO: 'MUTE_AUDIO',
     UNMUTE_AUDIO: 'UNMUTE_AUDIO',
     ANSWER_CONVERSATION: 'ANSWER_CONVERSATION',
+    CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT',
     ANALYTICS_SENT: 'ANALYTICS_SENT'
 };
 
@@ -21,7 +22,8 @@ const AnalyticsEvents = {
     ADDED_TO_CONVERSATION: 'ADDED_TO_CONVERSATION',
     CONTACT_JOINED: 'CONTACT_JOINED',
     CONTACT_LEFT: 'CONTACT_LEFT',
-    CONVERSATION_CLOSED: 'CONVERSATION_CLOSED'
+    CONVERSATION_CLOSED: 'CONVERSATION_CLOSED',
+    CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT'
 };
 
 export const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
@@ -97,6 +99,11 @@ export function analyticsSent(sentAnalytics) {
         sentAnalytics
     }
 }
+export function abortConversationAfterTimeout(){
+    return {
+        type: Actions.CONVERSATION_ABORTED_AFTER_TIMEOUT
+    }
+}
 
 export const conversationReducer = function (state, action) {
     console.debug('Conversation Reducer:\nAction: ', action, '\nState:', state);
@@ -110,6 +117,7 @@ export const conversationReducer = function (state, action) {
                 contacts: [],
                 remoteStreams: {},
                 muteAudio: (voicePlatform === 'voxeet'),
+                aborted: false,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.START_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -120,6 +128,7 @@ export const conversationReducer = function (state, action) {
                 contacts: [],
                 remoteStreams: {},
                 muteAudio: true,
+                aborted: false,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADDED_TO_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
              break;
@@ -208,6 +217,17 @@ export const conversationReducer = function (state, action) {
             newState = {
                 ...state,
                 analytics: pendingAnalytics
+            };
+            break;
+        case Actions.CONVERSATION_ABORTED_AFTER_TIMEOUT:
+            newState = {
+                channel: null,
+                isCreator: false,
+                contacts: [],
+                remoteStreams: {},
+                muteAudio: true,
+                aborted: true,
+                analytics:  [...state.analytics, {eventName: AnalyticsEvents.CONVERSATION_ABORTED_AFTER_TIMEOUT, eventProperties: {isCreator: state.isCreator}}]
             };
             break;
         default:
