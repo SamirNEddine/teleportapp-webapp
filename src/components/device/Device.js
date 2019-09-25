@@ -69,12 +69,38 @@ const Device = function () {
 
     const [microphoneAccess, setMicrophoneAccess] = useState(null);
     useEffect( () => {
+        if(!microphoneAccess && authState.user){
+            setStatus('unavailable');
+            const askStateTimeout =  setTimeout(function () {
+                setMicrophoneAccess('asking');
+            }, 500);
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function() {
+                    clearTimeout(askStateTimeout);
+                    setMicrophoneAccess('allowed');
+                    setStatus('available');
+                    console.debug('Access to microphone allowed');
+                }).catch(function() {
+                    clearTimeout(askStateTimeout);
+                    setMicrophoneAccess('denied');
+                    console.debug('Access to microphone denied')
+                });
+        }
         if(microphoneAccess === 'denied' || microphoneAccess === 'asking'){
             setInformationalText({text: 'Microphone access is required to use Teleport.', type: 'negative'});
         }else{
             setInformationalText(null);
         }
-    },[microphoneAccess]);
+    },[microphoneAccess, authState.user]);
+
+    useEffect( () => {
+        if(conversation.aborted){
+            //Check microphone access
+            setTimeout(function () {
+                setMicrophoneAccess(null);
+            }, 2100);
+        }
+    }, [conversation.aborted]);
 
     return (
         <div className="device-container">
@@ -89,7 +115,7 @@ const Device = function () {
                     <Home contacts={contacts} displayInformationalText={displayInformationalText}/>
                 </div>
                 {conversation.contacts.length ? <Conversation/> : ''}
-                {status === 'unavailable' ? <Unavailable/> : ''}
+                {microphoneAccess === 'allowed' && status === 'unavailable' ? <Unavailable/> : ''}
             </div>
         </div>
     );
