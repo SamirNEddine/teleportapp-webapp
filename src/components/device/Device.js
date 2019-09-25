@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import Home from "../contacts/Home";
 import Conversation from "../conversation/Conversation";
 import Unavailable from './Unavailable';
@@ -60,18 +60,22 @@ const Device = function () {
     };
 
     const [informationalText, setInformationalText] = useState(null);
-    const displayInformationalText = function(text, type){
-        setInformationalText({text: informationalText, type});
+    const displayInformationalText =  useCallback(function(text, type){
+        setInformationalText({text, type});
         setTimeout(function () {
             setInformationalText(null);
         }, 2000);
-    };
+    }, []);
 
     return (
         <div className="device-container">
             <div className="hardware-button" onClick={onButtonClick}/>
             <div className="device-screen">
-                {informationalText ? <div className={`informationalText ${informationalText.type}`}>{informationalText.text}</div> : ''}
+                {informationalText ? (
+                    <div className={`information-text-container ${informationalText.type}`}>
+                        <div className={`information-text ${informationalText.type}`}>{informationalText.text}</div>
+                    </div>
+                ) : ''}
                 <div style={{visibility: `${conversation.contacts.length ? 'hidden': 'visible'}`}}>
                     <Home contacts={contacts} displayInformationalText={displayInformationalText}/>
                 </div>

@@ -88,3 +88,38 @@
     font-size: var(--time-on-screen-font-size);
     text-align: center;
 }
+
+.information-text-container{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: -1px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    font-family: sans-serif;
+    text-align: center;
+    line-height: 1;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    z-index: 6;
+    animation: fadein 0.4s;
+}
+
+.information-text-container.negative{
+    background-color: rgba(139,0,0, 0.4);
+}
+
+.information-text{
+    position: absolute;
+    top: 49%;
+    left: 0.5%%;
+    width: 100%;
+    color: white;
+    font-family: "San Francisco Text";
+    font-size: var(--message-on-screen-font-size);
+    text-align: center;
+}
+
+.information-text.negative{
+
+}
