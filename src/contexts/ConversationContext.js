@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useReducer, useContext, useEffect, useCallback, useState } from 'react';
 import { AuthenticationContext } from "./AuthenticationContext";
 import { useAgora, AgoraEvents, AgoraActions } from "../hooks/agora";
 import { useOpenTok, OpenTokEvents, OpenTokActions } from '../hooks/openTok';
@@ -18,7 +18,7 @@ import {
     contactFetched,
     conversationReducer, joinConversation,
     remoteStreamReceived,
-    remoteStreamRemoved, unmuteAudio
+    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout
 } from "../reducers/conversationReducer";
 import {randomString} from "../utils/utils";
 
@@ -35,6 +35,7 @@ export const ConversationContextProvider = function ({children}) {
         remoteStreams: {},
         contactIdToAdd:null,
         muteAudio: true,
+        aborted: false,
         analytics:[]
     });
 
@@ -178,6 +179,23 @@ export const ConversationContextProvider = function ({children}) {
             dispatch(analyticsSent(state.analytics));
         }
     }, [state.analytics, sendMessage]);
+
+    const [abortTimout, setAbortTimout] = useState(null);
+    useEffect( () => {
+        if(state.channel && !state.contacts.length && !abortTimout){
+            //Abort on timeout
+            setAbortTimout(setTimeout( function () {
+                if(!state.contacts.length){
+                    //Abort if no contact joined after the timeout
+                    dispatch(abortConversationAfterTimeout());
+                    setAbortTimout(null);
+                }
+            }, 5000));
+        }else if (state.channel && state.contacts.length && abortTimout){
+            clearTimeout(abortTimout);
+            setAbortTimout(null);
+        }
+    }, [state.channel, state.contacts, abortTimout]);
 
     const generateNewConversationChannel = async function () {
         let channel = null;

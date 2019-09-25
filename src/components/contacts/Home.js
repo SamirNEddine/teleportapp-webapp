@@ -8,7 +8,7 @@ import './contacts.css';
 
 const NUMBER_OF_AVATARS = 7;
 
-const Home = function ({contacts}) {
+const Home = function ({contacts, displayInformationalText}) {
     const {conversation, dispatch, generateNewConversationChannel} = useContext(ConversationContext);
     const [selectedContactId, setSelectedContactId] = useState(null);
     useEffect( () => {
@@ -21,6 +21,11 @@ const Home = function ({contacts}) {
         }
     },[conversation.contacts, conversation.channel, selectedContactId]);
 
+    useEffect( () => {
+        if(conversation.aborted){
+            displayInformationalText('Failed to connect. Please try again.', 'negative');
+        }
+    }, [conversation.aborted, displayInformationalText]);
     const onContactClick = async contact => {
         const channel = await generateNewConversationChannel();
         dispatch(startConversation(channel));
@@ -53,7 +58,7 @@ const Home = function ({contacts}) {
 
     return (
         <div className="contact-list-container">
-            {openingConversation ? <div className="loading">Contacting...</div> : ''}
+            {openingConversation ? <div className="loading">Connecting...</div> : ''}
             {!contacts || !contacts.length ? (
                 <div className="loading">Loading contacts...</div>
             ) : (
