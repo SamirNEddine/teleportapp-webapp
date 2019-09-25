@@ -30,11 +30,11 @@ const Device = function () {
 
     const [, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
     useEffect( () => {
-        if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE){
+        if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE && authState.user){
             //To do: Update locally instead of refetching.
             refetch()
         }
-    }, [message, socketData, refetch]);
+    }, [message, socketData, refetch, authState.user]);
 
     const {conversation, dispatch} = useContext(ConversationContext);
     const [status, setStatus] = useState('available');
