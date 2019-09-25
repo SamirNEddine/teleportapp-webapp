@@ -152,7 +152,7 @@ export const ConversationContextProvider = function ({children}) {
                     break;
             }
         }else{
-                //Todo: Error handling strategy
+            //Todo: Error handling strategy
         }
     },[voxeetError, voxeetEvent, fetchContact, dispatch, state.isCreator]);
 

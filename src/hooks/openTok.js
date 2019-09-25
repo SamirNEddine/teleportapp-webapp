@@ -30,15 +30,15 @@ export function useOpenTok(authState, sessionId) {
         if(authState.user && sessionId && !publisher){
             const options = {videoSource: null, name: authState.user.id, publishAudio:false, insertDefaultUI:false};
             const newPublisher = OT.initPublisher(null, options, function (err) {
-               if(err){
-                   setOpenTokError(err);
-                   setPublisher(null);
-               }else{
-                   console.debug('Publisher initialized.');
-               }
-           });
-           setPublisher(newPublisher);
-           setEvent(OpenTokEvents.INIT_PUBLISHER);
+                if(err){
+                    setOpenTokError(err);
+                    setPublisher(null);
+                }else{
+                    console.debug('Publisher initialized.');
+                }
+            });
+            setPublisher(newPublisher);
+            setEvent(OpenTokEvents.INIT_PUBLISHER);
         }
     }, [authState, sessionId, session, publisher]);
 
