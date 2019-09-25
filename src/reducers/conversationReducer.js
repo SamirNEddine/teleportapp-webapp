@@ -222,7 +222,7 @@ export const conversationReducer = function (state, action) {
         case Actions.CONVERSATION_ABORTED_AFTER_TIMEOUT:
             newState = {
                 channel: null,
-                isCreator: false,
+                isCreator: state.isCreator,
                 contacts: [],
                 remoteStreams: {},
                 muteAudio: true,

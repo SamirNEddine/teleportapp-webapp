@@ -22,7 +22,7 @@ const Home = function ({contacts, displayInformationalText}) {
     },[conversation.contacts, conversation.channel, selectedContactId]);
 
     useEffect( () => {
-        if(conversation.aborted){
+        if(conversation.isCreator && conversation.aborted){
             displayInformationalText('Failed to connect. Please try again.', 'negative');
         }
     }, [conversation.aborted, displayInformationalText]);
