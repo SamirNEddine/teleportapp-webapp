@@ -67,13 +67,14 @@ const Device = function () {
         }, 2000);
     }, []);
 
+    const [microphoneAccess, setMicrophoneAccess] = useState(null);
     useEffect( () => {
-        if(conversation.microphoneAccess === 'denied' || conversation.microphoneAccess === 'asking'){
+        if(microphoneAccess === 'denied' || microphoneAccess === 'asking'){
             setInformationalText({text: 'Microphone access is required to use Teleport.', type: 'negative'});
         }else{
             setInformationalText(null);
         }
-    }, [conversation.microphoneAccess]);
+    },[microphoneAccess]);
 
     return (
         <div className="device-container">
