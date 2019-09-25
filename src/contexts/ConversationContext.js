@@ -18,7 +18,7 @@ import {
     contactFetched,
     conversationReducer, joinConversation,
     remoteStreamReceived,
-    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout
+    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout, updateMicrophoneAccess
 } from "../reducers/conversationReducer";
 import {randomString} from "../utils/utils";
 
@@ -36,6 +36,7 @@ export const ConversationContextProvider = function ({children}) {
         contactIdToAdd:null,
         muteAudio: true,
         aborted: false,
+        microphoneAccess: null,
         analytics:[]
     });
 
@@ -101,6 +102,9 @@ export const ConversationContextProvider = function ({children}) {
         if (!openTokError && openTokEventData){
             console.debug('OpenTok event:', openTokEvent, openTokEventData);
             switch(openTokEvent){
+                case OpenTokEvents.MICROPHONE_ACCESS:
+                    dispatch(updateMicrophoneAccess(openTokEventData.access));
+                    break;
                 case OpenTokEvents.REMOTE_STREAM_RECEIVED:
                     const {receivedStream} = openTokEventData;
                     const contactId = parseInt(receivedStream.name);

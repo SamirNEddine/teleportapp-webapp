@@ -1,4 +1,5 @@
 const Actions = {
+    UPDATE_MICROPHONE_ACCESS: 'UPDATE_MICROPHONE_ACCESS',
     START_CONVERSATION: 'START_CONVERSATION',
     JOIN_CONVERSATION: 'JOIN_CONVERSATION',
     LEAVE_CONVERSATION: 'LEAVE_CONVERSATION',
@@ -31,6 +32,12 @@ if(!voicePlatform) throw(new Error('Voice platform missing.'));
 console.debug(`Voice platform: ${voicePlatform}`);
 
 /** Helpers **/
+export function updateMicrophoneAccess(access) {
+    return {
+        type: Actions.UPDATE_MICROPHONE_ACCESS,
+        access
+    }
+}
 export function startConversation(channel) {
     return {
         type: Actions.START_CONVERSATION,
@@ -110,8 +117,15 @@ export const conversationReducer = function (state, action) {
     let newState = state;
     const {type} = action;
     switch (type) {
+        case Actions.UPDATE_MICROPHONE_ACCESS:
+            newState = {
+                ...state,
+                microphoneAccess: action.access
+            };
+            break;
         case Actions.START_CONVERSATION:
             newState = {
+                ...state,
                 channel: action.channel,
                 isCreator: true,
                 contacts: [],
@@ -123,6 +137,7 @@ export const conversationReducer = function (state, action) {
             break;
         case Actions.JOIN_CONVERSATION:
             newState = {
+                ...state,
                 channel: action.channel,
                 isCreator: false,
                 contacts: [],
