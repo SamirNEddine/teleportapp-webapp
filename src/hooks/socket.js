@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import openSocket from "socket.io-client";
-import {getAuthenticationToken} from "../helpers/localStorage";
+import { connectSocket, disconnectSocket } from '../helpers/socket';
 
 export const STATUS_SOCKET = "status";
 export const STATUS_SOCKET_INCOMING_MESSAGES = {
@@ -29,21 +28,20 @@ export function useSocket(authState, nameSpace) {
     const [socket, setSocket] = useState(null);
     const [message, setMessage] = useState(null);
     const [data, setData] = useState(null);
-    const [error] = useState(null);
+    const [error, setError] = useState(null);
     useEffect( () => {
         if (authState.user && !socket){
-            console.debug('Socket URL:', process.env.REACT_APP_SOCKET_URL);
-            console.debug('Start socket for', nameSpace);
-            setSocket(openSocket(`${process.env.REACT_APP_SOCKET_URL}/${nameSpace}`, {
-                query: {
-                    token: `Bearer ${getAuthenticationToken()}`
-                }
-            }));
+            setSocket(connectSocket(process.env.REACT_APP_SOCKET_URL, nameSpace, true));
         }else if(authState.user && socket){
             console.debug(`Setup ${nameSpace} socket listeners`);
             //Setup listeners
+            //Common listeners
+            socket.on('error', (errorMessage) => {
+                console.debug(`Error while trying to connect to ${nameSpace} socket\n`, errorMessage);
+                setError(new Error(errorMessage));
+            });
+            //Specific listeners
             const incomingMessages = socketIncomingMessagesMap[nameSpace];
-            console.debug(`${nameSpace} socket: incoming messages: ${incomingMessages}`);
             for(let incomingMessageKey in incomingMessages) {
                 if (incomingMessages.hasOwnProperty(incomingMessageKey)) {
                     const incomingMessage = incomingMessages[incomingMessageKey];
@@ -56,20 +54,18 @@ export function useSocket(authState, nameSpace) {
                 }
             }
         }else if (!authState.user && socket){
-                console.debug(`Closing ${nameSpace} socket`);
-                socket.close();
+                disconnectSocket(process.env.REACT_APP_SOCKET_URL, nameSpace);
+                setSocket(null);
         }
         return _ => {
             if (socket){
                 //Cleaning
-                console.debug(`${nameSpace} socket: unsubscribe from all events`);
-                for(let key in socketIncomingMessagesMap[nameSpace]) {
-                    socket.off(socketIncomingMessagesMap[nameSpace][key]);
-                }
+                console.debug(`Cleaning: Unsubscribe from all ${nameSpace} socket events`);
+                socket.removeAllListeners();
             }
         }
 
-    }, [authState.user, nameSpace, socket, message, data, error]);
+    }, [authState.user, nameSpace, socket]);
 
     const sendMessage = useCallback((message, data) => {
         if(socket){
