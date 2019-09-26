@@ -130,8 +130,8 @@ export const ConversationContextProvider = function ({children}) {
     );
     useEffect( () => {
         if (!voxeetError && voxeetEvent) {
+            console.debug('Voxeet event:', voxeetEvent);
             const {event, eventData} = voxeetEvent;
-            console.debug('Voxeet event:', event, eventData ? eventData : '');
             switch (event) {
                 case VoxeetEvents.CONFERENCE_JOINED:
                     if(state.isCreator){
