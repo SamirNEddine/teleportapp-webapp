@@ -50,10 +50,10 @@ const Device = function () {
     }, [conversation.channel, sendMessage, status]);
 
     const onButtonClick = _ => {
-        if (conversation.channel){
-            //leave conversation
+        if (conversation.channel && conversation.contacts.length){
+            //leave conversation. Do not allow leaving when connecting
             dispatch(leaveConversation());
-        }else{
+        }else if(!conversation.channel){
             //Switch status
             setStatus(status === 'available' ? 'unavailable' : 'available');
         }
