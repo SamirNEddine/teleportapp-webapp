@@ -227,7 +227,7 @@ export const conversationReducer = function (state, action) {
                 remoteStreams: {},
                 muteAudio: true,
                 aborted: true,
-                analytics:  [...state.analytics, {eventName: AnalyticsEvents.CONVERSATION_ABORTED_AFTER_TIMEOUT, eventProperties: {isCreator: state.isCreator}}]
+                analytics:  [...state.analytics, {eventName: AnalyticsEvents.CONVERSATION_ABORTED_AFTER_TIMEOUT, eventProperties: {conversationId: state.channel, isCreator: state.isCreator}}]
             };
             break;
         default:
