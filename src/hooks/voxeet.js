@@ -84,7 +84,7 @@ export function useVoxeet(authState, conferenceAlias) {
                     });
                     console.debug('VOXEET Initialized.');
                     setVoxeet(voxeetSDK);
-                    setEvent({event: Voxeet.INIT_LOCAL_STREAM});
+                    setEvent({event: VoxeetEvents.INIT_VOXEET});
                 }catch (e) {
                     console.error(`VOXEET ERROR: ${e}`);
                     setVoxeetError(e);
