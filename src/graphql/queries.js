@@ -34,6 +34,22 @@ export const GET_USER = gql`
     }
 `;
 
+export const GET_RECOMMENDED_CONTACTS = gql`
+    query{
+        recommendedContacts{
+            id
+            firstName
+            lastName
+            email
+            profilePicture
+            status
+            company{
+                id
+            }
+        }
+    }
+`;
+
 export const GET_ME = gql`
     query{
         user{
