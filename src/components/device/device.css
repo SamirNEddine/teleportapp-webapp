@@ -27,7 +27,7 @@
     margin: auto;
     border: dashed 1px;
     border-radius: 50%;
-    background-image: url('https://storage.googleapis.com/teleport_public/device/front-extracted.jpg');
+    background-image: url('https://storage.googleapis.com/teleport_public_assets/device/front-extracted.jpg');
     background-size: calc(var(--circle-radius)*2.4);
     background-repeat: no-repeat;
     background-position: center;
