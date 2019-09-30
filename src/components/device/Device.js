@@ -13,18 +13,18 @@ import {
     useSocket
 } from "../../hooks/socket";
 import {useQuery} from "@apollo/react-hooks";
-import { GET_USERS } from "../../graphql/queries";
+import { GET_RECOMMENDED_CONTACTS } from "../../graphql/queries";
 
 const Device = function () {
     const {authState} = useContext(AuthenticationContext);
 
     const [contacts, setContacts] = useState([]);
-    const {error, loading, data, refetch} = useQuery(GET_USERS, {
+    const {error, loading, data, refetch} = useQuery(GET_RECOMMENDED_CONTACTS, {
         skip: (!authState.user || authState.error)
     });
     useEffect( () => {
         if (!error && !loading && data){
-            setContacts(data.users);
+            setContacts(data.recommendedContacts);
         }
     }, [error, loading, data]);
 
