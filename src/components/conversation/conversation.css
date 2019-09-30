@@ -21,7 +21,7 @@
 }
 .mute-indicator {
     position: absolute;
-    background: url("https://storage.googleapis.com/test-teleport/icons/mic-muted.jpg");
+    background: url("https://storage.googleapis.com/teleport_public_assets/icons/muted-mic.png");
     background-size: cover;
     width: 13%;
     height: 15%;
