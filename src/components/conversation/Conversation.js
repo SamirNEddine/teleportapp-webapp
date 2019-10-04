@@ -5,6 +5,14 @@ import ContactAvatar from "../contacts/ContactAvatar";
 import {answerConversation, unmuteAudio} from "../../reducers/conversationReducer";
 import AddContact from './AddContact';
 
+const FloatingContactStyles = [
+    'deg14',
+    'deg166',
+    'deg270',
+    'deg323',
+    'deg217'
+];
+
 const Conversation = function () {
     const {conversation, dispatch} = useContext(ConversationContext);
     const [speakingUser, setSpeakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
@@ -43,23 +51,26 @@ const Conversation = function () {
         }
     };
 
-    const {contacts} = conversation;
+    let i = 0;
+    let {contacts} = conversation;
+    const contactsDivs = contacts.map(contact => {
+        i++;
+        if (contact.id === speakingUser.id){
+            return (
+                <div className="speaking-user-container" key={`${contact.id}_div`}>
+                    <ContactAvatar  contact={contact} styles="speaking-contact"  showContactInfo={true} />
+                    {process.env.REACT_APP_VOICE_PLATFORM === 'agora' ? <div id={`audio-div_${contact.id}`} key={`audio-div_${contact.id}`}/> : ''}
+                </div>
+            )
+        }else{
+            return <ContactAvatar contact={contact} styles={`contact ${FloatingContactStyles[i-1]}`} key={`${contact.id}_div`}/>
+        }
+    });
+
     console.log('Conversation with contacts:\n', contacts);
     return (
         <div className="conversation-container">
-            {contacts.map(contact => {
-                if (contact.id === speakingUser.id){
-                    return (
-                        <div className="speaking-user-container" key={`${contact.id}_div`}>
-                            <ContactAvatar  contact={contact} styles="speaking-user"  showContactInfo={true} />
-                            {process.env.REACT_APP_VOICE_PLATFORM === 'agora' ? <div id={`audio-div_${contact.id}`} key={`audio-div_${contact.id}`}/> : ''}
-                        </div>
-                    )
-                }else{
-                    //To do
-                    return <div key={`${contact.id}_div`}/>
-                }
-            })}
+            {contactsDivs}
             {conversation.muteAudio ? (
                 <div className="mute-container" onClick={unmute}>
                     <div className="mute-indicator"/>

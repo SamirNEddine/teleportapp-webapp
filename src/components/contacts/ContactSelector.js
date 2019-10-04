@@ -13,7 +13,6 @@ const ContactSelector = function ({contacts, displayInformationalText}) {
     const [selectedContactId, setSelectedContactId] = useState(null);
     useEffect( () => {
         if (selectedContactId && conversation.contacts.length && conversation.contacts.find( c => { return c.id === selectedContactId} )){
-            console.log('HEEEEEERRRE', selectedContactId, conversation.contacts);
             setSelectedContactId(null);
         }
     },[conversation.contacts, conversation.channel, selectedContactId]);
