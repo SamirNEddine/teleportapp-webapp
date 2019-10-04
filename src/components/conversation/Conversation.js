@@ -20,7 +20,7 @@ const Conversation = function () {
             }
         }
         if(conversation.contacts.length){
-            setSpeakingUser(conversation.contacts[0]);
+            setSpeakingUser(conversation.contacts[conversation.contacts.length -1]);
         }
         return _ => {
             if(process.env.REACT_APP_VOICE_PLATFORM === 'agora'){

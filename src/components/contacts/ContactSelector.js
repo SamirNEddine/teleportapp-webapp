@@ -8,14 +8,13 @@ import '../contacts/contacts.css';
 
 const NUMBER_OF_AVATARS = 7;
 
-const ContactSelector = function ({contacts, selectContact, displayInformationalText}) {
+const ContactSelector = function ({contacts, displayInformationalText}) {
     const {conversation, dispatch, generateNewConversationChannel} = useContext(ConversationContext);
     const [selectedContactId, setSelectedContactId] = useState(null);
     useEffect( () => {
-        if (selectedContactId && !conversation.channel){
-            setTimeout( function () {
-                setSelectedContactId(null);
-            }, 300);
+        if (selectedContactId && conversation.contacts.length && conversation.contacts.find( c => { return c.id === selectedContactId} )){
+            console.log('HEEEEEERRRE', selectedContactId, conversation.contacts);
+            setSelectedContactId(null);
         }
     },[conversation.contacts, conversation.channel, selectedContactId]);
 
@@ -33,19 +32,16 @@ const ContactSelector = function ({contacts, selectContact, displayInformational
         setSelectedContactId(contact.id);
     };
 
-    const openingConversation = (conversation.channel && !conversation.contacts.length && selectedContactId !== null);
-    const inConversation = (conversation.contacts.length && selectedContactId !== null);
-    const leavingConversation = (!conversation.channel && selectedContactId !== null);
     const avatars = [];
     for(let i=0; i< NUMBER_OF_AVATARS && i< contacts.length; i++){
         const contact = contacts[i];
-        const additionalClasses = `animatedAvatar ${openingConversation || inConversation ? (selectedContactId === contact.id ? 'selected' : 'pushed-back') : ''} ${leavingConversation ? (selectedContactId === contact.id ? 'leaving' : '') : ''} `
+        const additionalClasses = `animatedAvatar ${selectedContactId === contact.id ? 'selected' : ''}`;
         const component = (
             <ContactAvatar
                 styles={`${contact.id !== selectedContactId ? contact.status : ''} `}
                 contact={contact}
-                scaleOnHover={!openingConversation && contact.status === 'available'}
-                onContactClick={(!openingConversation && contact.status === 'available') ? onContactClick : _=>{}}/>
+                scaleOnHover={!selectedContactId && contact.status === 'available'}
+                onContactClick={(!selectedContactId && contact.status === 'available') ? onContactClick : _=>{}}/>
         );
         const key = contact.id;
         const avatar = {
@@ -58,7 +54,7 @@ const ContactSelector = function ({contacts, selectContact, displayInformational
 
     return (
         <div className="contact-list-container">
-            {openingConversation ? <div className="loading">Connecting...</div> : ''}
+            {selectedContactId ? <div className="loading">Connecting...</div> : ''}
             {!contacts || !contacts.length ? (
                 <div className="loading">Loading contacts...</div>
             ) : (

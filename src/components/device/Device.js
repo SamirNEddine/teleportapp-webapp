@@ -98,9 +98,7 @@ const Device = function () {
                         <div className={`information-text ${informationalText.type}`}>{informationalText.text}</div>
                     </div>
                 ) : ''}
-                <div style={{visibility: `${conversation.contacts.length ? 'hidden': 'visible'}`}}>
-                    <Home displayInformationalText={displayInformationalText}/>
-                </div>
+                 <Home displayInformationalText={displayInformationalText}/>
                 {conversation.contacts.length ? <Conversation/> : ''}
                 {microphoneAccess === 'allowed' && authState.status === Status.UNAVAILABLE ? <Unavailable/> : ''}
             </div>
