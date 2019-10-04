@@ -41,7 +41,7 @@
     text-align: center;
     color: white;
     font-family: sans-serif;
-    z-index: 5;
+    z-index: 100;
 }
 
 .center {

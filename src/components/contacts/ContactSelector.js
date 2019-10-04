@@ -8,7 +8,7 @@ import '../contacts/contacts.css';
 
 const NUMBER_OF_AVATARS = 7;
 
-const ContactSelector = function ({contacts, displayInformationalText}) {
+const ContactSelector = function ({contacts, selectContact, displayInformationalText}) {
     const {conversation, dispatch, generateNewConversationChannel} = useContext(ConversationContext);
     const [selectedContactId, setSelectedContactId] = useState(null);
     useEffect( () => {
@@ -16,8 +16,6 @@ const ContactSelector = function ({contacts, displayInformationalText}) {
             setTimeout( function () {
                 setSelectedContactId(null);
             }, 300);
-        } else if (!selectedContactId && conversation.contacts.length){
-            setSelectedContactId(conversation.contacts[0].id);
         }
     },[conversation.contacts, conversation.channel, selectedContactId]);
 

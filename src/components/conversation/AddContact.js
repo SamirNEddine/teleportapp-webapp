@@ -3,7 +3,7 @@ import Home from '../home/Home';
 
 const AddContact = function () {
     return (
-        <Home />
+        <Home/>
     )
 };
 

@@ -7,6 +7,7 @@ import AddContact from './AddContact';
 
 const Conversation = function () {
     const {conversation, dispatch} = useContext(ConversationContext);
+    const [speakingUser, setSpeakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
     useEffect(() => {
         if(process.env.REACT_APP_VOICE_PLATFORM === 'agora'){
             //Todo: Check if you need optimization here
@@ -18,6 +19,9 @@ const Conversation = function () {
                 }
             }
         }
+        if(conversation.contacts.length){
+            setSpeakingUser(conversation.contacts[0]);
+        }
         return _ => {
             if(process.env.REACT_APP_VOICE_PLATFORM === 'agora'){
                 console.debug("Stopping remote streams");
@@ -28,8 +32,6 @@ const Conversation = function () {
             }
         }
     }, [conversation.contacts, conversation.remoteStreams]);
-
-    const [speakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
 
     const [answeredConversation, setAnsweredConversation] = useState(false);
     const unmute = function () {
@@ -55,7 +57,7 @@ const Conversation = function () {
                     )
                 }else{
                     //To do
-                    return <div/>
+                    return <div key={`${contact.id}_div`}/>
                 }
             })}
             {conversation.muteAudio ? (
@@ -64,7 +66,7 @@ const Conversation = function () {
                     <div className='mute-text'>You are in a conversation.<br/>Tap to unmute.</div>
                 </div>
             ) : ('')}
-            {conversation.selectingContact ? <AddContact/> : ''}
+            {conversation.selectingContact ? <div className="add-contact-container"> <AddContact/>  </div>: ''}
         </div>
     )
 };
