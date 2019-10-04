@@ -18,7 +18,7 @@ import {
     contactFetched,
     conversationReducer, joinConversation,
     remoteStreamReceived,
-    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout
+    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout, abortAddingContactAfterTimeout
 } from '../reducers/conversationReducer';
 import { randomString } from '../utils/utils';
 
@@ -131,7 +131,6 @@ export const ConversationContextProvider = function ({children}) {
     );
     useEffect( () => {
         if (!voxeetError && voxeetEvent) {
-            console.debug('Voxeet event:', voxeetEvent);
             const {event, eventData} = voxeetEvent;
             switch (event) {
                 case VoxeetEvents.CONFERENCE_JOINED:
@@ -181,22 +180,22 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [state.analytics, sendMessage]);
 
-    const [abortTimout, setAbortTimout] = useState(null);
+    const [abortConversationTimout, setAbortConversationTimout] = useState(null);
     useEffect( () => {
-        if(state.channel && !state.contacts.length && !abortTimout){
+        if(state.channel && !state.contacts.length && !abortConversationTimout){
             //Abort on timeout
-            setAbortTimout(setTimeout( function () {
+            setAbortConversationTimout(setTimeout( function () {
                 if(!state.contacts.length){
                     //Abort if no contact joined after the timeout
                     dispatch(abortConversationAfterTimeout());
-                    setAbortTimout(null);
+                    setAbortConversationTimout(null);
                 }
             }, 5000));
-        }else if (state.channel && state.contacts.length && abortTimout){
-            clearTimeout(abortTimout);
-            setAbortTimout(null);
+        }else if (state.channel && state.contacts.length && abortConversationTimout){
+            clearTimeout(abortConversationTimout);
+            setAbortConversationTimout(null);
         }
-    }, [state.channel, state.contacts, abortTimout]);
+    }, [state.channel, state.contacts, abortConversationTimout]);
 
     const generateNewConversationChannel = async function () {
         let channel = null;

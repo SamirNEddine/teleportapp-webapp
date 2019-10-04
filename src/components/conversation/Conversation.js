@@ -13,7 +13,7 @@ const FloatingContactStyles = [
     'deg217'
 ];
 
-const Conversation = function () {
+const Conversation = function ({displayInformationalText}) {
     const {conversation, dispatch} = useContext(ConversationContext);
     const [speakingUser, setSpeakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
     useEffect(() => {
@@ -77,7 +77,7 @@ const Conversation = function () {
                     <div className='mute-text'>You are in a conversation.<br/>Tap to unmute.</div>
                 </div>
             ) : ('')}
-            {conversation.selectingContact ? <div className="add-contact-container"> <AddContact/>  </div>: ''}
+            {conversation.selectingContact ? <div className="add-contact-container"> <AddContact displayInformationalText={displayInformationalText}/>  </div>: ''}
         </div>
     )
 };

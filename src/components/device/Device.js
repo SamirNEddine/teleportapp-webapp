@@ -99,7 +99,7 @@ const Device = function () {
                     </div>
                 ) : ''}
                  <Home displayInformationalText={displayInformationalText}/>
-                {conversation.contacts.length ? <Conversation/> : ''}
+                {conversation.contacts.length ? <Conversation displayInformationalText={displayInformationalText}/> : ''}
                 {microphoneAccess === 'allowed' && authState.status === Status.UNAVAILABLE ? <Unavailable/> : ''}
             </div>
         </div>

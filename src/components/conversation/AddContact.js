@@ -1,9 +1,9 @@
 import React from 'react';
 import Home from '../home/Home';
 
-const AddContact = function () {
+const AddContact = function ({displayInformationalText}) {
     return (
-        <Home/>
+        <Home displayInformationalText={displayInformationalText}/>
     )
 };
 

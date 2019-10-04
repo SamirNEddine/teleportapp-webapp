@@ -11,6 +11,7 @@ const Actions = {
     UNMUTE_AUDIO: 'UNMUTE_AUDIO',
     ANSWER_CONVERSATION: 'ANSWER_CONVERSATION',
     CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT',
+    ADD_CONTACT_ABORTED_AFTER_TIMEOUT: 'ADD_CONTACT_ABORTED_AFTER_TIMEOUT',
     SELECTING_CONTACT: 'SELECTING_CONTACT',
     CANCEL_SELECTING_CONTACT: 'CANCEL_SELECTING_CONTACT',
     ANALYTICS_SENT: 'ANALYTICS_SENT'
@@ -25,7 +26,8 @@ const AnalyticsEvents = {
     CONTACT_JOINED: 'CONTACT_JOINED',
     CONTACT_LEFT: 'CONTACT_LEFT',
     CONVERSATION_CLOSED: 'CONVERSATION_CLOSED',
-    CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT'
+    CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT',
+    ADD_CONTACT_ABORTED_AFTER_TIMEOUT: 'ADD_CONTACT_ABORTED_AFTER_TIMEOUT'
 };
 
 export const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
@@ -106,6 +108,11 @@ export function abortConversationAfterTimeout(){
         type: Actions.CONVERSATION_ABORTED_AFTER_TIMEOUT
     }
 }
+export function abortAddingContactAfterTimeout(){
+    return {
+        type: Actions.ADD_CONTACT_ABORTED_AFTER_TIMEOUT
+    }
+}
 export function selectContactToAddToConversation(){
     return {
         type: Actions.SELECTING_CONTACT
@@ -128,6 +135,7 @@ export const conversationReducer = function (state, action) {
                 isCreator: true,
                 contacts: [],
                 remoteStreams: {},
+                connectingWithContact: null,
                 muteAudio: (voicePlatform === 'voxeet'),
                 aborted: false,
                 selectingContact: false,
@@ -139,6 +147,7 @@ export const conversationReducer = function (state, action) {
                 channel: action.channel,
                 isCreator: false,
                 contacts: [],
+                connectingWithContact: null,
                 remoteStreams: {},
                 muteAudio: true,
                 aborted: false,
@@ -195,7 +204,8 @@ export const conversationReducer = function (state, action) {
         case Actions.CONTACT_ADDED:
             newState = {
                 ...state,
-                contactIdToAdd: null
+                contactIdToAdd: null,
+                connectingWithContact: action.contactId
             };
             break;
         case Actions.CONTACT_FETCHED:
@@ -203,6 +213,7 @@ export const conversationReducer = function (state, action) {
             newState = {
                 ...state,
                 contacts: [...state.contacts, contact],
+                connectingWithContact: null,
                 selectingContact: false
             };
             break;
@@ -256,7 +267,16 @@ export const conversationReducer = function (state, action) {
                 muteAudio: true,
                 aborted: true,
                 selectingContact: false,
+                connectingWithContact: null,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.CONVERSATION_ABORTED_AFTER_TIMEOUT, eventProperties: {conversationId: state.channel, isCreator: state.isCreator}}]
+            };
+            break;
+        case Actions.ADD_CONTACT_ABORTED_AFTER_TIMEOUT:
+            newState = {
+                ...state,
+                selectingContact: false,
+                connectingWithContact: null,
+                analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADD_CONTACT_ABORTED_AFTER_TIMEOUT, eventProperties: {conversationId: state.channel, contactId: state.connectingWithContact}}]
             };
             break;
         default:

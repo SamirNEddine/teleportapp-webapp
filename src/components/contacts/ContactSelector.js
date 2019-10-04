@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ContactAvatar from '../contacts/ContactAvatar';
 import { ConversationContext } from "../../contexts/ConversationContext";
-import {addContact, startConversation} from "../../reducers/conversationReducer";
+import {abortAddingContactAfterTimeout, addContact, startConversation} from "../../reducers/conversationReducer";
 import AvatarsCollection from "../layout/AvatarsCollection";
 
 import '../contacts/contacts.css';
@@ -11,17 +11,30 @@ const NUMBER_OF_AVATARS = 7;
 const ContactSelector = function ({contacts, displayInformationalText}) {
     const {conversation, dispatch, generateNewConversationChannel} = useContext(ConversationContext);
     const [selectedContactId, setSelectedContactId] = useState(null);
+    const [abortConnectingWithContactTimeout, setAbortConnectingWithContactTimeout] = useState(null);
     useEffect( () => {
+        if(selectedContactId && !abortConnectingWithContactTimeout){
+            setAbortConnectingWithContactTimeout(setTimeout( function () {
+                if(selectedContactId && !conversation.contacts.find( c => { return c.id === selectedContactId})){
+                    displayInformationalText('Failed to connect. Please try again.', 'negative');
+                    dispatch(abortAddingContactAfterTimeout());
+                }
+            }, 5000));
+        }
+
         if (selectedContactId && conversation.contacts.length && conversation.contacts.find( c => { return c.id === selectedContactId} )){
             setSelectedContactId(null);
+            clearTimeout(abortConnectingWithContactTimeout);
+            setAbortConnectingWithContactTimeout(null);
         }
-    },[conversation.contacts, conversation.channel, selectedContactId]);
+    },[conversation.contacts, conversation.channel, selectedContactId, abortConnectingWithContactTimeout]);
 
     useEffect( () => {
-        if(conversation.isCreator && conversation.aborted){
+        if((conversation.isCreator && conversation.aborted) || conversation.addContactAborted){
             displayInformationalText('Failed to connect. Please try again.', 'negative');
+            setSelectedContactId(null);
         }
-    }, [conversation.isCreator, conversation.aborted, displayInformationalText]);
+    }, [conversation.isCreator, conversation.aborted, conversation.addContactAborted, displayInformationalText]);
     const onContactClick = async contact => {
         if(!conversation.channel){
             const channel = await generateNewConversationChannel();
