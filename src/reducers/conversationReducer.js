@@ -11,6 +11,8 @@ const Actions = {
     UNMUTE_AUDIO: 'UNMUTE_AUDIO',
     ANSWER_CONVERSATION: 'ANSWER_CONVERSATION',
     CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT',
+    SELECTING_CONTACT: 'SELECTING_CONTACT',
+    CANCEL_SELECTING_CONTACT: 'CANCEL_SELECTING_CONTACT',
     ANALYTICS_SENT: 'ANALYTICS_SENT'
 };
 
@@ -104,6 +106,16 @@ export function abortConversationAfterTimeout(){
         type: Actions.CONVERSATION_ABORTED_AFTER_TIMEOUT
     }
 }
+export function selectContactToAddToConversation(){
+    return {
+        type: Actions.SELECTING_CONTACT
+    }
+}
+export function cancelSelectingContact(){
+    return {
+        type: Actions.CANCEL_SELECTING_CONTACT
+    }
+}
 
 export const conversationReducer = function (state, action) {
     console.debug('Conversation Reducer:\nAction: ', action, '\nState:', state);
@@ -118,7 +130,7 @@ export const conversationReducer = function (state, action) {
                 remoteStreams: {},
                 muteAudio: (voicePlatform === 'voxeet'),
                 aborted: false,
-                addingContact: false,
+                selectingContact: false,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.START_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -130,7 +142,7 @@ export const conversationReducer = function (state, action) {
                 remoteStreams: {},
                 muteAudio: true,
                 aborted: false,
-                addingContact: false,
+                selectingContact: false,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADDED_TO_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -141,7 +153,7 @@ export const conversationReducer = function (state, action) {
                 contacts: [],
                 analytics: [...state.analytics, {eventName: AnalyticsEvents.LEAVE_CONVERSATION, eventProperties: {conversationId: state.channel}}],
                 muteAudio: true,
-                addingContact: false
+                selectingContact: false
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
@@ -191,7 +203,19 @@ export const conversationReducer = function (state, action) {
             newState = {
                 ...state,
                 contacts: [...state.contacts, contact],
-                addingContact: false
+                selectingContact: false
+            };
+            break;
+        case Actions.SELECTING_CONTACT:
+            newState = {
+                ...state,
+                selectingContact: true
+            };
+            break;
+        case Actions.CANCEL_SELECTING_CONTACT:
+            newState = {
+                ...state,
+                selectingContact: false
             };
             break;
         case Actions.MUTE_AUDIO:
@@ -231,7 +255,7 @@ export const conversationReducer = function (state, action) {
                 remoteStreams: {},
                 muteAudio: true,
                 aborted: true,
-                addingContact: false,
+                selectingContact: false,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.CONVERSATION_ABORTED_AFTER_TIMEOUT, eventProperties: {conversationId: state.channel, isCreator: state.isCreator}}]
             };
             break;

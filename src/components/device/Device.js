@@ -5,7 +5,11 @@ import Unavailable from './Unavailable';
 import HardwareButton from './HardwareButton';
 import './device.css';
 import { ConversationContext } from '../../contexts/ConversationContext';
-import { leaveConversation } from '../../reducers/conversationReducer';
+import {
+    cancelSelectingContact,
+    leaveConversation,
+    selectContactToAddToConversation
+} from '../../reducers/conversationReducer';
 import { AuthenticationContext } from '../../contexts/AuthenticationContext';
 import { updateStatus, Status } from '../../reducers/authenticationReducer';
 
@@ -67,7 +71,9 @@ const Device = function () {
     }, [conversation.aborted]);
 
     const onButtonSinglePress = _ => {
-        if (conversation.channel && conversation.contacts.length){
+        if(conversation.selectingContact) {
+            dispatch(cancelSelectingContact());
+        }else if (conversation.channel && conversation.contacts.length){
             //leave conversation. Do not allow leaving when connecting
             dispatch(leaveConversation());
         }else if(!conversation.channel){
@@ -75,10 +81,17 @@ const Device = function () {
             dispatchAuth(updateStatus(authState.status === Status.AVAILABLE ? Status.UNAVAILABLE : Status.AVAILABLE));
         }
     };
+    const onButtonLongPress = _ => {
+        if(conversation.selectingContact){
+            dispatch(cancelSelectingContact());
+        }else if(conversation.channel && conversation.contacts.length){
+            dispatch(selectContactToAddToConversation());
+        }
+    };
 
     return (
         <div className="device-container">
-            <HardwareButton onSinglePress={onButtonSinglePress}/>
+            <HardwareButton onSinglePress={onButtonSinglePress} onLongPress={onButtonLongPress} />
             <div className="device-screen">
                 {informationalText ? (
                     <div className={`information-text-container ${informationalText.type}`}>

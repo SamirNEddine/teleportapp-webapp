@@ -3,6 +3,7 @@ import { ConversationContext } from "../../contexts/ConversationContext";
 import './conversation.css'
 import ContactAvatar from "../contacts/ContactAvatar";
 import {answerConversation, unmuteAudio} from "../../reducers/conversationReducer";
+import AddContact from './AddContact';
 
 const Conversation = function () {
     const {conversation, dispatch} = useContext(ConversationContext);
@@ -63,6 +64,7 @@ const Conversation = function () {
                     <div className='mute-text'>You are in a conversation.<br/>Tap to unmute.</div>
                 </div>
             ) : ('')}
+            {conversation.selectingContact ? <AddContact/> : ''}
         </div>
     )
 };

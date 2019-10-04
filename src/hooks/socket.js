@@ -26,33 +26,47 @@ const socketIncomingMessagesMap = {
 
 export function useSocket(authState, nameSpace) {
     const [socket, setSocket] = useState(null);
+    const [listeners, setListeners] = useState(null);
     const [message, setMessage] = useState(null);
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
     useEffect( () => {
+        const removeAllListeners = function () {
+            for(let message in listeners){
+                if(listeners.hasOwnProperty(message)){
+                    socket.removeListener(message, listeners[message]);
+                }
+            }
+            setListeners(null);
+        };
+
         if (authState.user && !socket){
             setSocket(connectSocket(process.env.REACT_APP_SOCKET_URL, nameSpace, true));
         }else if(authState.user && socket){
+            const newListeners = {};
             console.debug(`Setup ${nameSpace} socket listeners`);
             //Setup listeners
             //Common listeners
-            socket.on('error', (errorMessage) => {
+            newListeners['error'] = (errorMessage) => {
                 console.debug(`Error while trying to connect to ${nameSpace} socket\n`, errorMessage);
                 setError(new Error(errorMessage));
-            });
+            };
+            socket.on('error', newListeners['error']);
             //Specific listeners
             const incomingMessages = socketIncomingMessagesMap[nameSpace];
             for(let incomingMessageKey in incomingMessages) {
                 if (incomingMessages.hasOwnProperty(incomingMessageKey)) {
                     const incomingMessage = incomingMessages[incomingMessageKey];
-                    console.debug(`${nameSpace} socket: listening to ${incomingMessage}`);
-                    socket.on(incomingMessage, (data) => {
+                    newListeners[incomingMessage] = (data) => {
                         setMessage(incomingMessage);
                         setData(data);
-                    });
+                    };
+                    socket.on(incomingMessage, newListeners[incomingMessage]);
                 }
             }
+            setListeners(newListeners);
         }else if (!authState.user && socket){
+                removeAllListeners();
                 disconnectSocket(process.env.REACT_APP_SOCKET_URL, nameSpace);
                 setSocket(null);
         }
@@ -60,7 +74,8 @@ export function useSocket(authState, nameSpace) {
             if (socket){
                 //Cleaning
                 console.debug(`Cleaning: Unsubscribe from all ${nameSpace} socket events`);
-                socket.removeAllListeners();
+                removeAllListeners();
+                setSocket(null);
             }
         }
 
