@@ -36,6 +36,7 @@ export const ConversationContextProvider = function ({children}) {
         contactIdToAdd:null,
         muteAudio: true,
         aborted: false,
+        addingContact: false,
         analytics:[]
     });
 

@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
-import ContactAvatar from './ContactAvatar';
+import ContactAvatar from '../contacts/ContactAvatar';
 import { ConversationContext } from "../../contexts/ConversationContext";
 import {addContact, startConversation} from "../../reducers/conversationReducer";
 import AvatarsCollection from "../layout/AvatarsCollection";
 
-import './contacts.css';
+import '../contacts/contacts.css';
 
 const NUMBER_OF_AVATARS = 7;
 
-const Home = function ({contacts, displayInformationalText}) {
+const ContactSelector = function ({contacts, displayInformationalText}) {
     const {conversation, dispatch, generateNewConversationChannel} = useContext(ConversationContext);
     const [selectedContactId, setSelectedContactId] = useState(null);
     useEffect( () => {
@@ -63,10 +63,10 @@ const Home = function ({contacts, displayInformationalText}) {
                 <div className="loading">Loading contacts...</div>
             ) : (
                 <AvatarsCollection avatars={avatars}/>
-                )
+            )
             }
         </div>
     );
 };
 
-export default Home;
+export default ContactSelector;

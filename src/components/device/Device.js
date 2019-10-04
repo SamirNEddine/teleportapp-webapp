@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import Home from "../contacts/Home";
+import Home from "../home/Home";
 import Conversation from "../conversation/Conversation";
 import Unavailable from './Unavailable';
 import HardwareButton from './HardwareButton';

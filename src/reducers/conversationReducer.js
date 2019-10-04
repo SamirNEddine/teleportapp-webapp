@@ -118,6 +118,7 @@ export const conversationReducer = function (state, action) {
                 remoteStreams: {},
                 muteAudio: (voicePlatform === 'voxeet'),
                 aborted: false,
+                addingContact: false,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.START_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -129,6 +130,7 @@ export const conversationReducer = function (state, action) {
                 remoteStreams: {},
                 muteAudio: true,
                 aborted: false,
+                addingContact: false,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADDED_TO_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -139,6 +141,7 @@ export const conversationReducer = function (state, action) {
                 contacts: [],
                 analytics: [...state.analytics, {eventName: AnalyticsEvents.LEAVE_CONVERSATION, eventProperties: {conversationId: state.channel}}],
                 muteAudio: true,
+                addingContact: false
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
@@ -187,7 +190,8 @@ export const conversationReducer = function (state, action) {
             const {contact} = action;
             newState = {
                 ...state,
-                contacts: [...state.contacts, contact]
+                contacts: [...state.contacts, contact],
+                addingContact: false
             };
             break;
         case Actions.MUTE_AUDIO:
@@ -227,6 +231,7 @@ export const conversationReducer = function (state, action) {
                 remoteStreams: {},
                 muteAudio: true,
                 aborted: true,
+                addingContact: false,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.CONVERSATION_ABORTED_AFTER_TIMEOUT, eventProperties: {conversationId: state.channel, isCreator: state.isCreator}}]
             };
             break;
