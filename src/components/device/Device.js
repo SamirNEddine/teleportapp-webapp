@@ -9,35 +9,15 @@ import {leaveConversation} from "../../reducers/conversationReducer";
 import {AuthenticationContext} from "../../contexts/AuthenticationContext";
 import {
     STATUS_SOCKET,
-    STATUS_SOCKET_INCOMING_MESSAGES,
     STATUS_SOCKET_OUTGOING_MESSAGES,
     useSocket
 } from "../../hooks/socket";
-import {useQuery} from "@apollo/react-hooks";
-import { GET_RECOMMENDED_CONTACTS } from "../../graphql/queries";
 
 const Device = function () {
     const {authState} = useContext(AuthenticationContext);
 
-    const [contacts, setContacts] = useState([]);
-    const {error, loading, data, refetch} = useQuery(GET_RECOMMENDED_CONTACTS, {
-        skip: (!authState.user || authState.error)
-    });
-    useEffect( () => {
-        if (!error && !loading && data){
-            setContacts(data.recommendedContacts);
-        }
-    }, [error, loading, data]);
-
-    const [, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
-    useEffect( () => {
-        if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE && authState.user){
-            //To do: Update locally instead of refetching.
-            refetch()
-        }
-    }, [message, socketData, refetch, authState.user]);
-
     const {conversation, dispatch} = useContext(ConversationContext);
+    const [,,, sendMessage] = useSocket(authState, STATUS_SOCKET);
     const [status, setStatus] = useState('available');
     useEffect( () => {
         sendMessage(STATUS_SOCKET_OUTGOING_MESSAGES.UPDATE_STATUS, {status});
@@ -113,7 +93,7 @@ const Device = function () {
                     </div>
                 ) : ''}
                 <div style={{visibility: `${conversation.contacts.length ? 'hidden': 'visible'}`}}>
-                    <Home contacts={contacts} displayInformationalText={displayInformationalText}/>
+                    <Home displayInformationalText={displayInformationalText}/>
                 </div>
                 {conversation.contacts.length ? <Conversation/> : ''}
                 {microphoneAccess === 'allowed' && status === 'unavailable' ? <Unavailable/> : ''}
