@@ -27,8 +27,10 @@ const ContactSelector = function ({contacts, displayInformationalText}) {
         }
     }, [conversation.isCreator, conversation.aborted, displayInformationalText]);
     const onContactClick = async contact => {
-        const channel = await generateNewConversationChannel();
-        dispatch(startConversation(channel));
+        if(!conversation.channel){
+            const channel = await generateNewConversationChannel();
+            dispatch(startConversation(channel));
+        }
         dispatch(addContact(contact.id));
         setSelectedContactId(contact.id);
     };
