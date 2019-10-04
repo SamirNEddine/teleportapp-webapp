@@ -1,34 +1,18 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import Home from "../home/Home";
-import Conversation from "../conversation/Conversation";
+import Home from '../home/Home';
+import Conversation from '../conversation/Conversation';
 import Unavailable from './Unavailable';
 import HardwareButton from './HardwareButton';
 import './device.css';
-import {ConversationContext} from "../../contexts/ConversationContext";
-import {leaveConversation} from "../../reducers/conversationReducer";
-import {AuthenticationContext} from "../../contexts/AuthenticationContext";
-import {
-    STATUS_SOCKET,
-    STATUS_SOCKET_OUTGOING_MESSAGES,
-    useSocket
-} from "../../hooks/socket";
+import { ConversationContext } from '../../contexts/ConversationContext';
+import { leaveConversation } from '../../reducers/conversationReducer';
+import { AuthenticationContext } from '../../contexts/AuthenticationContext';
+import { updateStatus, Status } from '../../reducers/authenticationReducer';
 
 const Device = function () {
-    const {authState} = useContext(AuthenticationContext);
-
-    const {conversation, dispatch} = useContext(ConversationContext);
-    const [,,, sendMessage] = useSocket(authState, STATUS_SOCKET);
-    const [status, setStatus] = useState('available');
-    useEffect( () => {
-        sendMessage(STATUS_SOCKET_OUTGOING_MESSAGES.UPDATE_STATUS, {status});
-    }, [status, sendMessage]);
-    useEffect( () => {
-        if(conversation.channel){
-            setStatus('busy');
-        }else if (status !== 'unavailable'){
-            setStatus('available');
-        }
-    }, [conversation.channel, sendMessage, status]);
+    const authContext = useContext(AuthenticationContext);
+    const authState = authContext.authState;
+    const dispatchAuth = authContext.dispatch;
 
     const [informationalText, setInformationalText] = useState(null);
     const displayInformationalText =  useCallback(function(text, type){
@@ -43,13 +27,13 @@ const Device = function () {
         if(!microphoneAccess && authState.user){
             const askStateTimeout =  setTimeout(function () {
                 setMicrophoneAccess('asking');
-                setStatus('unavailable');
+                dispatchAuth(updateStatus(Status.UNAVAILABLE));
             }, 500);
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(function() {
                     clearTimeout(askStateTimeout);
                     setMicrophoneAccess('allowed');
-                    setStatus('available');
+                    dispatchAuth(updateStatus(Status.AVAILABLE));
                     console.debug('Access to microphone allowed');
                 }).catch(function() {
                     clearTimeout(askStateTimeout);
@@ -62,7 +46,16 @@ const Device = function () {
         }else{
             setInformationalText(null);
         }
-    },[microphoneAccess, authState.user]);
+    },[microphoneAccess, authState.user, dispatchAuth]);
+
+    const {conversation, dispatch} = useContext(ConversationContext);
+    useEffect( () => {
+        if(conversation.channel){
+            dispatchAuth(updateStatus(Status.BUSY))
+        }else if (authState.status && authState.status !== Status.UNAVAILABLE && authState.status !== Status.AVAILABLE && microphoneAccess === 'allowed'){
+            dispatchAuth(updateStatus(Status.AVAILABLE));
+        }
+    }, [conversation.channel, authState.status, dispatchAuth, microphoneAccess]);
 
     useEffect( () => {
         if(conversation.aborted){
@@ -79,7 +72,7 @@ const Device = function () {
             dispatch(leaveConversation());
         }else if(!conversation.channel){
             //Switch status
-            setStatus(status === 'available' ? 'unavailable' : 'available');
+            dispatchAuth(updateStatus(authState.status === Status.AVAILABLE ? Status.UNAVAILABLE : Status.AVAILABLE));
         }
     };
 
@@ -96,7 +89,7 @@ const Device = function () {
                     <Home displayInformationalText={displayInformationalText}/>
                 </div>
                 {conversation.contacts.length ? <Conversation/> : ''}
-                {microphoneAccess === 'allowed' && status === 'unavailable' ? <Unavailable/> : ''}
+                {microphoneAccess === 'allowed' && authState.status === Status.UNAVAILABLE ? <Unavailable/> : ''}
             </div>
         </div>
     );

@@ -97,7 +97,7 @@ export function useVoxeet(authState, conferenceAlias) {
         if(authState.user && !voxeet){
             initVoxeet();
         }
-    }, [authState, voxeet, apolloClient]);
+    }, [authState.user, voxeet, apolloClient]);
 
     const[conferenceInfo, setConferenceInfo] = useState(null);
     useEffect(  () => {

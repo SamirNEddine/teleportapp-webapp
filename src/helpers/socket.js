@@ -21,6 +21,17 @@ export const connectSocket = function(baseURL, nameSpace, authenticated){
         return  existingSocket;
     }else{
         const socket = createSocket(socketURL, authenticated);
+        let onevent = socket.onevent;
+        socket.onevent = function (packet) {
+            const args = packet.data || [];
+            onevent.call (this, packet);
+            packet.data = ["*"].concat(args);
+            onevent.call(this, packet);
+        };
+        socket.on("*",function(event,data) {
+            console.log('Incoming socket event', event);
+            console.log(data);
+        });
         sockets[socketURL] = socket;
         return socket;
     }

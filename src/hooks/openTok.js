@@ -40,7 +40,7 @@ export function useOpenTok(authState, sessionId) {
             setPublisher(newPublisher);
             setEvent(OpenTokEvents.INIT_PUBLISHER);
         }
-    }, [authState, sessionId, session, publisher]);
+    }, [authState.user, sessionId, session, publisher]);
 
     useEffect( () => {
         if(!openTokError && publisher && !session){

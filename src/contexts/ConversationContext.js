@@ -1,16 +1,16 @@
 import React, { createContext, useReducer, useContext, useEffect, useCallback, useState } from 'react';
-import { AuthenticationContext } from "./AuthenticationContext";
-import { useAgora, AgoraEvents, AgoraActions } from "../hooks/agora";
+import { AuthenticationContext } from './AuthenticationContext';
+import { useAgora, AgoraEvents, AgoraActions } from '../hooks/agora';
 import { useOpenTok, OpenTokEvents, OpenTokActions } from '../hooks/openTok';
 import { useVoxeet, VoxeetEvents, VoxeetActions } from '../hooks/voxeet';
-import { useApolloClient } from "@apollo/react-hooks";
-import {GET_OPENTOK_SESSION, GET_USER} from "../graphql/queries";
+import { useApolloClient } from '@apollo/react-hooks';
+import { GET_OPENTOK_SESSION, GET_USER } from '../graphql/queries';
 import {
     CONVERSATION_SOCKET,
     CONVERSATION_SOCKET_INCOMING_MESSAGES,
     CONVERSATION_SOCKET_OUTGOING_MESSAGES,
     useSocket
-} from "../hooks/socket";
+} from '../hooks/socket';
 import {
     voicePlatform,
     analyticsSent,
@@ -19,8 +19,8 @@ import {
     conversationReducer, joinConversation,
     remoteStreamReceived,
     remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout
-} from "../reducers/conversationReducer";
-import {randomString} from "../utils/utils";
+} from '../reducers/conversationReducer';
+import { randomString } from '../utils/utils';
 
 export const ConversationContext = createContext();
 

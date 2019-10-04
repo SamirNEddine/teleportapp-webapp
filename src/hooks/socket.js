@@ -47,7 +47,6 @@ export function useSocket(authState, nameSpace) {
                     const incomingMessage = incomingMessages[incomingMessageKey];
                     console.debug(`${nameSpace} socket: listening to ${incomingMessage}`);
                     socket.on(incomingMessage, (data) => {
-                        console.debug(`Incoming message: ${incomingMessage} on ${nameSpace} socket with data`, data);
                         setMessage(incomingMessage);
                         setData(data);
                     });

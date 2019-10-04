@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from 'react';
 import { useQuery } from '@apollo/react-hooks';
-import {GET_ME} from "../../graphql/queries";
+import { GET_ME } from '../../graphql/queries';
 
 import './navBar.css';
-import {AuthenticationContext} from "../../contexts/AuthenticationContext";
-import {logout} from "../../actions/authenticationActions";
+import { AuthenticationContext } from '../../contexts/AuthenticationContext';
+import { logout } from '../../reducers/authenticationReducer';
 
 const NavBar = () => {
     const { authState, dispatch } = useContext(AuthenticationContext);
@@ -17,7 +17,7 @@ const NavBar = () => {
         if (authState.user){
             refetch();
         }
-    },[authState, refetch]);
+    },[authState.user, refetch]);
 
     const handleLogout = function () {
         dispatch(logout());
