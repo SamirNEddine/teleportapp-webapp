@@ -205,7 +205,7 @@ export const conversationReducer = function (state, action) {
                 channel: updatedContacts.length ? state.channel : null,
                 remoteStreams,
                 contacts: updatedContacts,
-                loudestContactId: updatedContacts.length ? updatedContacts[updatedContacts.length -1] : null,
+                loudestContactId: updatedContacts.length ? updatedContacts[updatedContacts.length -1].id : null,
                 analytics: [...state.analytics,
                     {eventName: AnalyticsEvents.CONTACT_LEFT, eventProperties: {contactId, conversationId: state.channel}},
                     updatedContacts.length ? null : {eventName: AnalyticsEvents.CONVERSATION_CLOSED, eventProperties: {conversationId: state.channel}}

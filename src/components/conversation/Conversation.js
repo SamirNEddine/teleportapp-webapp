@@ -15,7 +15,6 @@ const FloatingContactStyles = [
 
 const Conversation = function ({displayInformationalText}) {
     const {conversation, dispatch} = useContext(ConversationContext);
-    const [speakingUser, setSpeakingUser] = useState((conversation && conversation.contacts && conversation.contacts.length) ? conversation.contacts[0] : null);
     useEffect(() => {
         if(process.env.REACT_APP_VOICE_PLATFORM === 'agora'){
             //Todo: Check if you need optimization here
@@ -26,9 +25,6 @@ const Conversation = function ({displayInformationalText}) {
                     conversation.remoteStreams[contact.id].play('audio-div_' + contact.id);
                 }
             }
-        }
-        if(conversation.contacts.length){
-            setSpeakingUser(conversation.contacts[conversation.contacts.length -1]);
         }
         return _ => {
             if(process.env.REACT_APP_VOICE_PLATFORM === 'agora'){
@@ -54,8 +50,7 @@ const Conversation = function ({displayInformationalText}) {
     let i = 0;
     let {contacts} = conversation;
     const contactsDivs = contacts.map(contact => {
-        i++;
-        if (contact.id === speakingUser.id){
+        if (contact.id === conversation.loudestContactId){
             return (
                 <div className="speaking-user-container" key={`${contact.id}_div`}>
                     <ContactAvatar  contact={contact} styles="speaking-contact"  showContactInfo={true} />
@@ -63,6 +58,7 @@ const Conversation = function ({displayInformationalText}) {
                 </div>
             )
         }else{
+            i++;
             return <ContactAvatar contact={contact} styles={`contact ${FloatingContactStyles[i-1]}`} key={`${contact.id}_div`}/>
         }
     });
