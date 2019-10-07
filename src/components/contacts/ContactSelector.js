@@ -8,33 +8,41 @@ import '../contacts/contacts.css';
 
 const NUMBER_OF_AVATARS = 7;
 
-const ContactSelector = function ({contacts, displayInformationalText}) {
+const ContactSelector = function ({contacts, displayInformationalText, name}) {
     const {conversation, dispatch, generateNewConversationChannel} = useContext(ConversationContext);
     const [selectedContactId, setSelectedContactId] = useState(null);
     const [abortConnectingWithContactTimeout, setAbortConnectingWithContactTimeout] = useState(null);
     useEffect( () => {
         if(selectedContactId && !abortConnectingWithContactTimeout){
+            console.log('Starting connecting timeout');
             setAbortConnectingWithContactTimeout(setTimeout( function () {
-                if(selectedContactId && !conversation.contacts.find( c => { return c.id === selectedContactId})){
                     displayInformationalText('Failed to connect. Please try again.', 'negative');
+                    setAbortConnectingWithContactTimeout(null);
+                    setSelectedContactId(null);
                     dispatch(abortAddingContactAfterTimeout());
-                }
             }, 5000));
         }
-
-        if (selectedContactId && conversation.contacts.length && conversation.contacts.find( c => { return c.id === selectedContactId} )){
-            setSelectedContactId(null);
+        if (abortConnectingWithContactTimeout && selectedContactId && conversation.contacts.length && conversation.contacts.find( c => { return c.id === selectedContactId} )){
+            console.log('Cancelling connecting timeout');
             clearTimeout(abortConnectingWithContactTimeout);
             setAbortConnectingWithContactTimeout(null);
+            setSelectedContactId(null);
         }
-    },[conversation.contacts, conversation.channel, selectedContactId, abortConnectingWithContactTimeout]);
+        return _ => {
+            if(abortConnectingWithContactTimeout){
+                clearTimeout(abortConnectingWithContactTimeout);
+                setAbortConnectingWithContactTimeout(null);
+            }
+        };
+    },[conversation.contacts, conversation.channel, selectedContactId, abortConnectingWithContactTimeout, dispatch, displayInformationalText]);
 
     useEffect( () => {
-        if((conversation.isCreator && conversation.aborted) || conversation.addContactAborted){
+        if(conversation.isCreator && conversation.aborted){
+            console.log('here');
             displayInformationalText('Failed to connect. Please try again.', 'negative');
             setSelectedContactId(null);
         }
-    }, [conversation.isCreator, conversation.aborted, conversation.addContactAborted, displayInformationalText]);
+    }, [conversation.isCreator, conversation.aborted, displayInformationalText]);
     const onContactClick = async contact => {
         if(!conversation.channel){
             const channel = await generateNewConversationChannel();

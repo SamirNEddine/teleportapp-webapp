@@ -18,7 +18,7 @@ import {
     contactFetched,
     conversationReducer, joinConversation,
     remoteStreamReceived,
-    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout, abortAddingContactAfterTimeout
+    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout
 } from '../reducers/conversationReducer';
 import { randomString } from '../utils/utils';
 

@@ -13,6 +13,9 @@ const Home = function ({displayInformationalText}) {
         skip: (!authState.user || authState.error)
     });
     useEffect( () => {
+        refetch();
+    }, []);
+    useEffect( () => {
         if (!error && !loading && data){
             setContacts(data.recommendedContacts);
         }
