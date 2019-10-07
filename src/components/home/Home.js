@@ -13,7 +13,9 @@ const Home = function ({displayInformationalText}) {
         skip: (!authState.user || authState.error)
     });
     useEffect( () => {
-        refetch();
+        if(!authState.error && authState.user){
+            refetch();
+        }
     }, []);
     useEffect( () => {
         if (!error && !loading && data){
