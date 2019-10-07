@@ -11,6 +11,11 @@ const Actions = {
     UNMUTE_AUDIO: 'UNMUTE_AUDIO',
     ANSWER_CONVERSATION: 'ANSWER_CONVERSATION',
     CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT',
+    ADD_CONTACT_ABORTED_AFTER_TIMEOUT: 'ADD_CONTACT_ABORTED_AFTER_TIMEOUT',
+    SELECTING_CONTACT: 'SELECTING_CONTACT',
+    CONTACT_IS_SPEAKING: 'CONTACT_IS_SPEAKING',
+    CONTACT_STOPPED_SPEAKING: 'CONTACT_STOPPED_SPEAKING',
+    CANCEL_SELECTING_CONTACT: 'CANCEL_SELECTING_CONTACT',
     ANALYTICS_SENT: 'ANALYTICS_SENT'
 };
 
@@ -23,12 +28,15 @@ const AnalyticsEvents = {
     CONTACT_JOINED: 'CONTACT_JOINED',
     CONTACT_LEFT: 'CONTACT_LEFT',
     CONVERSATION_CLOSED: 'CONVERSATION_CLOSED',
-    CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT'
+    CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT',
+    ADD_CONTACT_ABORTED_AFTER_TIMEOUT: 'ADD_CONTACT_ABORTED_AFTER_TIMEOUT'
 };
 
 export const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
 if(!voicePlatform) throw(new Error('Voice platform missing.'));
 console.debug(`Voice platform: ${voicePlatform}`);
+
+const MIN_SPEAKING_AUDIO_LEVEL = 0.3;
 
 /** Helpers **/
 export function startConversation(channel) {
@@ -104,6 +112,33 @@ export function abortConversationAfterTimeout(){
         type: Actions.CONVERSATION_ABORTED_AFTER_TIMEOUT
     }
 }
+export function abortAddingContactAfterTimeout(){
+    return {
+        type: Actions.ADD_CONTACT_ABORTED_AFTER_TIMEOUT
+    }
+}
+export function selectContactToAddToConversation(){
+    return {
+        type: Actions.SELECTING_CONTACT
+    }
+}
+export function cancelSelectingContact(){
+    return {
+        type: Actions.CANCEL_SELECTING_CONTACT
+    }
+}
+export function contactIsSpeaking(contactId, audioLevel) {
+    return {
+        type: Actions.CONTACT_IS_SPEAKING,
+        contactId, audioLevel
+    }
+}
+export function contactStoppedSpeaking(contactId) {
+    return {
+        type: Actions.CONTACT_STOPPED_SPEAKING,
+        contactId
+    }
+}
 
 export const conversationReducer = function (state, action) {
     console.debug('Conversation Reducer:\nAction: ', action, '\nState:', state);
@@ -116,8 +151,11 @@ export const conversationReducer = function (state, action) {
                 isCreator: true,
                 contacts: [],
                 remoteStreams: {},
+                connectingWithContact: null,
                 muteAudio: (voicePlatform === 'voxeet'),
                 aborted: false,
+                selectingContact: false,
+                loudestContactId: null,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.START_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -126,9 +164,12 @@ export const conversationReducer = function (state, action) {
                 channel: action.channel,
                 isCreator: false,
                 contacts: [],
+                connectingWithContact: null,
                 remoteStreams: {},
                 muteAudio: true,
                 aborted: false,
+                selectingContact: false,
+                loudestContactId: null,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADDED_TO_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -139,6 +180,8 @@ export const conversationReducer = function (state, action) {
                 contacts: [],
                 analytics: [...state.analytics, {eventName: AnalyticsEvents.LEAVE_CONVERSATION, eventProperties: {conversationId: state.channel}}],
                 muteAudio: true,
+                loudestContactId: null,
+                selectingContact: false
             };
             break;
         case Actions.REMOTE_STREAM_RECEIVED:
@@ -164,6 +207,7 @@ export const conversationReducer = function (state, action) {
                 channel: updatedContacts.length ? state.channel : null,
                 remoteStreams,
                 contacts: updatedContacts,
+                loudestContactId: updatedContacts.length ? updatedContacts[updatedContacts.length -1].id : null,
                 analytics: [...state.analytics,
                     {eventName: AnalyticsEvents.CONTACT_LEFT, eventProperties: {contactId, conversationId: state.channel}},
                     updatedContacts.length ? null : {eventName: AnalyticsEvents.CONVERSATION_CLOSED, eventProperties: {conversationId: state.channel}}
@@ -180,14 +224,31 @@ export const conversationReducer = function (state, action) {
         case Actions.CONTACT_ADDED:
             newState = {
                 ...state,
-                contactIdToAdd: null
+                contactIdToAdd: null,
+                connectingWithContact: action.contactId
             };
             break;
         case Actions.CONTACT_FETCHED:
             const {contact} = action;
+            contact.audioLevel = 0;
             newState = {
                 ...state,
-                contacts: [...state.contacts, contact]
+                contacts: [...state.contacts, contact],
+                connectingWithContact: null,
+                selectingContact: false,
+                loudestContactId: contact.id
+            };
+            break;
+        case Actions.SELECTING_CONTACT:
+            newState = {
+                ...state,
+                selectingContact: true
+            };
+            break;
+        case Actions.CANCEL_SELECTING_CONTACT:
+            newState = {
+                ...state,
+                selectingContact: false
             };
             break;
         case Actions.MUTE_AUDIO:
@@ -209,6 +270,48 @@ export const conversationReducer = function (state, action) {
                 analytics: [...state.analytics, {eventName: AnalyticsEvents.ANSWER_CONVERSATION_REQUEST, eventProperties: {conversationId: state.channel}}]
             };
             break;
+        case Actions.CONTACT_IS_SPEAKING:
+            const currentContacts = state.contacts;
+            let loudestContactId = state.loudestContactId;
+            let loudestLevel = MIN_SPEAKING_AUDIO_LEVEL;
+            currentContacts.find(c => {
+                if(c.id === action.contactId){
+                    c.audioLevel = action.audioLevel;
+                    return true
+                }
+                if(c.audioLevel > loudestLevel){
+                    loudestLevel = c.audioLevel;
+                    loudestContactId = c.id;
+                }
+                return false;
+            });
+            newState = {
+                ...state,
+                contacts: currentContacts,
+                loudestContactId
+            };
+            break;
+        case Actions.CONTACT_STOPPED_SPEAKING:
+            const currentContacts2 = state.contacts;
+            let loudestContactId2 = state.loudestContactId;
+            let loudestLevel2 = MIN_SPEAKING_AUDIO_LEVEL;
+            currentContacts2.find(c => {
+                if(c.id === action.contactId){
+                    c.audioLevel = 0;
+                    return true
+                }
+                if(c.audioLevel > loudestLevel2){
+                    loudestLevel2 = c.audioLevel;
+                    loudestContactId2 = c.id;
+                }
+                return false;
+            });
+            newState = {
+                ...state,
+                contacts: currentContacts2,
+                loudestContactId: loudestContactId2
+            };
+            break;
         case Actions.ANALYTICS_SENT:
             const {sentAnalytics} = action;
             const pendingAnalytics = state.analytics.filter(function(item) {
@@ -227,7 +330,17 @@ export const conversationReducer = function (state, action) {
                 remoteStreams: {},
                 muteAudio: true,
                 aborted: true,
+                selectingContact: false,
+                connectingWithContact: null,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.CONVERSATION_ABORTED_AFTER_TIMEOUT, eventProperties: {conversationId: state.channel, isCreator: state.isCreator}}]
+            };
+            break;
+        case Actions.ADD_CONTACT_ABORTED_AFTER_TIMEOUT:
+            newState = {
+                ...state,
+                selectingContact: false,
+                connectingWithContact: null,
+                analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADD_CONTACT_ABORTED_AFTER_TIMEOUT, eventProperties: {conversationId: state.channel, contactId: state.connectingWithContact}}]
             };
             break;
         default:

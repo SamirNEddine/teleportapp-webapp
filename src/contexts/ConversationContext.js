@@ -1,16 +1,16 @@
 import React, { createContext, useReducer, useContext, useEffect, useCallback, useState } from 'react';
-import { AuthenticationContext } from "./AuthenticationContext";
-import { useAgora, AgoraEvents, AgoraActions } from "../hooks/agora";
+import { AuthenticationContext } from './AuthenticationContext';
+import { useAgora, AgoraEvents, AgoraActions } from '../hooks/agora';
 import { useOpenTok, OpenTokEvents, OpenTokActions } from '../hooks/openTok';
 import { useVoxeet, VoxeetEvents, VoxeetActions } from '../hooks/voxeet';
-import { useApolloClient } from "@apollo/react-hooks";
-import {GET_OPENTOK_SESSION, GET_USER} from "../graphql/queries";
+import { useApolloClient } from '@apollo/react-hooks';
+import { GET_OPENTOK_SESSION, GET_USER } from '../graphql/queries';
 import {
     CONVERSATION_SOCKET,
     CONVERSATION_SOCKET_INCOMING_MESSAGES,
     CONVERSATION_SOCKET_OUTGOING_MESSAGES,
     useSocket
-} from "../hooks/socket";
+} from '../hooks/socket';
 import {
     voicePlatform,
     analyticsSent,
@@ -18,9 +18,9 @@ import {
     contactFetched,
     conversationReducer, joinConversation,
     remoteStreamReceived,
-    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout
-} from "../reducers/conversationReducer";
-import {randomString} from "../utils/utils";
+    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout, contactIsSpeaking, contactStoppedSpeaking
+} from '../reducers/conversationReducer';
+import { randomString } from '../utils/utils';
 
 export const ConversationContext = createContext();
 
@@ -36,6 +36,7 @@ export const ConversationContextProvider = function ({children}) {
         contactIdToAdd:null,
         muteAudio: true,
         aborted: false,
+        selectingContact: false,
         analytics:[]
     });
 
@@ -93,16 +94,16 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [agoraError, agoraEvent, agoraEventData, fetchContact]);
 
-    const [openTokError, openTokEvent, openTokEventData, performOpenTokAction] = useOpenTok(
+    const [openTokError, openTokEvent, performOpenTokAction] = useOpenTok(
         voicePlatform === 'tokbox' ? authState : {},
         voicePlatform === 'tokbox' ? state.channel : null
     );
     useEffect(  () => {
-        if (!openTokError && openTokEventData){
-            console.debug('OpenTok event:', openTokEvent, openTokEventData);
-            switch(openTokEvent){
+        if (!openTokError && openTokEvent){
+            console.debug('OpenTok event:', openTokEvent);
+            switch(openTokEvent.event){
                 case OpenTokEvents.REMOTE_STREAM_RECEIVED:
-                    const {receivedStream} = openTokEventData;
+                    const {receivedStream} = openTokEvent.eventData;
                     const contactId = parseInt(receivedStream.name);
                     receivedStream.contactId = contactId;
                     //Update remote streams
@@ -111,10 +112,16 @@ export const ConversationContextProvider = function ({children}) {
                     fetchContact(contactId);
                     break;
                 case OpenTokEvents.REMOTE_STREAM_REMOVED:
-                    const {removedStream} = openTokEventData;
+                    const {removedStream} = openTokEvent.eventData;
                     removedStream.contactId = parseInt(removedStream.name);
                     //Update contacts and remote streams
                     dispatch(remoteStreamRemoved(removedStream));
+                    break;
+                case OpenTokEvents.CONTACT_IS_SPEAKING:
+                    dispatch(contactIsSpeaking(openTokEvent.eventData.contactId, openTokEvent.eventData.audioLevel));
+                    break;
+                case OpenTokEvents.CONTACT_STOPPED_SPEAKING:
+                    dispatch(contactStoppedSpeaking(openTokEvent.eventData.contactId));
                     break;
                 default:
                     break;
@@ -122,7 +129,7 @@ export const ConversationContextProvider = function ({children}) {
         }else{
             //Todo: Error handling strategy
         }
-    }, [openTokError, openTokEvent, openTokEventData, fetchContact]);
+    }, [openTokError, openTokEvent, fetchContact]);
 
     const [voxeetError, voxeetEvent, performVoxeetAction] = useVoxeet(
         voicePlatform === 'voxeet' ? authState : {},
@@ -130,7 +137,6 @@ export const ConversationContextProvider = function ({children}) {
     );
     useEffect( () => {
         if (!voxeetError && voxeetEvent) {
-            console.debug('Voxeet event:', voxeetEvent);
             const {event, eventData} = voxeetEvent;
             switch (event) {
                 case VoxeetEvents.CONFERENCE_JOINED:
@@ -147,6 +153,12 @@ export const ConversationContextProvider = function ({children}) {
                     break;
                 case VoxeetEvents.CONTACT_LEFT:
                     dispatch(remoteStreamRemoved(eventData.stream));
+                    break;
+                case VoxeetEvents.CONTACT_IS_SPEAKING:
+                    dispatch(contactIsSpeaking(eventData.contactId, eventData.audioLevel));
+                    break;
+                case VoxeetEvents.CONTACT_STOPPED_SPEAKING:
+                    dispatch(contactStoppedSpeaking(eventData.contactId));
                     break;
                 default:
                     break;
@@ -180,22 +192,22 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [state.analytics, sendMessage]);
 
-    const [abortTimout, setAbortTimout] = useState(null);
+    const [abortConversationTimout, setAbortConversationTimout] = useState(null);
     useEffect( () => {
-        if(state.channel && !state.contacts.length && !abortTimout){
+        if(state.channel && !state.contacts.length && !abortConversationTimout){
             //Abort on timeout
-            setAbortTimout(setTimeout( function () {
+            setAbortConversationTimout(setTimeout( function () {
                 if(!state.contacts.length){
                     //Abort if no contact joined after the timeout
                     dispatch(abortConversationAfterTimeout());
-                    setAbortTimout(null);
+                    setAbortConversationTimout(null);
                 }
             }, 5000));
-        }else if (state.channel && state.contacts.length && abortTimout){
-            clearTimeout(abortTimout);
-            setAbortTimout(null);
+        }else if (state.channel && state.contacts.length && abortConversationTimout){
+            clearTimeout(abortConversationTimout);
+            setAbortConversationTimout(null);
         }
-    }, [state.channel, state.contacts, abortTimout]);
+    }, [state.channel, state.contacts, abortConversationTimout]);
 
     const generateNewConversationChannel = async function () {
         let channel = null;

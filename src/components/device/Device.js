@@ -1,63 +1,22 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import Home from "../contacts/Home";
-import Conversation from "../conversation/Conversation";
+import Home from '../home/Home';
+import Conversation from '../conversation/Conversation';
 import Unavailable from './Unavailable';
+import HardwareButton from './HardwareButton';
 import './device.css';
-import {ConversationContext} from "../../contexts/ConversationContext";
-import {leaveConversation} from "../../reducers/conversationReducer";
-import {AuthenticationContext} from "../../contexts/AuthenticationContext";
+import { ConversationContext } from '../../contexts/ConversationContext';
 import {
-    STATUS_SOCKET,
-    STATUS_SOCKET_INCOMING_MESSAGES,
-    STATUS_SOCKET_OUTGOING_MESSAGES,
-    useSocket
-} from "../../hooks/socket";
-import {useQuery} from "@apollo/react-hooks";
-import { GET_RECOMMENDED_CONTACTS } from "../../graphql/queries";
+    cancelSelectingContact,
+    leaveConversation,
+    selectContactToAddToConversation
+} from '../../reducers/conversationReducer';
+import { AuthenticationContext } from '../../contexts/AuthenticationContext';
+import { updateStatus, Status } from '../../reducers/authenticationReducer';
 
 const Device = function () {
-    const {authState} = useContext(AuthenticationContext);
-
-    const [contacts, setContacts] = useState([]);
-    const {error, loading, data, refetch} = useQuery(GET_RECOMMENDED_CONTACTS, {
-        skip: (!authState.user || authState.error)
-    });
-    useEffect( () => {
-        if (!error && !loading && data){
-            setContacts(data.recommendedContacts);
-        }
-    }, [error, loading, data]);
-
-    const [, message, socketData, sendMessage] = useSocket(authState, STATUS_SOCKET);
-    useEffect( () => {
-        if (message === STATUS_SOCKET_INCOMING_MESSAGES.STATUS_UPDATE && authState.user){
-            //To do: Update locally instead of refetching.
-            refetch()
-        }
-    }, [message, socketData, refetch, authState.user]);
-
-    const {conversation, dispatch} = useContext(ConversationContext);
-    const [status, setStatus] = useState('available');
-    useEffect( () => {
-        sendMessage(STATUS_SOCKET_OUTGOING_MESSAGES.UPDATE_STATUS, {status});
-    }, [status, sendMessage]);
-    useEffect( () => {
-        if(conversation.channel){
-            setStatus('busy');
-        }else if (status !== 'unavailable'){
-            setStatus('available');
-        }
-    }, [conversation.channel, sendMessage, status]);
-
-    const onButtonClick = _ => {
-        if (conversation.channel && conversation.contacts.length){
-            //leave conversation. Do not allow leaving when connecting
-            dispatch(leaveConversation());
-        }else if(!conversation.channel){
-            //Switch status
-            setStatus(status === 'available' ? 'unavailable' : 'available');
-        }
-    };
+    const authContext = useContext(AuthenticationContext);
+    const authState = authContext.authState;
+    const dispatchAuth = authContext.dispatch;
 
     const [informationalText, setInformationalText] = useState(null);
     const displayInformationalText =  useCallback(function(text, type){
@@ -72,13 +31,13 @@ const Device = function () {
         if(!microphoneAccess && authState.user){
             const askStateTimeout =  setTimeout(function () {
                 setMicrophoneAccess('asking');
-                setStatus('unavailable');
+                dispatchAuth(updateStatus(Status.UNAVAILABLE));
             }, 500);
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(function() {
                     clearTimeout(askStateTimeout);
                     setMicrophoneAccess('allowed');
-                    setStatus('available');
+                    dispatchAuth(updateStatus(Status.AVAILABLE));
                     console.debug('Access to microphone allowed');
                 }).catch(function() {
                     clearTimeout(askStateTimeout);
@@ -91,7 +50,16 @@ const Device = function () {
         }else{
             setInformationalText(null);
         }
-    },[microphoneAccess, authState.user]);
+    },[microphoneAccess, authState.user, dispatchAuth]);
+
+    const {conversation, dispatch} = useContext(ConversationContext);
+    useEffect( () => {
+        if(conversation.channel){
+            dispatchAuth(updateStatus(Status.BUSY))
+        }else if (authState.status && authState.status !== Status.UNAVAILABLE && authState.status !== Status.AVAILABLE && microphoneAccess === 'allowed'){
+            dispatchAuth(updateStatus(Status.AVAILABLE));
+        }
+    }, [conversation.channel, authState.status, dispatchAuth, microphoneAccess]);
 
     useEffect( () => {
         if(conversation.aborted){
@@ -102,20 +70,37 @@ const Device = function () {
         }
     }, [conversation.aborted]);
 
+    const onButtonSinglePress = _ => {
+        if(conversation.selectingContact) {
+            dispatch(cancelSelectingContact());
+        }else if (conversation.channel && conversation.contacts.length){
+            //leave conversation. Do not allow leaving when connecting
+            dispatch(leaveConversation());
+        }else if(!conversation.channel){
+            //Switch status
+            dispatchAuth(updateStatus(authState.status === Status.AVAILABLE ? Status.UNAVAILABLE : Status.AVAILABLE));
+        }
+    };
+    const onButtonLongPress = _ => {
+        if(conversation.selectingContact){
+            dispatch(cancelSelectingContact());
+        }else if(conversation.channel && conversation.contacts.length){
+            dispatch(selectContactToAddToConversation());
+        }
+    };
+
     return (
         <div className="device-container">
-            <div className="hardware-button" onClick={onButtonClick}/>
+            <HardwareButton onSinglePress={onButtonSinglePress} onLongPress={onButtonLongPress} />
             <div className="device-screen">
                 {informationalText ? (
                     <div className={`information-text-container ${informationalText.type}`}>
                         <div className={`information-text ${informationalText.type}`}>{informationalText.text}</div>
                     </div>
                 ) : ''}
-                <div style={{visibility: `${conversation.contacts.length ? 'hidden': 'visible'}`}}>
-                    <Home contacts={contacts} displayInformationalText={displayInformationalText}/>
-                </div>
-                {conversation.contacts.length ? <Conversation/> : ''}
-                {microphoneAccess === 'allowed' && status === 'unavailable' ? <Unavailable/> : ''}
+                {!conversation.contacts.length ? <Home displayInformationalText={displayInformationalText}/> : ''}
+                {conversation.contacts.length ? <Conversation displayInformationalText={displayInformationalText}/> : ''}
+                {microphoneAccess === 'allowed' && authState.status === Status.UNAVAILABLE ? <Unavailable/> : ''}
             </div>
         </div>
     );

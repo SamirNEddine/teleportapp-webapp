@@ -3,7 +3,7 @@ import { useMutation } from "@apollo/react-hooks";
 import { LOGIN_USER } from "../../graphql/queries";
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { updateLocalUser } from "../../helpers/localStorage";
-import { signInSuccess } from '../../actions/authenticationActions'
+import { signInSuccess } from '../../reducers/authenticationReducer';
 import { Message } from 'semantic-ui-react'
 import { getErrorMessageFromGraphqlErrorMessage } from '../../helpers/graphql';
 

@@ -6,7 +6,7 @@ import { createHttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 import { getAuthenticationToken, clearLocalStorage } from './localStorage';
 import authenticationStore from '../stores/authenticationStore';
-import { authError } from "../actions/authenticationActions";
+import { authError } from '../reducers/authenticationReducer';
 
 const API_STATUS_CODES = {
     BAD_REQUEST: 400,

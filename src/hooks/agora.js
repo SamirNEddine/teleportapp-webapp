@@ -34,7 +34,7 @@ export function useAgora(authState, channel) {
             setLocalStream(null);
             setClient(null);
         }
-    }, [authState, client, localStream, agoraError, eventData]);
+    }, [authState.user, authState.error, client, localStream, agoraError, eventData]);
 
     const [configured, setConfigured] = useState(false);
     useEffect( () => {

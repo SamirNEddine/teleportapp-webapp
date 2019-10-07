@@ -1,8 +1,22 @@
+:root{
+    --contact-translate: 194%;
+}
+
 .conversation-container {
 }
 .speaking-user-container {
 }
-.speaking-user {
+.contact{
+    position: absolute;
+    width: 20%;
+    height: 20%;
+    top: 40%;
+    left: 40.3%;
+    z-index: 5;
+    border-radius: 50%;
+    border: 1px solid deepskyblue;
+}
+.speaking-contact {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -17,7 +31,7 @@
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(6px);
     border-radius: 50%;
-    z-index: 5;
+    z-index: 6;
 }
 .mute-indicator {
     position: absolute;
@@ -38,3 +52,23 @@
     font-family: "San Francisco Text";
     font-size: 24px;
 }
+
+.add-contact-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(6px);
+    z-index: 6;
+}
+
+.contact.deg0 { transform: translate(var(--contact-translate)); }
+.contact.deg14 { transform: rotate(14deg) translate(var(--contact-translate)) rotate(-14deg); }
+.contact.deg90 { transform: rotate(90deg) translate(calc(0.23*var(--contact-translate))) rotate(-90deg); }
+.contact.deg166 { transform: rotate(166deg) translate(var(--contact-translate)) rotate(-166deg); }
+.contact.deg180 { transform: translate(calc(var(--contact-translate) * -1)); }
+.contact.deg217 { transform: rotate(217deg) translate(var(--contact-translate)) rotate(-217deg); }
+.contact.deg270 { transform: rotate(270deg) translate(var(--contact-translate)) rotate(-270deg); }
+.contact.deg323 { transform: rotate(323deg) translate(var(--contact-translate)) rotate(-323deg); }

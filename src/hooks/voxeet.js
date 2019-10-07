@@ -10,7 +10,9 @@ export const VoxeetEvents = {
     CONFERENCE_JOINED: 'CONFERENCE_JOINED',
     CONTACT_JOINED: 'CONTACT_JOINED',
     CONTACT_LEFT: 'CONTACT_LEFT',
-    CONVERSATION_LEFT: 'CONVERSATION_LEFT'
+    CONVERSATION_LEFT: 'CONVERSATION_LEFT',
+    CONTACT_IS_SPEAKING: 'CONTACT_IS_SPEAKING',
+    CONTACT_STOPPED_SPEAKING: 'CONTACT_STOPPED_SPEAKING'
 };
 
 export const VoxeetActions = {
@@ -35,26 +37,29 @@ export function useVoxeet(authState, conferenceAlias) {
             voxeet.on('participantAdded', (voxeetUserId, userInfo) => {
                 console.debug('Participant added:', voxeetUserId);
                 const idsMap = userIdsMap;
-                idsMap[voxeetUserId] = Number(userInfo.externalId);
+                idsMap[voxeetUserId] = {id: Number(userInfo.externalId), speaking: false};
                 setUserIdMap(idsMap);
             });
             voxeet.on('participantJoined', (voxeetUserId, stream) => {
                 if(voxeetUserId === voxeet.userId) {
                     //Me joining the conference
                     const idsMap = userIdsMap;
-                    idsMap[voxeetUserId] = authState.user.id;
+                    idsMap[voxeetUserId] = {id: authState.user.id};
                     setUserIdMap(idsMap);
                 }else{
-                    console.debug(`Participant joined: ${userIdsMap[voxeetUserId]}`);
-                    stream.contactId = userIdsMap[voxeetUserId];
-                    setEvent({event: VoxeetEvents.CONTACT_JOINED, eventData: {stream}});
+                    if(userIdsMap[voxeetUserId]){
+                        console.debug(`Participant joined: ${userIdsMap[voxeetUserId]}`);
+                        stream.contactId = userIdsMap[voxeetUserId].id;
+                        setEvent({event: VoxeetEvents.CONTACT_JOINED, eventData: {stream}});
+                    }
                 }
             });
             voxeet.on('participantLeft', (voxeetUserId) => {
-                if(voxeetUserId !== voxeet.userId) {
+                if(voxeetUserId !== voxeet.userId && userIdsMap[voxeetUserId]) {
                     console.debug(`Participant left: ${userIdsMap[voxeetUserId]}`);
-                    const stream = {contactId: userIdsMap[voxeetUserId]};
+                    const stream = {contactId: userIdsMap[voxeetUserId].id};
                     setEvent({event: VoxeetEvents.CONTACT_LEFT, eventData: {stream}});
+                    delete userIdsMap[voxeetUserId];
                 }
             });
             setListenersAdded(true);
@@ -97,7 +102,7 @@ export function useVoxeet(authState, conferenceAlias) {
         if(authState.user && !voxeet){
             initVoxeet();
         }
-    }, [authState, voxeet, apolloClient]);
+    }, [authState.user, voxeet, apolloClient]);
 
     const[conferenceInfo, setConferenceInfo] = useState(null);
     useEffect(  () => {
@@ -126,6 +131,7 @@ export function useVoxeet(authState, conferenceAlias) {
                 setVoxeetError(e);
             }
         }
+
         if(conferenceAlias && !conferenceInfo && voxeet){
             joinConference(conferenceAlias);
         }else if(!conferenceAlias && conferenceInfo){
@@ -138,6 +144,32 @@ export function useVoxeet(authState, conferenceAlias) {
         }
     }, [conferenceAlias, conferenceInfo, voxeet]);
 
+    const [speakingUserTimer, setSpeakingUserTimer] = useState(null);
+    useEffect( () => {
+        if(conferenceInfo && !speakingUserTimer){
+            setSpeakingUserTimer( setInterval(function () {
+                if(userIdsMap ){
+                    for(let id in userIdsMap){
+                        if(id !== voxeet.userId){
+                            voxeet.isUserSpeaking(id, (isSpeaking) => {
+                                if(isSpeaking){
+                                    userIdsMap[id].speaking = true;
+                                    voxeet.getUserLevel(id, (level) => {
+                                        setEvent({event: VoxeetEvents.CONTACT_IS_SPEAKING, eventData: {contactId: userIdsMap[id].id, audioLevel: level}});
+                                    });
+                                }else if(userIdsMap[id].speaking){
+                                    userIdsMap[id].speaking = false;
+                                    setEvent({event: VoxeetEvents.CONTACT_STOPPED_SPEAKING, eventData: {contactId: userIdsMap[id]}});
+                                }
+                            });
+                        }
+                    }}}, 500));
+
+        }else if(!conferenceInfo && speakingUserTimer){
+            clearInterval(speakingUserTimer);
+            setSpeakingUserTimer(null);
+        }
+    }, [speakingUserTimer, voxeet, conferenceInfo, userIdsMap]);
 
     const performAction = useCallback((action, actionData) => {
         if(voxeet){

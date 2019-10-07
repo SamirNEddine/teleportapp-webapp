@@ -9,7 +9,9 @@ export const OpenTokEvents = {
     SESSION_JOINED: 'SESSION_JOINED',
     REMOTE_STREAM_RECEIVED: 'REMOTE_STREAM_RECEIVED',
     REMOTE_STREAM_SUBSCRIBED: 'REMOTE_STREAM_SUBSCRIBED',
-    REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED'
+    REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED',
+    CONTACT_IS_SPEAKING: 'CONTACT_IS_SPEAKING',
+    CONTACT_STOPPED_SPEAKING: 'CONTACT_STOPPED_SPEAKING'
 };
 
 export const OpenTokActions = {
@@ -20,11 +22,39 @@ export const OpenTokActions = {
 export function useOpenTok(authState, sessionId) {
     const apolloClient = useApolloClient();
     const [event, setEvent] = useState(null);
-    const [eventData, setEventData] = useState(null);
 
     const [openTokError, setOpenTokError] = useState(null);
     const [publisher, setPublisher] = useState(null);
     const [session, setSession] = useState(null);
+
+    const SpeakerDetection = useCallback(function(subscriber, startTalking, stopTalking) {
+        let activity = null;
+        subscriber.on('audioLevelUpdated', function(event) {
+            const now = Date.now();
+            if (event.audioLevel > 0.2) {
+                if (!activity) {
+                    activity = {timestamp: now, talking: false};
+                } else if (activity.talking) {
+                    activity.timestamp = now;
+                } else if (now- activity.timestamp > 1000) {
+                    // detected audio activity for more than 1s
+                    // for the first time.
+                    activity.talking = true;
+                    if (typeof(startTalking) === 'function') {
+                        startTalking(event.audioLevel);
+                    }
+                }
+            } else if (activity && now - activity.timestamp > 3000) {
+                // detected low audio activity for more than 3s
+                if (activity.talking) {
+                    if (typeof(stopTalking) === 'function') {
+                        stopTalking();
+                    }
+                }
+                activity = null;
+            }
+        });
+    }, []);
 
     useEffect( () => {
         if(authState.user && sessionId && !publisher){
@@ -38,9 +68,9 @@ export function useOpenTok(authState, sessionId) {
                 }
             });
             setPublisher(newPublisher);
-            setEvent(OpenTokEvents.INIT_PUBLISHER);
+            setEvent({event: OpenTokEvents.INIT_PUBLISHER});
         }
-    }, [authState, sessionId, session, publisher]);
+    }, [authState.user, sessionId, session, publisher]);
 
     useEffect( () => {
         if(!openTokError && publisher && !session){
@@ -49,26 +79,30 @@ export function useOpenTok(authState, sessionId) {
             //Setup listeners
             newSession.on('streamCreated', function(event) {
                 console.debug('EVENT :', event, event.stream);
-                setEvent(OpenTokEvents.REMOTE_STREAM_RECEIVED);
-                setEventData({receivedStream: event.stream});
+                setEvent({event: OpenTokEvents.REMOTE_STREAM_RECEIVED, eventData: {receivedStream: event.stream}});
                 console.debug(`New stream received ${event.stream.name}`);
                 console.debug(`Subscribing to stream ${event.stream.name}`);
-                newSession.subscribe(event.stream, null, {insertDefaultUI:false}, function(err){
-                    setEvent(OpenTokEvents.REMOTE_STREAM_SUBSCRIBED);
-                    setEventData(null);
+                const subscriber = newSession.subscribe(event.stream, null, {insertDefaultUI:false}, function(err){
+                    setEvent({event: OpenTokEvents.REMOTE_STREAM_SUBSCRIBED});
                     if(err){
                         console.debug(`Failed to subscribe to stream ${event.stream.name}`);
                     }else{
                         console.debug(`Successfully subscribed to stream ${event.stream.name}`);
+                        SpeakerDetection(subscriber, function(audioLevel) {
+                            console.log(event.stream.name, 'started talking');
+                            setEvent({event: OpenTokEvents.CONTACT_IS_SPEAKING, eventData: {contactId: event.stream.name, audioLevel}});
+                        }, function() {
+                            console.log(event.stream.name, 'stopped talking');
+                            setEvent({event: OpenTokEvents.CONTACT_STOPPED_SPEAKING, eventData: {contactId: event.stream.name}});
+                        });
                     }
                 });
             });
             newSession.on('streamDestroyed', function(event) {
-                setEventData({removedStream: event.stream});
-                setEvent(OpenTokEvents.REMOTE_STREAM_REMOVED);
+                setEvent({event: OpenTokEvents.REMOTE_STREAM_REMOVED, eventData: {removedStream: event.stream}});
             });
             setSession(newSession);
-            setEvent(OpenTokEvents.SESSION_INITIALIZED);
+            setEvent({event: OpenTokEvents.SESSION_INITIALIZED});
         }else if (!sessionId && session){
             console.debug(`Leaving current session`);
             session.unpublish(publisher);
@@ -76,10 +110,9 @@ export function useOpenTok(authState, sessionId) {
             setPublisher(null);
             setSession(null);
             setEvent(null);
-            setEventData(null);
             setOpenTokError(null);
         }
-    }, [sessionId, session, openTokError, publisher]);
+    }, [sessionId, session, openTokError, publisher, SpeakerDetection]);
 
     useEffect( () => {
         const getOpenTokToken = async function(sessionID) {
@@ -88,7 +121,7 @@ export function useOpenTok(authState, sessionId) {
                 const {userOpenTalkToken} = data;
                 console.debug(`Joining session ${sessionId} using token ${userOpenTalkToken}`);
                 session.connect(userOpenTalkToken, function(err) {
-                    setEvent(OpenTokEvents.SESSION_JOINED);
+                    setEvent({event: OpenTokEvents.SESSION_JOINED});
                     if(err){
                         console.debug(`Failed to join session ${sessionId} using ${userOpenTalkToken}`);
                     }else{
@@ -131,5 +164,5 @@ export function useOpenTok(authState, sessionId) {
         }
     }, [publisher, sessionId]);
 
-    return [openTokError, event, eventData, performAction];
+    return [openTokError, event, performAction];
 }
