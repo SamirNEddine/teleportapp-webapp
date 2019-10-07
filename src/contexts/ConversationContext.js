@@ -94,16 +94,16 @@ export const ConversationContextProvider = function ({children}) {
         }
     }, [agoraError, agoraEvent, agoraEventData, fetchContact]);
 
-    const [openTokError, openTokEvent, openTokEventData, performOpenTokAction] = useOpenTok(
+    const [openTokError, openTokEvent, performOpenTokAction] = useOpenTok(
         voicePlatform === 'tokbox' ? authState : {},
         voicePlatform === 'tokbox' ? state.channel : null
     );
     useEffect(  () => {
-        if (!openTokError && openTokEventData){
-            console.debug('OpenTok event:', openTokEvent, openTokEventData);
-            switch(openTokEvent){
+        if (!openTokError && openTokEvent){
+            console.debug('OpenTok event:', openTokEvent);
+            switch(openTokEvent.event){
                 case OpenTokEvents.REMOTE_STREAM_RECEIVED:
-                    const {receivedStream} = openTokEventData;
+                    const {receivedStream} = openTokEvent.eventData;
                     const contactId = parseInt(receivedStream.name);
                     receivedStream.contactId = contactId;
                     //Update remote streams
@@ -112,10 +112,16 @@ export const ConversationContextProvider = function ({children}) {
                     fetchContact(contactId);
                     break;
                 case OpenTokEvents.REMOTE_STREAM_REMOVED:
-                    const {removedStream} = openTokEventData;
+                    const {removedStream} = openTokEvent.eventData;
                     removedStream.contactId = parseInt(removedStream.name);
                     //Update contacts and remote streams
                     dispatch(remoteStreamRemoved(removedStream));
+                    break;
+                case OpenTokEvents.CONTACT_IS_SPEAKING:
+                    dispatch(contactIsSpeaking(openTokEvent.eventData.contactId, openTokEvent.eventData.audioLevel));
+                    break;
+                case OpenTokEvents.CONTACT_STOPPED_SPEAKING:
+                    dispatch(contactStoppedSpeaking(openTokEvent.eventData.contactId));
                     break;
                 default:
                     break;
@@ -123,7 +129,7 @@ export const ConversationContextProvider = function ({children}) {
         }else{
             //Todo: Error handling strategy
         }
-    }, [openTokError, openTokEvent, openTokEventData, fetchContact]);
+    }, [openTokError, openTokEvent, fetchContact]);
 
     const [voxeetError, voxeetEvent, performVoxeetAction] = useVoxeet(
         voicePlatform === 'voxeet' ? authState : {},

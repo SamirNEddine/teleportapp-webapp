@@ -36,6 +36,8 @@ export const voicePlatform = process.env.REACT_APP_VOICE_PLATFORM;
 if(!voicePlatform) throw(new Error('Voice platform missing.'));
 console.debug(`Voice platform: ${voicePlatform}`);
 
+const MIN_SPEAKING_AUDIO_LEVEL = 0.3;
+
 /** Helpers **/
 export function startConversation(channel) {
     return {
@@ -271,7 +273,7 @@ export const conversationReducer = function (state, action) {
         case Actions.CONTACT_IS_SPEAKING:
             const currentContacts = state.contacts;
             let loudestContactId = state.loudestContactId;
-            let loudestLevel = 0;
+            let loudestLevel = MIN_SPEAKING_AUDIO_LEVEL;
             currentContacts.find(c => {
                 if(c.id === action.contactId){
                     c.audioLevel = action.audioLevel;
@@ -292,7 +294,7 @@ export const conversationReducer = function (state, action) {
         case Actions.CONTACT_STOPPED_SPEAKING:
             const currentContacts2 = state.contacts;
             let loudestContactId2 = state.loudestContactId;
-            let loudestLevel2 = 0;
+            let loudestLevel2 = MIN_SPEAKING_AUDIO_LEVEL;
             currentContacts2.find(c => {
                 if(c.id === action.contactId){
                     c.audioLevel = 0;
