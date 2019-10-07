@@ -41,6 +41,8 @@ export const disconnectSocket = function(baseURL, nameSpace){
     const socketURL = `${baseURL}/${nameSpace}`;
     console.debug(`Closing socket: ${socketURL}`);
     const socket = sockets[socketURL];
-    socket.close();
-    delete sockets[socketURL];
+    if(socket){
+        socket.close();
+        delete sockets[socketURL];
+    }
 };
