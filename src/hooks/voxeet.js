@@ -12,7 +12,7 @@ export const VoxeetEvents = {
     CONTACT_LEFT: 'CONTACT_LEFT',
     CONVERSATION_LEFT: 'CONVERSATION_LEFT',
     CONTACT_IS_SPEAKING: 'CONTACT_IS_SPEAKING',
-    CONTACT_IS_NOT_SPEAKING: 'CONTACT_IS_NOT_SPEAKING'
+    CONTACT_STOPPED_SPEAKING: 'CONTACT_STOPPED_SPEAKING'
 };
 
 export const VoxeetActions = {
@@ -159,7 +159,7 @@ export function useVoxeet(authState, conferenceAlias) {
                                     });
                                 }else if(userIdsMap[id].speaking){
                                     userIdsMap[id].speaking = false;
-                                    setEvent({event: VoxeetEvents.CONTACT_IS_NOT_SPEAKING, eventData: {contactId: userIdsMap[id]}});
+                                    setEvent({event: VoxeetEvents.CONTACT_STOPPED_SPEAKING, eventData: {contactId: userIdsMap[id]}});
                                 }
                             });
                         }

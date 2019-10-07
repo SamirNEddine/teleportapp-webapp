@@ -13,6 +13,8 @@ const Actions = {
     CONVERSATION_ABORTED_AFTER_TIMEOUT: 'CONVERSATION_ABORTED_AFTER_TIMEOUT',
     ADD_CONTACT_ABORTED_AFTER_TIMEOUT: 'ADD_CONTACT_ABORTED_AFTER_TIMEOUT',
     SELECTING_CONTACT: 'SELECTING_CONTACT',
+    CONTACT_IS_SPEAKING: 'CONTACT_IS_SPEAKING',
+    CONTACT_STOPPED_SPEAKING: 'CONTACT_STOPPED_SPEAKING',
     CANCEL_SELECTING_CONTACT: 'CANCEL_SELECTING_CONTACT',
     ANALYTICS_SENT: 'ANALYTICS_SENT'
 };
@@ -123,6 +125,18 @@ export function cancelSelectingContact(){
         type: Actions.CANCEL_SELECTING_CONTACT
     }
 }
+export function contactIsSpeaking(contactId, audioLevel) {
+    return {
+        type: Actions.CONTACT_IS_SPEAKING,
+        contactId, audioLevel
+    }
+}
+export function contactStoppedSpeaking(contactId) {
+    return {
+        type: Actions.CONTACT_STOPPED_SPEAKING,
+        contactId
+    }
+}
 
 export const conversationReducer = function (state, action) {
     console.debug('Conversation Reducer:\nAction: ', action, '\nState:', state);
@@ -139,6 +153,7 @@ export const conversationReducer = function (state, action) {
                 muteAudio: (voicePlatform === 'voxeet'),
                 aborted: false,
                 selectingContact: false,
+                loudestContactId: null,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.START_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -152,6 +167,7 @@ export const conversationReducer = function (state, action) {
                 muteAudio: true,
                 aborted: false,
                 selectingContact: false,
+                loudestContactId: null,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADDED_TO_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
@@ -162,6 +178,7 @@ export const conversationReducer = function (state, action) {
                 contacts: [],
                 analytics: [...state.analytics, {eventName: AnalyticsEvents.LEAVE_CONVERSATION, eventProperties: {conversationId: state.channel}}],
                 muteAudio: true,
+                loudestContactId: null,
                 selectingContact: false
             };
             break;
@@ -188,6 +205,7 @@ export const conversationReducer = function (state, action) {
                 channel: updatedContacts.length ? state.channel : null,
                 remoteStreams,
                 contacts: updatedContacts,
+                loudestContactId: updatedContacts.length ? updatedContacts[updatedContacts.length -1] : null,
                 analytics: [...state.analytics,
                     {eventName: AnalyticsEvents.CONTACT_LEFT, eventProperties: {contactId, conversationId: state.channel}},
                     updatedContacts.length ? null : {eventName: AnalyticsEvents.CONVERSATION_CLOSED, eventProperties: {conversationId: state.channel}}
@@ -210,11 +228,13 @@ export const conversationReducer = function (state, action) {
             break;
         case Actions.CONTACT_FETCHED:
             const {contact} = action;
+            contact.audioLevel = 0;
             newState = {
                 ...state,
                 contacts: [...state.contacts, contact],
                 connectingWithContact: null,
-                selectingContact: false
+                selectingContact: false,
+                loudestContactId: contact.id
             };
             break;
         case Actions.SELECTING_CONTACT:
@@ -246,6 +266,48 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 muteAudio: false,
                 analytics: [...state.analytics, {eventName: AnalyticsEvents.ANSWER_CONVERSATION_REQUEST, eventProperties: {conversationId: state.channel}}]
+            };
+            break;
+        case Actions.CONTACT_IS_SPEAKING:
+            const currentContacts = state.contacts;
+            let loudestContactId = state.loudestContactId;
+            let loudestLevel = 0;
+            currentContacts.find(c => {
+                if(c.id === action.contactId){
+                    c.audioLevel = action.audioLevel;
+                    return true
+                }
+                if(c.audioLevel > loudestLevel){
+                    loudestLevel = c.audioLevel;
+                    loudestContactId = c.id;
+                }
+                return false;
+            });
+            newState = {
+                ...state,
+                contacts: currentContacts,
+                loudestContactId
+            };
+            break;
+        case Actions.CONTACT_STOPPED_SPEAKING:
+            const currentContacts2 = state.contacts;
+            let loudestContactId2 = state.loudestContactId;
+            let loudestLevel2 = 0;
+            currentContacts2.find(c => {
+                if(c.id === action.contactId){
+                    c.audioLevel = 0;
+                    return true
+                }
+                if(c.audioLevel > loudestLevel2){
+                    loudestLevel2 = c.audioLevel;
+                    loudestContactId2 = c.id;
+                }
+                return false;
+            });
+            newState = {
+                ...state,
+                contacts: currentContacts2,
+                loudestContactId: loudestContactId2
             };
             break;
         case Actions.ANALYTICS_SENT:

@@ -18,7 +18,7 @@ import {
     contactFetched,
     conversationReducer, joinConversation,
     remoteStreamReceived,
-    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout
+    remoteStreamRemoved, unmuteAudio, abortConversationAfterTimeout, contactIsSpeaking, contactStoppedSpeaking
 } from '../reducers/conversationReducer';
 import { randomString } from '../utils/utils';
 
@@ -147,6 +147,12 @@ export const ConversationContextProvider = function ({children}) {
                     break;
                 case VoxeetEvents.CONTACT_LEFT:
                     dispatch(remoteStreamRemoved(eventData.stream));
+                    break;
+                case VoxeetEvents.CONTACT_IS_SPEAKING:
+                    dispatch(contactIsSpeaking(eventData.contactId, eventData.audioLevel));
+                    break;
+                case VoxeetEvents.CONTACT_STOPPED_SPEAKING:
+                    dispatch(contactStoppedSpeaking(eventData.contactId));
                     break;
                 default:
                     break;
