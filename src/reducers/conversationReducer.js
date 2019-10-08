@@ -2,6 +2,7 @@ const Actions = {
     START_CONVERSATION: 'START_CONVERSATION',
     JOIN_CONVERSATION: 'JOIN_CONVERSATION',
     LEAVE_CONVERSATION: 'LEAVE_CONVERSATION',
+    CLOSE_CONVERSATION_AFTER_LAST_CONTACT_LEFT: 'CLOSE_CONVERSATION_AFTER_LAST_CONTACT_LEFT',
     CLOSE_CONVERSATION_SCREEN: 'CLOSE_CONVERSATION_SCREEN',
     REMOTE_STREAM_RECEIVED: 'REMOTE_STREAM_RECEIVED',
     REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED',
@@ -55,6 +56,11 @@ export function joinConversation(channel) {
 export function leaveConversation() {
     return {
         type: Actions.LEAVE_CONVERSATION
+    }
+}
+export function closeConversationAfterLastContactLeft() {
+    return {
+        type: Actions.CLOSE_CONVERSATION_AFTER_LAST_CONTACT_LEFT
     }
 }
 export function closeConversationScreen() {
@@ -197,6 +203,19 @@ export const conversationReducer = function (state, action) {
                 selectingContact: false
             };
             break;
+        case Actions.CLOSE_CONVERSATION_AFTER_LAST_CONTACT_LEFT:
+            newState = {
+                ...state,
+                channel: null,
+                contacts: [],
+                analytics: [...state.analytics, {eventName: AnalyticsEvents.CONVERSATION_CLOSED, eventProperties: {conversationId: state.channel}}],
+                muteAudio: true,
+                lastContactLeft: false,
+                closeConversationScreen: false,
+                loudestContactId: null,
+                selectingContact: false
+            };
+            break;
         case Actions.REMOTE_STREAM_RECEIVED:
             const {receivedStream} = action;
             const updatedRemoteStreams = state.remoteStreams;
@@ -217,14 +236,12 @@ export const conversationReducer = function (state, action) {
             const updatedContacts = contacts.filter( contact => {return contact.id !== contactId});
             newState = {
                 ...state,
-                channel: updatedContacts.length ? state.channel : null,
                 remoteStreams,
-                contacts: updatedContacts,
-                loudestContactId: updatedContacts.length ? updatedContacts[updatedContacts.length -1].id : null,
-                analytics: [...state.analytics,
-                    {eventName: AnalyticsEvents.CONTACT_LEFT, eventProperties: {contactId, conversationId: state.channel}},
-                    updatedContacts.length ? null : {eventName: AnalyticsEvents.CONVERSATION_CLOSED, eventProperties: {conversationId: state.channel}}
-                ]
+                lastContactLeft: !updatedContacts.length,
+                closeConversationScreen: !updatedContacts.length,
+                contacts: updatedContacts.length ? updatedContacts : state.contacts,
+                loudestContactId: updatedContacts.length ? updatedContacts[updatedContacts.length -1].id : state.loudestContactId,
+                analytics: [...state.analytics, {eventName: AnalyticsEvents.CONTACT_LEFT, eventProperties: {contactId, conversationId: state.channel}}]
             };
             break;
         case Actions.ADD_CONTACT:
