@@ -7,7 +7,6 @@ import './device.css';
 import { ConversationContext } from '../../contexts/ConversationContext';
 import {
     cancelSelectingContact, closeConversationScreen,
-    leaveConversation,
     selectContactToAddToConversation
 } from '../../reducers/conversationReducer';
 import { AuthenticationContext } from '../../contexts/AuthenticationContext';

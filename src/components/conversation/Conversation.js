@@ -77,7 +77,7 @@ const Conversation = function ({displayInformationalText}) {
             }, 500));
         }
 
-    }, [conversation.closeConversationScreen, conversation.lastContactLeft, closeAnimationTimeout]);
+    }, [conversation.closeConversationScreen, conversation.lastContactLeft, closeAnimationTimeout, dispatch]);
 
     console.log('Conversation with contacts:\n', contacts);
     return (
