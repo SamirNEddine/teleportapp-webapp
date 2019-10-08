@@ -6,7 +6,7 @@ import HardwareButton from './HardwareButton';
 import './device.css';
 import { ConversationContext } from '../../contexts/ConversationContext';
 import {
-    cancelSelectingContact,
+    cancelSelectingContact, closeConversationScreen,
     leaveConversation,
     selectContactToAddToConversation
 } from '../../reducers/conversationReducer';
@@ -75,7 +75,7 @@ const Device = function () {
             dispatch(cancelSelectingContact());
         }else if (conversation.channel && conversation.contacts.length){
             //leave conversation. Do not allow leaving when connecting
-            dispatch(leaveConversation());
+            dispatch(closeConversationScreen());
         }else if(!conversation.channel){
             //Switch status
             dispatchAuth(updateStatus(authState.status === Status.AVAILABLE ? Status.UNAVAILABLE : Status.AVAILABLE));
@@ -98,7 +98,7 @@ const Device = function () {
                         <div className={`information-text ${informationalText.type}`}>{informationalText.text}</div>
                     </div>
                 ) : ''}
-                {!conversation.contacts.length ? <Home displayInformationalText={displayInformationalText}/> : ''}
+                {!conversation.contacts.length || conversation.closeConversationScreen ? <Home displayInformationalText={displayInformationalText}/> : ''}
                 {conversation.contacts.length ? <Conversation displayInformationalText={displayInformationalText}/> : ''}
                 {microphoneAccess === 'allowed' && authState.status === Status.UNAVAILABLE ? <Unavailable/> : ''}
             </div>

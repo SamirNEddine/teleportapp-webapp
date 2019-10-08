@@ -3,7 +3,23 @@
 }
 
 .conversation-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
+
+.conversation-container-closed {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform: scale(0);
+    overflow: hidden;
+    transition: all 350ms;
+    transition-timing-function: ease;
+    z-index: 1000;
+}
+
 .speaking-user-container {
 }
 .contact{

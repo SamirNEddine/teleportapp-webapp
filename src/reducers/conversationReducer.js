@@ -2,6 +2,7 @@ const Actions = {
     START_CONVERSATION: 'START_CONVERSATION',
     JOIN_CONVERSATION: 'JOIN_CONVERSATION',
     LEAVE_CONVERSATION: 'LEAVE_CONVERSATION',
+    CLOSE_CONVERSATION_SCREEN: 'CLOSE_CONVERSATION_SCREEN',
     REMOTE_STREAM_RECEIVED: 'REMOTE_STREAM_RECEIVED',
     REMOTE_STREAM_REMOVED: 'REMOTE_STREAM_REMOVED',
     ADD_CONTACT: 'ADD_CONTACT',
@@ -53,7 +54,12 @@ export function joinConversation(channel) {
 }
 export function leaveConversation() {
     return {
-        type: Actions.LEAVE_CONVERSATION,
+        type: Actions.LEAVE_CONVERSATION
+    }
+}
+export function closeConversationScreen() {
+    return {
+        type: Actions.CLOSE_CONVERSATION_SCREEN
     }
 }
 export function remoteStreamReceived(receivedStream) {
@@ -173,6 +179,12 @@ export const conversationReducer = function (state, action) {
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADDED_TO_CONVERSATION, eventProperties: {conversationId: action.channel}}]
             };
             break;
+        case Actions.CLOSE_CONVERSATION_SCREEN:
+            newState = {
+                ...state,
+                closeConversationScreen: true
+            };
+            break;
         case Actions.LEAVE_CONVERSATION:
             newState = {
                 ...state,
@@ -180,6 +192,7 @@ export const conversationReducer = function (state, action) {
                 contacts: [],
                 analytics: [...state.analytics, {eventName: AnalyticsEvents.LEAVE_CONVERSATION, eventProperties: {conversationId: state.channel}}],
                 muteAudio: true,
+                closeConversationScreen: false,
                 loudestContactId: null,
                 selectingContact: false
             };

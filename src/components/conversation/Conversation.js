@@ -2,7 +2,7 @@ import React, {useState, useContext, useEffect} from 'react';
 import { ConversationContext } from "../../contexts/ConversationContext";
 import './conversation.css'
 import ContactAvatar from "../contacts/ContactAvatar";
-import {answerConversation, unmuteAudio} from "../../reducers/conversationReducer";
+import {answerConversation, leaveConversation, unmuteAudio} from "../../reducers/conversationReducer";
 import AddContact from './AddContact';
 
 const FloatingContactStyles = [
@@ -63,9 +63,16 @@ const Conversation = function ({displayInformationalText}) {
         }
     });
 
+    //Close animation
+    if(conversation.closeConversationScreen){
+        setTimeout( function () {
+            dispatch(leaveConversation());
+        }, 500)
+    }
+
     console.log('Conversation with contacts:\n', contacts);
     return (
-        <div className="conversation-container">
+        <div className={conversation.closeConversationScreen ? "conversation-container-closed" : "conversation-container"}>
             {contactsDivs}
             {conversation.muteAudio ? (
                 <div className="mute-container" onClick={unmute}>
