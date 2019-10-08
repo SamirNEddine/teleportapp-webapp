@@ -69,11 +69,15 @@ const Conversation = function ({displayInformationalText}) {
     });
 
     //Close animation
-    if(conversation.closeConversationScreen){
-        setTimeout( function () {
-            conversation.lastContactLeft ? dispatch(closeConversationAfterLastContactLeft()) : dispatch(leaveConversation());
-        }, 500)
-    }
+    const [closeAnimationTimeout, setCloseAnimationTimeout] = useState(null);
+    useEffect( () => {
+        if(conversation.closeConversationScreen && !closeAnimationTimeout){
+            setCloseAnimationTimeout(setTimeout( function () {
+                conversation.lastContactLeft ? dispatch(closeConversationAfterLastContactLeft()) : dispatch(leaveConversation());
+            }, 500));
+        }
+
+    }, [conversation.closeConversationScreen, conversation.lastContactLeft, closeAnimationTimeout]);
 
     console.log('Conversation with contacts:\n', contacts);
     return (
