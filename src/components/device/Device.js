@@ -77,7 +77,7 @@ const Device = function () {
             dispatch(closeConversationScreen());
         }else if(!conversation.channel){
             //Switch status
-            dispatchAuth(updateStatus(authState.status === Status.AVAILABLE ? Status.UNAVAILABLE : Status.AVAILABLE));
+            dispatchAuth(updateStatus(authState.status === Status.AVAILABLE ? Status.UNAVAILABLE : Status.AVAILABLE, true));
         }
     };
     const onButtonLongPress = _ => {

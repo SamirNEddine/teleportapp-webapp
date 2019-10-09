@@ -12,8 +12,11 @@ export const AuthenticationContextProvider = function({children}) {
     useEffect( () => {
         if(authState.status){
             sendMessage(STATUS_SOCKET_OUTGOING_MESSAGES.UPDATE_STATUS, {status: authState.status});
+            if(authState.statusUpdatedManually){
+                sendMessage(STATUS_SOCKET_OUTGOING_MESSAGES.ANALYTICS, [{eventName: 'UPDATE_STATUS', eventProperties:{status: authState.status}}])
+            }
         }
-    }, [authState.status, sendMessage]);
+    }, [authState.status, authState.statusUpdatedManually, sendMessage]);
 
     const stateRef = React.useRef(authState);
     useEffect(_ => {
