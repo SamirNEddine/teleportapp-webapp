@@ -39,10 +39,11 @@ export function logout() {
     }
 }
 
-export function updateStatus(status){
+export function updateStatus(status, manually=false){
     return {
         type: Actions.UPDATE_STATUS,
-        status
+        status,
+        manually
     }
 }
 
@@ -62,7 +63,8 @@ export const authenticationReducer = function (state, action) {
             const {user} = action;
             newState = {
                 user,
-                status: Status.AVAILABLE
+                status: Status.AVAILABLE,
+                statusUpdatedManually: false
             };
             break;
         case Actions.SIGN_IN_ERROR:
@@ -80,10 +82,11 @@ export const authenticationReducer = function (state, action) {
             };
             break;
         case Actions.UPDATE_STATUS:
-            const {status} = action;
+            const {status, manually} = action;
             newState = {
                 ...state,
-                status
+                status,
+                statusUpdatedManually: manually
             };
             break;
         default:
