@@ -20,7 +20,7 @@ const ContactSelector = function ({contacts, displayInformationalText, name}) {
                     setAbortConnectingWithContactTimeout(null);
                     setSelectedContactId(null);
                     dispatch(abortAddingContactAfterTimeout());
-            }, 5000));
+            }, 8000));
         }
         if (abortConnectingWithContactTimeout && selectedContactId && conversation.contacts.length && conversation.contacts.find( c => { return c.id === selectedContactId} )){
             console.log('Cancelling connecting timeout');

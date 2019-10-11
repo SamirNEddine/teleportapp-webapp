@@ -202,7 +202,7 @@ export const ConversationContextProvider = function ({children}) {
                     dispatch(abortConversationAfterTimeout());
                     setAbortConversationTimout(null);
                 }
-            }, 5000));
+            }, 8000));
         }else if (state.channel && state.contacts.length && abortConversationTimout){
             clearTimeout(abortConversationTimout);
             setAbortConversationTimout(null);
