@@ -12,6 +12,20 @@
     height: 31.2%;
 }
 
+.default-avatar {
+    background-image: url("https://storage.cloud.google.com/teleport_public_assets/logo/Teleport-Button-RGB.svg");
+    background-repeat: no-repeat;
+    background-size: 154% 154%;
+    background-position: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 6px solid gray;
+}
+
 .deg0 { transform: translate(var(--avatar-translate)); }
 .deg30 { transform: rotate(30deg) translate(var(--avatar-translate)) rotate(-30deg); }
 .deg90 { transform: rotate(90deg) translate(var(--avatar-translate)) rotate(-90deg); }

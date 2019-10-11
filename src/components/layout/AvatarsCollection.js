@@ -14,19 +14,19 @@ const positionsConfig = {
     4: ['deg30', 'deg150', 'deg330', 'deg210'],
     5: ['center', 'deg30', 'deg150', 'deg330', 'deg210'],
     6: ['deg90', 'deg270', 'deg30', 'deg150', 'deg330', 'deg210'],
-    7: ['center', 'deg90', 'deg270', 'deg30', 'deg150', 'deg330', 'deg210']
+    7: ['center', 'deg270', 'deg330', 'deg30', 'deg90', 'deg150', 'deg210']
 };
 
 const AvatarsCollection = function ({avatars}) {
 
-    const positionClasses = positionsConfig[avatars.length];
+    const positionClasses = positionsConfig[MAX_NUMBER_OF_AVATARS];
     const avatarsElements = [];
-    for (let i=0; i<MAX_NUMBER_OF_AVATARS && i< avatars.length; i++){
-        const avatar = avatars[i];
+    for (let i=0; i<MAX_NUMBER_OF_AVATARS; i++){
+        const avatar = avatars[i] ? avatars[i] : null;
         const positionClassName = positionClasses[i];
         const avatarElement = (
-            <div className={`avatar-item ${positionClassName} ${avatar.additionalClasses ? avatar.additionalClasses : ''}`} key={avatar.key}>
-                {avatar.component}
+            <div className={`avatar-item ${positionClassName} ${avatar && avatar.additionalClasses ? avatar.additionalClasses : ''}`} key={avatar ? avatar.key : `default_${i}`}>
+                {avatar ? avatar.component : <div className="default-avatar" alt="default"/>}
             </div>
         );
         avatarsElements.push(avatarElement);
