@@ -12,9 +12,9 @@ const positionsConfig = {
     2: ['deg90', 'deg270'],
     3: ['center', 'deg90', 'deg270'],
     4: ['deg30', 'deg150', 'deg330', 'deg210'],
-    5: ['center', 'deg30', 'deg150', 'deg330', 'deg210'],
-    6: ['deg90', 'deg270', 'deg30', 'deg150', 'deg330', 'deg210'],
-    7: ['center', 'deg270', 'deg330', 'deg30', 'deg90', 'deg150', 'deg210']
+    5: ['center', 'deg90', 'deg270', 'deg30', 'deg150', 'deg330', 'deg210'],
+    6: ['center', 'deg90', 'deg270', 'deg30', 'deg150', 'deg330', 'deg210'],
+    7: ['center', 'deg90', 'deg270', 'deg30', 'deg150', 'deg330', 'deg210']
 };
 
 const AvatarsCollection = function ({avatars}) {
