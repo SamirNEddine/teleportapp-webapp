@@ -13,10 +13,6 @@
 }
 
 .default-avatar {
-    background-image: url("https://storage.cloud.google.com/teleport_public_assets/logo/Teleport-Button-RGB.svg");
-    background-repeat: no-repeat;
-    background-size: 154% 154%;
-    background-position: center;
     position: absolute;
     width: 100%;
     height: 100%;
