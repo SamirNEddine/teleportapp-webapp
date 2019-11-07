@@ -79,6 +79,34 @@ const Conversation = function ({displayInformationalText}) {
 
     }, [conversation.closeConversationScreen, conversation.lastContactLeft, closeAnimationTimeout, dispatch]);
 
+    //Notification
+    const [notified, setNotified] = useState(false);
+    useEffect( () => {
+        if(!notified && conversation.wasAdded){
+            const notification = new Notification("You are added to a conversation",
+                {
+                    body: 'Wanna speak?',
+                    icon: 'https://storage.googleapis.com/teleport_public_assets/fav.ico/apple-icon-180x180.png',
+                    image: 'https://storage.googleapis.com/teleport_public_assets/fav.ico/apple-icon-180x180.png'
+                });
+            notification.onclick = function() {
+                window.focus();
+                this.close();
+                unmute();
+            };
+            setTimeout(notification.close.bind(notification), 20000);
+            setNotified(true);
+            const notificationAlert = new Audio('https://storage.googleapis.com/teleport_public_assets/audio/notification.mp3');
+            //Workaround for Safari
+            const promise = notificationAlert.play();
+            if (promise !== undefined) {
+                promise.catch(error => {
+                }).then(() => {
+                });
+            }
+        }
+    }, [conversation.wasAdded, conversation.contacts, notified]);
+
     console.log('Conversation with contacts:\n', contacts);
     return (
         <div className={conversation.closeConversationScreen  ? "conversation-container-closed" : "conversation-container"}>

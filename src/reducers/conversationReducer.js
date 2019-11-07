@@ -161,6 +161,7 @@ export const conversationReducer = function (state, action) {
             newState = {
                 channel: action.channel,
                 isCreator: true,
+                wasAdded: false,
                 contacts: [],
                 remoteStreams: {},
                 connectingWithContact: null,
@@ -175,6 +176,7 @@ export const conversationReducer = function (state, action) {
             newState = {
                 channel: action.channel,
                 isCreator: false,
+                wasAdded: true,
                 contacts: [],
                 connectingWithContact: null,
                 remoteStreams: {},

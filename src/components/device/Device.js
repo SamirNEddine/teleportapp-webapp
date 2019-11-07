@@ -69,6 +69,15 @@ const Device = function () {
         }
     }, [conversation.aborted]);
 
+    const [notificationPermission, setNotificationPermission] = useState(Notification.permission);
+    useEffect( () => {
+        if(notificationPermission === 'default' && authState.user){
+            Notification.requestPermission().then(function(result) {
+                setNotificationPermission(result);
+            });
+        }
+    }, [notificationPermission, authState.user]);
+
     const onButtonSinglePress = _ => {
         if(conversation.selectingContact) {
             dispatch(cancelSelectingContact());
