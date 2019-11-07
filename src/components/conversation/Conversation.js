@@ -82,12 +82,15 @@ const Conversation = function ({displayInformationalText}) {
     //Notification
     const [notified, setNotified] = useState(false);
     useEffect( () => {
-        if(!notified && conversation.wasAdded){
-            const notification = new Notification("You are added to a conversation",
+        if(!notified && conversation.invitingContactId){
+            const invitingContact = conversation.contacts.find( c => {
+               return c.id === conversation.invitingContactId
+            });
+            const notification = new Notification("You are added to a conversation!",
                 {
-                    body: 'Wanna speak?',
+                    body: 'Click to speak with ' + invitingContact.firstName + '!',
                     icon: 'https://storage.googleapis.com/teleport_public_assets/fav.ico/apple-icon-180x180.png',
-                    image: 'https://storage.googleapis.com/teleport_public_assets/fav.ico/apple-icon-180x180.png'
+                    image: invitingContact.profilePiture
                 });
             notification.onclick = function() {
                 window.focus();
@@ -105,7 +108,7 @@ const Conversation = function ({displayInformationalText}) {
                 });
             }
         }
-    }, [conversation.wasAdded, conversation.contacts, notified]);
+    }, [conversation.invitingContactId, conversation.contacts, notified]);
 
     console.log('Conversation with contacts:\n', contacts);
     return (
