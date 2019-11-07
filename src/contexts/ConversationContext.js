@@ -43,9 +43,9 @@ export const ConversationContextProvider = function ({children}) {
     const [, message, socketData, sendMessage] = useSocket(authState, CONVERSATION_SOCKET);
     useEffect( () => {
         if(message === CONVERSATION_SOCKET_INCOMING_MESSAGES.JOIN_CONVERSATION && socketData){
-            const {channel} = socketData;
+            const {channel, invitingContactId} = socketData;
             console.debug(`Incoming conversation: ${channel}`);
-            dispatch(joinConversation(channel));
+            dispatch(joinConversation(channel, invitingContactId));
         }
     }, [message, socketData]);
 

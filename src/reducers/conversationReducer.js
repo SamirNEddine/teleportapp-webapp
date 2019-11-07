@@ -47,10 +47,11 @@ export function startConversation(channel) {
         channel
     }
 }
-export function joinConversation(channel) {
+export function joinConversation(channel, invitingContactId) {
     return {
         type: Actions.JOIN_CONVERSATION,
-        channel
+        channel,
+        invitingContactId
     }
 }
 export function leaveConversation() {
@@ -175,6 +176,7 @@ export const conversationReducer = function (state, action) {
             newState = {
                 channel: action.channel,
                 isCreator: false,
+                invitingContactId: action.invitingContactId,
                 contacts: [],
                 connectingWithContact: null,
                 remoteStreams: {},
@@ -200,7 +202,8 @@ export const conversationReducer = function (state, action) {
                 muteAudio: true,
                 closeConversationScreen: false,
                 loudestContactId: null,
-                selectingContact: false
+                selectingContact: false,
+                invitingContactId: null,
             };
             break;
         case Actions.CLOSE_CONVERSATION_AFTER_LAST_CONTACT_LEFT:
@@ -370,6 +373,7 @@ export const conversationReducer = function (state, action) {
                 ...state,
                 selectingContact: false,
                 connectingWithContact: null,
+                invitingContactId: null,
                 analytics:  [...state.analytics, {eventName: AnalyticsEvents.ADD_CONTACT_ABORTED_AFTER_TIMEOUT, eventProperties: {conversationId: state.channel, contactId: state.connectingWithContact}}]
             };
             break;
